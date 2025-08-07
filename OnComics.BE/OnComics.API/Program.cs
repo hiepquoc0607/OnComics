@@ -1,4 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using OnComics.Library.Model.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+#region DBContext
+builder.Services.AddDbContext<OnComicsDatabaseContext>(options =>
+{
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")!);
+});
+#endregion
 
 // Add services to the container.
 
