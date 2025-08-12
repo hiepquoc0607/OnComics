@@ -10,9 +10,4 @@
     <ProjectReference Include="..\OnComics.Library\OnComics.Library.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Implement\" />
-    <Folder Include="Interface\" />
-  </ItemGroup>
-
 </Project>
