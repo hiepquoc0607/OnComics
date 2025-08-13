@@ -9,7 +9,7 @@ namespace OnComics.Repository.Interface
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             int? pageNumber = null,
             int? pageSize = null,
-            bool disableTracking = true);
+            bool isTracking = false);
 
         Task<T?> GetByIdAsync(object id);
 

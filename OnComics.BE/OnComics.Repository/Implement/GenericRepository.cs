@@ -8,27 +8,26 @@ namespace OnComics.Repository.Implement
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly OnComicsDatabaseContext _context;
+        protected readonly OnComicsDatabaseContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository()
+        public GenericRepository(OnComicsDatabaseContext context)
         {
             _context = new OnComicsDatabaseContext();
             _dbSet = _context.Set<T>();
 
         }
 
-        public async Task<IEnumerable<T>?> GetAsync(Expression<Func<T,
-            bool>>? filter = null,
-            Func<IQueryable<T>,
-            IOrderedQueryable<T>>? orderBy = null,
+        public async Task<IEnumerable<T>?> GetAsync(
+            Expression<Func<T, bool>>? filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             int? pageNumber = null,
             int? pageSize = null,
-            bool disableTracking = true)
+            bool isTracking = false)
         {
             IQueryable<T> query = _dbSet;
 
-            if (disableTracking)
+            if (!isTracking)
                 query = query.AsNoTracking();
 
             if (filter != null)

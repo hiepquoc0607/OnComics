@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OnComics.Library.Model.Data;
+using OnComics.Repository.Implement;
+using OnComics.Repository.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,10 @@ builder.Services.AddDbContext<OnComicsDatabaseContext>(options =>
 #endregion
 
 // Add services to the container.
+
+#region Inject Repository
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+#endregion
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
