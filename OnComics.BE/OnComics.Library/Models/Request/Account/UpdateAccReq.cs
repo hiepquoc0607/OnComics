@@ -1,0 +1,15 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace OnComics.Library.Model.Request.Account
+{
+    public class UpdateAccReq
+    {
+        [Required]
+        public string Fullname { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime Dob { get; set; }
+
+        public string? ImgUrl { get; set; } = string.Empty;
+    }
+}

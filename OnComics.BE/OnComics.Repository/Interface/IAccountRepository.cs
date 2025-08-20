@@ -10,6 +10,8 @@ namespace OnComics.Repository.Interface
 
         Task<Account?> GetAccountByIdAsync(int id, bool isTracking);
 
+        Task<Account?> GetAccountByEmailAsync(string email);
+
         Task CreateAccountAsync(Account acc);
 
         Task UpdateAccountAsync(Account acc);
