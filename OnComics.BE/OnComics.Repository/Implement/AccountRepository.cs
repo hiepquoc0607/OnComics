@@ -70,6 +70,18 @@ namespace OnComics.Repository.Implement
             }
         }
 
+        public async Task<Account?> GetAccountByEmailAsync(string email)
+        {
+            try
+            {
+                return await _context.Accounts.AsNoTracking().SingleOrDefaultAsync(a => a.Email.Equals(email));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public async Task CreateAccountAsync(Account acc)
         {
             await InsertAsync(acc);
