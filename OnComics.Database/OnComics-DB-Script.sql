@@ -23,12 +23,12 @@ CREATE TABLE Account (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Fullname NVARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
-    PassWordHash TEXT NOT NULL,
+    PasswordHash TEXT NOT NULL,
     Dob DATE NOT NULL,
     Gender VARCHAR(10) NOT NULL,
     ImgUrl TEXT NULL,
-    IsGoogle BIT NOT NULL,
-    IsVerified BIT NOT NULL,
+    IsGoogle BOOL CHECK(IsGoogle IN (0,1)) NOT NULL,
+    IsVerified BOOL CHECK(IsVerified IN (0,1)) NOT NULL,
     RefreshToken TEXT NULL,
     TokenExpireTime DATETIME NULL,
     FCMToken TEXT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE Comic (
     WeekReadNum INT NOT NULL,
     MonthReadNum INT NOT NULL,
     TotalReadNum INT NOT NULL,
-    IsNovel BIT NOT NULL,
+    IsNovel BOOL CHECK(IsNovel IN (0,1)) NOT NULL,
     Status VARCHAR(10) NOT NULL
 );
 
@@ -93,7 +93,7 @@ CREATE TABLE ChapterSource (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     ComicId INT NOT NULL,
     SrcUrl TEXT NOT NULL,
-    IsEditable BIT NOT NULL,
+    IsEditable BOOL CHECK(IsEditable IN (0,1)) NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id)
 );
