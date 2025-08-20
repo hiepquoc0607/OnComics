@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS Interaction,
                      Comment, 
                      ComicRating,
                      ComicCategory,
+                     ChapterSource,
                      Chapter,
                      InteractionType,
                      LeaderBoardType,
@@ -81,11 +82,18 @@ CREATE TABLE Chapter (
     ComicId INT NOT NULL,
     ChapNo INT NOT NULL,
     Name NVARCHAR(100) NULL,
-    ViewUrl TEXT NOT NULL,
-    SrcUrl TEXT NOT NULL,
     ReadNum INT NOT NULL,
     ReleaseTime DATETIME NOT NULL,
     Status VARCHAR(10) NOT NULL,
+    FOREIGN KEY (ComicId)
+        REFERENCES Comic (Id)
+);
+
+CREATE TABLE ChapterSource (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    ComicId INT NOT NULL,
+    SrcUrl TEXT NOT NULL,
+    IsEditable BIT NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id)
 );
