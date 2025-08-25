@@ -1,5 +1,5 @@
-﻿using OnComics.Library.Model.Request.Account;
-using OnComics.Library.Model.Response.Account;
+﻿using OnComics.Library.Models.Request.Account;
+using OnComics.Library.Models.Response.Account;
 using OnComics.Library.Models.Response.General;
 
 namespace OnComics.Service.Interface

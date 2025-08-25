@@ -1,4 +1,4 @@
-﻿namespace OnComics.Library.Model.Data;
+﻿namespace OnComics.Library.Models.Data;
 
 public partial class Account
 {
@@ -8,7 +8,7 @@ public partial class Account
 
     public string Email { get; set; } = null!;
 
-    public string PassWordHash { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
     public DateTime Dob { get; set; }
 
@@ -16,9 +16,9 @@ public partial class Account
 
     public string? ImgUrl { get; set; }
 
-    public ulong IsGoogle { get; set; }
+    public bool IsGoogle { get; set; }
 
-    public ulong IsVerified { get; set; }
+    public bool IsVerified { get; set; }
 
     public string? RefreshToken { get; set; }
 

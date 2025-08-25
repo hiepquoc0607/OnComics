@@ -1,7 +1,7 @@
 ﻿using Mapster;
 using MapsterMapper;
-using OnComics.Library.Model.Request.Account;
-using OnComics.Library.Model.Response.Account;
+using OnComics.Library.Models.Request.Account;
+using OnComics.Library.Models.Response.Account;
 using OnComics.Library.Models.Response.General;
 using OnComics.Library.Utils.Utils;
 using OnComics.Repository.Interface;

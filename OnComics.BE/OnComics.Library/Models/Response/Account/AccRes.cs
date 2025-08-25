@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OnComics.Library.Model.Response.Account
+namespace OnComics.Library.Models.Response.Account
 {
     public class AccRes
     {

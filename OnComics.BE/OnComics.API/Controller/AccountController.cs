@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OnComics.Library.Model.Request.Account;
+using OnComics.Library.Models.Request.Account;
 using OnComics.Service.Interface;
 using System.Security.Claims;
 

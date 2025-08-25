@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace OnComics.Library.Model.Data;
+namespace OnComics.Library.Models.Data;
 
 public partial class OnComicsDatabaseContext : DbContext
 {
@@ -19,6 +19,8 @@ public partial class OnComicsDatabaseContext : DbContext
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Chapter> Chapters { get; set; }
+
+    public virtual DbSet<Chaptersource> Chaptersources { get; set; }
 
     public virtual DbSet<Comic> Comics { get; set; }
 
@@ -46,7 +48,7 @@ public partial class OnComicsDatabaseContext : DbContext
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
         IConfiguration configuration = builder.Build();
-        optionsBuilder.UseMySQL(configuration.GetConnectionString("DefaultConnection")!);
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,9 +69,7 @@ public partial class OnComicsDatabaseContext : DbContext
             entity.Property(e => e.Fullname).HasMaxLength(100);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.ImgUrl).HasColumnType("text");
-            entity.Property(e => e.IsGoogle).HasColumnType("bit(1)");
-            entity.Property(e => e.IsVerified).HasColumnType("bit(1)");
-            entity.Property(e => e.PassWordHash).HasColumnType("text");
+            entity.Property(e => e.PasswordHash).HasColumnType("text");
             entity.Property(e => e.RefreshToken).HasColumnType("text");
             entity.Property(e => e.Role).HasMaxLength(10);
             entity.Property(e => e.Status).HasMaxLength(10);
@@ -99,14 +99,28 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.ReleaseTime).HasColumnType("datetime");
-            entity.Property(e => e.SrcUrl).HasColumnType("text");
             entity.Property(e => e.Status).HasMaxLength(10);
-            entity.Property(e => e.ViewUrl).HasColumnType("text");
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.ComicId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("chapter_ibfk_1");
+        });
+
+        modelBuilder.Entity<Chaptersource>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("chaptersource");
+
+            entity.HasIndex(e => e.ComicId, "ComicId");
+
+            entity.Property(e => e.SrcUrl).HasColumnType("text");
+
+            entity.HasOne(d => d.Comic).WithMany(p => p.Chaptersources)
+                .HasForeignKey(d => d.ComicId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("chaptersource_ibfk_1");
         });
 
         modelBuilder.Entity<Comic>(entity =>
@@ -117,7 +131,6 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.Property(e => e.Author).HasMaxLength(100);
             entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.IsNovel).HasColumnType("bit(1)");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Rating).HasPrecision(3, 1);
             entity.Property(e => e.ReleaseDate).HasColumnType("date");

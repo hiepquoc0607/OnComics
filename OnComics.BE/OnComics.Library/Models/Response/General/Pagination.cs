@@ -1,4 +1,4 @@
-﻿namespace OnComics.Library.Model.Response.General
+﻿namespace OnComics.Library.Models.Response.General
 {
     public class Pagination
     {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnComics.Library.Model.Request.Account
+namespace OnComics.Library.Models.Request.Account
 {
     public enum AccSortOption
     {

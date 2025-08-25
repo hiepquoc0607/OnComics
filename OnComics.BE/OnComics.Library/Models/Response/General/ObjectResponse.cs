@@ -1,5 +1,4 @@
-﻿using OnComics.Library.Model.Response.General;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace OnComics.Library.Models.Response.General
