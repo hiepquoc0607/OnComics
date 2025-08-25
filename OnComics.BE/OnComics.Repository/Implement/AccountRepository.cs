@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnComics.Library.Model.Data;
-using OnComics.Library.Model.Request.Account;
-using OnComics.Library.Model.Response.General;
+using OnComics.Library.Models.Data;
+using OnComics.Library.Models.Request.Account;
+using OnComics.Library.Models.Response.General;
 using OnComics.Repository.Interface;
 using System.Linq.Expressions;
 
@@ -13,7 +13,7 @@ namespace OnComics.Repository.Implement
         {
         }
 
-        public async Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccReq getAccReq)
+        public async Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccountReq getAccReq)
         {
             string? searchKey = getAccReq.SearchKey;
             bool isDescending = getAccReq.IsDescending;
@@ -74,7 +74,7 @@ namespace OnComics.Repository.Implement
         {
             try
             {
-                return await _context.Accounts.AsNoTracking().SingleOrDefaultAsync(a => a.Email.Equals(email));
+                return await _context.Accounts.SingleOrDefaultAsync(a => a.Email.Equals(email));
             }
             catch (Exception)
             {

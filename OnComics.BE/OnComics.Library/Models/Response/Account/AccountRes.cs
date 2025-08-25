@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OnComics.Library.Model.Response.Account
+namespace OnComics.Library.Models.Response.Account
 {
-    public class AccRes
+    public class AccountRes
     {
         public int Id { get; set; }
 
@@ -10,7 +10,7 @@ namespace OnComics.Library.Model.Response.Account
 
         public string Email { get; set; } = null!;
 
-        public string PassWordHash { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
 
         public DateTime Dob { get; set; }
 

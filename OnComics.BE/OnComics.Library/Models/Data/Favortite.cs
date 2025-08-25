@@ -1,4 +1,4 @@
-﻿namespace OnComics.Library.Model.Data;
+﻿namespace OnComics.Library.Models.Data;
 
 public partial class Favortite
 {

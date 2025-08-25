@@ -1,4 +1,4 @@
-﻿namespace OnComics.Library.Model.Data;
+﻿namespace OnComics.Library.Models.Data;
 
 public partial class Chapter
 {
@@ -9,10 +9,6 @@ public partial class Chapter
     public int ChapNo { get; set; }
 
     public string? Name { get; set; }
-
-    public string ViewUrl { get; set; } = null!;
-
-    public string SrcUrl { get; set; } = null!;
 
     public int ReadNum { get; set; }
 

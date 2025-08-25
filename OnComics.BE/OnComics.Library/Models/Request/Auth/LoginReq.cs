@@ -2,17 +2,8 @@
 
 namespace OnComics.Library.Models.Request.Auth
 {
-    public enum Gender
+    public class LoginReq
     {
-        MALE,
-        FEMALE
-    }
-
-    public class CreateAccReq
-    {
-        [Required]
-        public string Fullname { get; set; } = string.Empty;
-
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
@@ -20,11 +11,5 @@ namespace OnComics.Library.Models.Request.Auth
         [Required]
         [MinLength(8)]
         public string Password { get; set; } = string.Empty;
-
-        [Required]
-        public DateTime Dob { get; set; }
-
-        [Required]
-        public Gender Gender { get; set; }
     }
 }

@@ -1,12 +1,12 @@
-﻿using OnComics.Library.Model.Data;
-using OnComics.Library.Model.Request.Account;
-using OnComics.Library.Model.Response.General;
+﻿using OnComics.Library.Models.Data;
+using OnComics.Library.Models.Request.Account;
+using OnComics.Library.Models.Response.General;
 
 namespace OnComics.Repository.Interface
 {
     public interface IAccountRepository : IGenericRepository<Account>
     {
-        Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccReq getAccReq);
+        Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccountReq getAccReq);
 
         Task<Account?> GetAccountByIdAsync(int id, bool isTracking);
 

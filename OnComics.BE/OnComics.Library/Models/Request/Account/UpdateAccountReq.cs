@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OnComics.Library.Model.Request.Account
+namespace OnComics.Library.Models.Request.Account
 {
-    public class UpdateAccReq
+    public class UpdateAccountReq
     {
         [Required]
         public string Fullname { get; set; } = string.Empty;

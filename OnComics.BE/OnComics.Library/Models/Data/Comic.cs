@@ -1,4 +1,4 @@
-﻿namespace OnComics.Library.Model.Data;
+﻿namespace OnComics.Library.Models.Data;
 
 public partial class Comic
 {
@@ -32,11 +32,13 @@ public partial class Comic
 
     public int TotalReadNum { get; set; }
 
-    public ulong IsNovel { get; set; }
+    public bool IsNovel { get; set; }
 
     public string Status { get; set; } = null!;
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
+
+    public virtual ICollection<Chaptersource> Chaptersources { get; set; } = new List<Chaptersource>();
 
     public virtual ICollection<Comiccategory> Comiccategories { get; set; } = new List<Comiccategory>();
 
