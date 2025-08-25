@@ -6,7 +6,7 @@ namespace OnComics.Repository.Interface
 {
     public interface IAccountRepository : IGenericRepository<Account>
     {
-        Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccReq getAccReq);
+        Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccountReq getAccReq);
 
         Task<Account?> GetAccountByIdAsync(int id, bool isTracking);
 

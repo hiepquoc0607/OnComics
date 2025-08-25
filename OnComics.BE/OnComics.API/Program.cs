@@ -110,6 +110,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 #region Inject Service
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 #endregion
 
 #region Inject Utils

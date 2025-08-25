@@ -26,45 +26,31 @@ namespace OnComics.Service.Implement
         }
 
         //Get All Account
-        public async Task<ObjectResponse<IEnumerable<AccRes>?>> GetAccountsAsync(GetAccReq getAccReq)
+        public async Task<ObjectResponse<IEnumerable<AccountRes>?>> GetAccountsAsync(GetAccountReq getAccReq)
         {
             var (accounts, pagination) = await _accountRepository.GetAccountsAsync(getAccReq);
 
-            if (accounts == null) return new ObjectResponse<IEnumerable<AccRes>?>("Error", 404, "Account Data Empty!");
+            if (accounts == null) return new ObjectResponse<IEnumerable<AccountRes>?>("Error", 404, "Account Data Empty!");
 
-            var data = accounts.Adapt<IEnumerable<AccRes>>();
+            var data = accounts.Adapt<IEnumerable<AccountRes>>();
 
-            return new ObjectResponse<IEnumerable<AccRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
+            return new ObjectResponse<IEnumerable<AccountRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
         }
 
         //Get Account By Id
-        public async Task<ObjectResponse<AccRes?>> GetAccountByIdAsync(int id)
+        public async Task<ObjectResponse<AccountRes?>> GetAccountByIdAsync(int id)
         {
             var account = await _accountRepository.GetAccountByIdAsync(id, false);
 
-            if (account == null) return new ObjectResponse<AccRes?>("Error", 404, "Account Not Found!");
+            if (account == null) return new ObjectResponse<AccountRes?>("Error", 404, "Account Not Found!");
 
-            var data = account.Adapt<AccRes>();
+            var data = account.Adapt<AccountRes>();
 
-            return new ObjectResponse<AccRes?>("Success", 200, "Fetch Data Successfully!", data);
+            return new ObjectResponse<AccountRes?>("Success", 200, "Fetch Data Successfully!", data);
         }
 
-        //Get Account By Email
-        //public async Task<ObjectResponse<AccRes?>> GetAccountByEmailAsync(string email)
-        //{
-        //    var input = email.Trim().ToLowerInvariant();
-
-        //    var account = await _accountRepository.GetAccountByEmailAsync(email);
-
-        //    if (account == null) return new ObjectResponse<AccRes?>("Error", 404, "Account Not Found!");
-
-        //    var data = account.Adapt<AccRes>();
-
-        //    return new ObjectResponse<AccRes?>("Success", 200, "Fetch Data Successfully!", data);
-        //}
-
         //Update Account
-        public async Task<VoidResponse> UpdateAccountAsync(int id, UpdateAccReq updateAccReq)
+        public async Task<VoidResponse> UpdateAccountAsync(int id, UpdateAccountReq updateAccReq)
         {
             var oldAccount = await _accountRepository.GetAccountByIdAsync(id, true);
 
@@ -81,7 +67,7 @@ namespace OnComics.Service.Implement
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Account Fail!\n\nError Message:\n" + ex);
+                return new VoidResponse("Error", 400, "Update Account Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -100,7 +86,7 @@ namespace OnComics.Service.Implement
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Delete Account Fail!\nError Message:\n" + ex);
+                return new VoidResponse("Error", 400, "Delete Account Fail!, Error Message:\n\n" + ex);
             }
         }
     }

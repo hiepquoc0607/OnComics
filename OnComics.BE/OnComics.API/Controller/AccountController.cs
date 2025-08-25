@@ -15,21 +15,20 @@ namespace OnComics.API.Controller
             _accountService = accountService;
         }
 
+        //Get Accounts
         //[Authorize(Policy = "Admin")]
         [HttpGet]
         [Route("api/accounts")]
-        public async Task<IActionResult> GetAccountsAsync([FromQuery] GetAccReq getAccReq)
+        public async Task<IActionResult> GetAccountsAsync([FromQuery] GetAccountReq getAccReq)
         {
             var result = await _accountService.GetAccountsAsync(getAccReq);
 
-            if (result.StatusCode != 200)
-            {
-                return StatusCode(result.StatusCode, result);
-            }
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
 
             return Ok(result);
         }
 
+        //Get Account By Id
         //[Authorize]
         [HttpGet]
         [Route("api/accounts/{id}")]
@@ -37,36 +36,29 @@ namespace OnComics.API.Controller
         {
             var result = await _accountService.GetAccountByIdAsync(id);
 
-            if (result.StatusCode != 200)
-            {
-                return StatusCode(result.StatusCode, result);
-            }
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
 
             return Ok(result);
         }
 
+        //Update Account
         //[Authorize]
         [HttpPut]
         [Route("api/accounts/{id}")]
-        public async Task<IActionResult> UpdateAccountAsync([FromRoute] int id, UpdateAccReq updateAccReq)
+        public async Task<IActionResult> UpdateAccountAsync([FromRoute] int id, UpdateAccountReq updateAccReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
-            {
-                return Forbid();
-            }
+            if (userIdClaim == null || !userIdClaim.Equals(id.ToString())) return Forbid();
 
             var result = await _accountService.UpdateAccountAsync(id, updateAccReq);
 
-            if (result.StatusCode != 200)
-            {
-                return StatusCode(result.StatusCode, result);
-            }
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
 
             return Ok(result);
         }
 
+        //Delete Account
         //[Authorize]
         [HttpDelete]
         [Route("api/accounts/{id}")]
@@ -74,10 +66,7 @@ namespace OnComics.API.Controller
         {
             var result = await _accountService.DeleteAccountAsync(id);
 
-            if (result.StatusCode != 200)
-            {
-                return StatusCode(result.StatusCode, result);
-            }
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
 
             return Ok(result);
         }

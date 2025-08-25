@@ -16,7 +16,7 @@ namespace OnComics.Library.Models.Request.Account
         INACTIVE
     }
 
-    public class GetAccReq
+    public class GetAccountReq
     {
         public string? SearchKey { get; set; }
 
