@@ -93,6 +93,7 @@ CREATE TABLE ChapterSource (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     ComicId INT NOT NULL,
     SrcUrl TEXT NOT NULL,
+    Arrangement INT NOT NULL,
     IsEditable BOOL CHECK(IsEditable IN (0,1)) NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id)
