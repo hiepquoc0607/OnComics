@@ -111,6 +111,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 #region Inject Service
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMailService, MailService>();
 #endregion
 
 #region Inject Utils
@@ -125,6 +126,15 @@ config.Scan(AppDomain.CurrentDomain.GetAssemblies());
 //Register Mapster Service 
 builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, ServiceMapper>();
+#endregion
+
+#region Logger
+builder.Services.AddLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.AddDebug();
+});
 #endregion
 
 var app = builder.Build();

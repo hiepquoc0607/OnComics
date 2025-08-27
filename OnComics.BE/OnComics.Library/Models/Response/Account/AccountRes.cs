@@ -12,7 +12,7 @@ namespace OnComics.Library.Models.Response.Account
 
         public string PasswordHash { get; set; } = null!;
 
-        public DateTime Dob { get; set; }
+        public DateOnly Dob { get; set; }
 
         public string Gender { get; set; } = null!;
 
