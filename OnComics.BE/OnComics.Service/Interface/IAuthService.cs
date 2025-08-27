@@ -12,5 +12,13 @@ namespace OnComics.Service.Interface
         Task<ObjectResponse<AccountRes>> RegisterAsync(RegisterReq registerReq);
 
         Task<ObjectResponse<AuthRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq);
+
+        Task<VoidResponse> RequestResetPasswordAsync(string email);
+
+        Task<VoidResponse> ResetPasswordAsync(InfoQuery infoQuery, ResetPassReq resetPassReq);
+
+        Task<VoidResponse> RequestConfirmEmailAsync(int id);
+
+        Task<VoidResponse> ConfirmEmailAsync(InfoQuery infoQuery);
     }
 }
