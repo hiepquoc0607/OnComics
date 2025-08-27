@@ -26,7 +26,7 @@ namespace OnComics.Library.Models.Request.Auth
         public string ConfirmPassword { get; set; } = string.Empty;
 
         [Required]
-        public DateTime Dob { get; set; }
+        public DateOnly Dob { get; set; }
 
         [Required]
         public Gender Gender { get; set; }

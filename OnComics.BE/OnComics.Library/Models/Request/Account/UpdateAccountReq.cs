@@ -8,7 +8,7 @@ namespace OnComics.Library.Models.Request.Account
         public string Fullname { get; set; } = string.Empty;
 
         [Required]
-        public DateTime Dob { get; set; }
+        public DateOnly Dob { get; set; }
 
         public string? ImgUrl { get; set; } = string.Empty;
     }
