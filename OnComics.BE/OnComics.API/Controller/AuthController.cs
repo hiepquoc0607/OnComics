@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OnComics.Library.Models.Request.Auth;
 using OnComics.Service.Interface;
 
@@ -47,6 +46,64 @@ namespace OnComics.API.Controller
             if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
 
             return Ok(result);
+        }
+
+        //Request Reset Password
+        [HttpPost("request-reset-password")]
+        public async Task<IActionResult> RequestResetPasswordAsync([FromBody] EmailReq emailReq)
+        {
+            var result = await _authService.RequestResetPasswordAsync(emailReq.Email);
+
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
+
+            return Ok(result);
+        }
+
+        //Reset Password
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync(
+            [FromQuery] InfoQuery infoQuery,
+            [FromQuery] ResetPassReq resetPassReq)
+        {
+            var result = await _authService.ResetPasswordAsync(infoQuery, resetPassReq);
+
+            //Frontend Reset Success Page URL
+            var url = "https://localhost:3000/success";
+
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? link))
+                return BadRequest("Invalid URL Format!");
+
+            return Ok(link.ToString());
+        }
+
+        //Request Confirm Email
+        [HttpPost("{id}/request-confirm-email")]
+        public async Task<IActionResult> RequestConfirmEmailAsync([FromRoute] int id)
+        {
+            var result = await _authService.RequestConfirmEmailAsync(id);
+
+            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
+
+            return Ok(result);
+        }
+
+        //Confirm Email
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmailAsync([FromBody] InfoQuery infoQuery)
+        {
+            var result = await _authService.ConfirmEmailAsync(infoQuery);
+
+            //Frontend Success URL
+            var successUrl = "https://localhost:3000/success";
+
+            //Frontend Fail URL
+            var failUrl = "https://localhost:3000/fail?" + infoQuery.AccountId;
+
+            if (result.StatusCode != 200) return Redirect(failUrl);
+
+            return Redirect(successUrl);
         }
     }
 }
