@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnComics.Library.Models.Request.Account;
+using OnComics.Library.Utils.Constants;
 using OnComics.Service.Interface;
 using System.Security.Claims;
 
@@ -16,35 +18,38 @@ namespace OnComics.API.Controller
         }
 
         //Get Accounts
-        //[Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Admin")]
         [HttpGet]
-        [Route("api/accounts")]
+        [Route("api/account")]
         public async Task<IActionResult> GetAccountsAsync([FromQuery] GetAccountReq getAccReq)
         {
             var result = await _accountService.GetAccountsAsync(getAccReq);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Get Account By Id
-        //[Authorize]
+        [Authorize(Policy = "User")]
         [HttpGet]
-        [Route("api/accounts/{id}")]
+        [Route("api/account/{id}")]
         public async Task<IActionResult> GetAccountByIdAsync([FromRoute] int id)
         {
+            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userIdClaim == null || userRoleClaim == null ||
+                (!userIdClaim.Equals(id.ToString()) && !userRoleClaim.Equals(RoleConstant.ADMIN)))
+                return Forbid();
+
             var result = await _accountService.GetAccountByIdAsync(id);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Update Account
-        //[Authorize]
+        [Authorize(Policy = "User")]
         [HttpPut]
-        [Route("api/accounts/{id}")]
+        [Route("api/account/{id}")]
         public async Task<IActionResult> UpdateAccountAsync([FromRoute] int id, UpdateAccountReq updateAccReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -53,22 +58,33 @@ namespace OnComics.API.Controller
 
             var result = await _accountService.UpdateAccountAsync(id, updateAccReq);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
+            return StatusCode(result.StatusCode, result);
+        }
 
-            return Ok(result);
+        //Update Password
+        [Authorize(Policy = "User")]
+        [HttpPut]
+        [Route("api/account/{id}/password")]
+        public async Task<IActionResult> UpdatePasswordAsync([FromRoute] int id, UpdatePasswordReq updatePasswordReq)
+        {
+            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null || !userIdClaim.Equals(id.ToString())) return Forbid();
+
+            var result = await _accountService.UpdatePasswordAsync(id, updatePasswordReq);
+
+            return StatusCode(result.StatusCode, result);
         }
 
         //Delete Account
-        //[Authorize]
+        [Authorize(Policy = "User")]
         [HttpDelete]
-        [Route("api/accounts/{id}")]
+        [Route("api/account/{id}")]
         public async Task<IActionResult> DeleteAccountAsync([FromRoute] int id)
         {
             var result = await _accountService.DeleteAccountAsync(id);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

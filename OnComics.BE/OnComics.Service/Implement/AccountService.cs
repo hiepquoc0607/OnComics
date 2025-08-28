@@ -71,6 +71,31 @@ namespace OnComics.Service.Implement
             }
         }
 
+        //Update Password
+        public async Task<VoidResponse> UpdatePasswordAsync(int id, UpdatePasswordReq updatePasswordReq)
+        {
+            var account = await _accountRepository.GetAccountByIdAsync(id, true);
+
+            if (account == null) return new VoidResponse("Error", 404, "Account Not Found!");
+
+            var newPass = _util.HashPassword(updatePasswordReq.NewPassword);
+
+            account.PasswordHash = newPass;
+            account.RefreshToken = string.Empty;
+            account.TokenExpireTime = null;
+
+            try
+            {
+                await _accountRepository.UpdateAccountAsync(account);
+
+                return new VoidResponse("Success", 200, "Update New Password Successfully!");
+            }
+            catch (Exception ex)
+            {
+                return new VoidResponse("Error", 400, "Update New Password Fail!, Error Message:\n\n" + ex);
+            }
+        }
+
         //Delete Account
         public async Task<VoidResponse> DeleteAccountAsync(int id)
         {

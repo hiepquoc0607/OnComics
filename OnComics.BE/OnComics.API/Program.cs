@@ -143,13 +143,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "OnComics"));
 }
 
 app.UseSwagger();
 
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "OnComics"));
+app.UseSwaggerUI(c =>
+{
+    // Hides the "Schemas" section at the bottom
+    c.DefaultModelsExpandDepth(-1);
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "OnComics");
+});
 
 app.UseHttpsRedirection();
 

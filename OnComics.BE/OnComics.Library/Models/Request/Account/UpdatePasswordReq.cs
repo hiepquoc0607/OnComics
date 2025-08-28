@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnComics.Library.Models.Request.Auth
+namespace OnComics.Library.Models.Request.Account
 {
-    public class ResetPassReq
+    public class UpdatePasswordReq
     {
         [Required]
         [MinLength(8)]
