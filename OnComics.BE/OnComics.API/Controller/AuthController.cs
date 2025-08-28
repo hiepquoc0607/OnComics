@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnComics.Library.Models.Request.Auth;
 using OnComics.Service.Interface;
+using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
@@ -21,9 +23,7 @@ namespace OnComics.API.Controller
         {
             var result = await _authService.LoginAsync(loginReq);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Register
@@ -32,9 +32,7 @@ namespace OnComics.API.Controller
         {
             var result = await _authService.RegisterAsync(registerReq);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Refresh Token
@@ -43,9 +41,7 @@ namespace OnComics.API.Controller
         {
             var result = await _authService.RefreshTokenAsync(refreshTokenReq);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Request Reset Password
@@ -54,9 +50,7 @@ namespace OnComics.API.Controller
         {
             var result = await _authService.RequestResetPasswordAsync(emailReq.Email);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Reset Password
@@ -79,14 +73,17 @@ namespace OnComics.API.Controller
         }
 
         //Request Confirm Email
+        [Authorize(Policy = "User")]
         [HttpPost("{id}/request-confirm-email")]
         public async Task<IActionResult> RequestConfirmEmailAsync([FromRoute] int id)
         {
+            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null || !userIdClaim.Equals(id.ToString())) return Forbid();
+
             var result = await _authService.RequestConfirmEmailAsync(id);
 
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         //Confirm Email

@@ -10,9 +10,9 @@ namespace OnComics.Service.Interface
 
         Task<ObjectResponse<AccountRes?>> GetAccountByIdAsync(int id);
 
-        //Task<ObjectResponse<AccRes?>> GetAccountByEmailAsync(string email);
-
         Task<VoidResponse> UpdateAccountAsync(int id, UpdateAccountReq updateAccReq);
+
+        Task<VoidResponse> UpdatePasswordAsync(int id, UpdatePasswordReq updatePasswordReq);
 
         Task<VoidResponse> DeleteAccountAsync(int id);
     }
