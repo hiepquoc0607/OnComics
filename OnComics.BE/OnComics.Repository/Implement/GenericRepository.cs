@@ -18,17 +18,14 @@ namespace OnComics.Repository.Implement
 
         }
 
+        //Get All
         public async Task<IEnumerable<T>?> GetAsync(
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             int? pageNumber = null,
-            int? pageSize = null,
-            bool isTracking = false)
+            int? pageSize = null)
         {
-            IQueryable<T> query = _dbSet;
-
-            if (!isTracking)
-                query = query.AsNoTracking();
+            IQueryable<T> query = _dbSet.AsNoTracking();
 
             if (filter != null)
                 query = query.Where(filter);
@@ -43,16 +40,20 @@ namespace OnComics.Repository.Implement
             return await query.ToListAsync();
         }
 
+        //Get By Id
         public async Task<T?> GetByIdAsync(object id)
         {
             return await _dbSet.FindAsync(id);
         }
 
+
+        //Insert
         public async Task InsertAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
         }
 
+        // Bulk (Range) Insert
         public async Task InsertRangeAsync(IEnumerable<T> entities)
         {
             // Default bulk insert of EF:
@@ -61,6 +62,7 @@ namespace OnComics.Repository.Implement
             await _context.BulkInsertAsync(entities);
         }
 
+        //Update
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Attach(entity);
@@ -68,6 +70,7 @@ namespace OnComics.Repository.Implement
             await _context.SaveChangesAsync();
         }
 
+        //Delete Ojbect
         public async Task DeleteAsync(T entity)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
@@ -78,6 +81,7 @@ namespace OnComics.Repository.Implement
             await _context.SaveChangesAsync();
         }
 
+        //Delete By Id
         public async Task DeleteAsync(object id)
         {
             var entity = await GetByIdAsync(id);
@@ -88,6 +92,7 @@ namespace OnComics.Repository.Implement
             await _context.SaveChangesAsync();
         }
 
+        //Bulk (Range) Delete 
         public async Task DeleteRangeAsync(IEnumerable<T> entities)
         {
             // Default bulk delete of EF:
@@ -96,6 +101,7 @@ namespace OnComics.Repository.Implement
             await _context.BulkDeleteAsync(entities);
         }
 
+        //Run Transaction Operation
         public async Task RunTransactionAsync(Func<Task> operations)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())

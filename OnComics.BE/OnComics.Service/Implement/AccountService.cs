@@ -1,8 +1,10 @@
 ﻿using Mapster;
 using MapsterMapper;
 using OnComics.Library.Models.Request.Account;
+using OnComics.Library.Models.Request.General;
 using OnComics.Library.Models.Response.Account;
-using OnComics.Library.Models.Response.General;
+using OnComics.Library.Models.Response.Api;
+using OnComics.Library.Utils.Constants;
 using OnComics.Library.Utils.Utils;
 using OnComics.Repository.Interface;
 using OnComics.Service.Interface;
@@ -96,6 +98,31 @@ namespace OnComics.Service.Implement
             }
         }
 
+        //Update Status
+        public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<AccStatus> updateStatusReq)
+        {
+            var account = await _accountRepository.GetAccountByIdAsync(id, true);
+
+            if (account == null) return new VoidResponse("Error", 404, "Account Not Found!");
+
+            account.Status = updateStatusReq.Status switch
+            {
+                AccStatus.INACTIVE => StatusConstant.INACTIVE,
+                _ => StatusConstant.ACTIVE
+            };
+
+            try
+            {
+                await _accountRepository.UpdateAccountAsync(account);
+
+                return new VoidResponse("Success", 200, "Update New Status Successfully!");
+            }
+            catch (Exception ex)
+            {
+                return new VoidResponse("Error", 400, "Update New Status Fail!, Error Message:\n\n" + ex);
+            }
+        }
+
         //Delete Account
         public async Task<VoidResponse> DeleteAccountAsync(int id)
         {
@@ -105,7 +132,7 @@ namespace OnComics.Service.Implement
 
             try
             {
-                await _accountRepository.RemoveAccountAsync(id);
+                await _accountRepository.DeleteAccountAsync(id);
 
                 return new VoidResponse("Success", 200, "Delete Account Successfully!");
             }

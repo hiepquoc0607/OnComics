@@ -1,6 +1,6 @@
 ﻿using OnComics.Library.Models.Data;
 using OnComics.Library.Models.Request.Account;
-using OnComics.Library.Models.Response.General;
+using OnComics.Library.Models.Response.Api;
 
 namespace OnComics.Repository.Interface
 {
@@ -16,12 +16,8 @@ namespace OnComics.Repository.Interface
 
         Task UpdateAccountAsync(Account acc);
 
-        Task RemoveAccountAsync(int id);
+        Task DeleteAccountAsync(int id);
 
-        Task<bool> IsEmailExistedAsync(string email);
-
-        Task<int> GetAccountMaxIdAsync();
-
-        Task<int> CountAccountAsync();
+        Task<bool> CheckEmailExistedAsync(string email);
     }
 }

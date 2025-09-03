@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" version="28.0.6" pages="2">
   <diagram name="Concept" id="LxHpAskSShNXjR_tK1-C">
-    <mxGraphModel dx="1678" dy="989" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="815" dy="481" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -22,7 +22,7 @@
         <mxCell id="gk5g-zlZK2QT4UQ1TNVB-6" value="Comment" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
           <mxGeometry x="520" y="560" width="80" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="gk5g-zlZK2QT4UQ1TNVB-7" value="Comic&lt;div&gt;Category&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
+        <mxCell id="gk5g-zlZK2QT4UQ1TNVB-7" value="Category" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
           <mxGeometry x="360" y="800" width="80" height="40" as="geometry" />
         </mxCell>
         <mxCell id="gk5g-zlZK2QT4UQ1TNVB-8" value="Interaction&lt;br&gt;Category" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
@@ -162,10 +162,10 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="XEfFDuPNlScJ65KKMCOn-1" value="Chapter&lt;div&gt;Source&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="1">
+        <mxCell id="XEfFDuPNlScJ65KKMCOn-1" value="Chapter&lt;div&gt;Source&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
           <mxGeometry x="200" y="320" width="80" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="XEfFDuPNlScJ65KKMCOn-2" value="" style="endArrow=ERmany;html=1;rounded=0;startArrow=ERone;startFill=0;endFill=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="gk5g-zlZK2QT4UQ1TNVB-11" target="XEfFDuPNlScJ65KKMCOn-1">
+        <mxCell id="XEfFDuPNlScJ65KKMCOn-2" value="" style="endArrow=ERmany;html=1;rounded=0;startArrow=ERone;startFill=0;endFill=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="gk5g-zlZK2QT4UQ1TNVB-11" target="XEfFDuPNlScJ65KKMCOn-1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="130" y="610" as="sourcePoint" />
             <mxPoint x="130" y="690" as="targetPoint" />
@@ -179,7 +179,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Logical" id="4bntTcNdG-rY5Mxn2uRs">
-    <mxGraphModel dx="1426" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2593" dy="1529" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="28UaIlEWJ0oRYPHF6_ZH-0" />
         <mxCell id="28UaIlEWJ0oRYPHF6_ZH-1" parent="28UaIlEWJ0oRYPHF6_ZH-0" />
