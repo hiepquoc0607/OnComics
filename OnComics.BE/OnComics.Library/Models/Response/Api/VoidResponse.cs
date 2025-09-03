@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace OnComics.Library.Models.Response.General
+namespace OnComics.Library.Models.Response.Api
 {
     public class VoidResponse
     {

@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Models\Request\General\**" />
-    <EmbeddedResource Remove="Models\Request\General\**" />
-    <None Remove="Models\Request\General\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="EFCore.BulkExtensions" Version="8.1.3" />
     <PackageReference Include="MailKit" Version="4.13.0" />
@@ -31,6 +25,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
     <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\Request\Category\" />
   </ItemGroup>
 
 </Project>

@@ -8,8 +8,7 @@ namespace OnComics.Repository.Interface
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             int? pageNumber = null,
-            int? pageSize = null,
-            bool isTracking = false);
+            int? pageSize = null);
 
         Task<T?> GetByIdAsync(object id);
 

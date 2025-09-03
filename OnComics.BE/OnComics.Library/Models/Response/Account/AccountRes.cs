@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace OnComics.Library.Models.Response.Account
 {
@@ -17,20 +18,20 @@ namespace OnComics.Library.Models.Response.Account
         public string Gender { get; set; } = null!;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? ImgUrl { get; set; }
+        public string? ImgUrl { get; set; } = string.Empty;
 
         public ulong IsGoogle { get; set; }
 
         public ulong IsVerified { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? RefreshToken { get; set; }
+        public string? RefreshToken { get; set; } = string.Empty;
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? TokenExpireTime { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Fcmtoken { get; set; }
+        public string? Fcmtoken { get; set; } = string.Empty;
 
         public string Role { get; set; } = null!;
 

@@ -1,7 +1,7 @@
 ﻿using OnComics.Library.Models.Request.Auth;
 using OnComics.Library.Models.Response.Account;
 using OnComics.Library.Models.Response.Auth;
-using OnComics.Library.Models.Response.General;
+using OnComics.Library.Models.Response.Api;
 
 namespace OnComics.Service.Interface
 {

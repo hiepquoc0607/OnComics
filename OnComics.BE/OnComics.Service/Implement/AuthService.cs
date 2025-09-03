@@ -5,7 +5,7 @@ using OnComics.Library.Models.Data;
 using OnComics.Library.Models.Request.Auth;
 using OnComics.Library.Models.Response.Account;
 using OnComics.Library.Models.Response.Auth;
-using OnComics.Library.Models.Response.General;
+using OnComics.Library.Models.Response.Api;
 using OnComics.Library.Utils.Utils;
 using OnComics.Repository.Interface;
 using OnComics.Service.Interface;
@@ -124,7 +124,7 @@ namespace OnComics.Service.Implement
             if (passErrorMessage.TryGetValue(passError, out var message))
                 return new ObjectResponse<AccountRes>("Error", 400, message);
 
-            var isEmailExisted = await _accountRepository.IsEmailExistedAsync(registerReq.Email);
+            var isEmailExisted = await _accountRepository.CheckEmailExistedAsync(registerReq.Email);
 
             if (isEmailExisted) return new ObjectResponse<AccountRes>("Error", 400, "Email Has Already Been Used!");
 
