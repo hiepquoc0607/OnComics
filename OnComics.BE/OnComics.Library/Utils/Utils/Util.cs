@@ -73,5 +73,16 @@ namespace OnComics.Library.Utils.Utils
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
         #endregion
+
+        #region Number Ultils
+        //Compare 2 Int Array And Get Differ
+        public int[] CompareIntArray(int[] a, int[] b)
+        {
+            HashSet<int> setB = new HashSet<int>(b);
+
+            return a.Where(x => !setB.Contains(x)).ToArray();
+        }
+        #endregion
+
     }
 }

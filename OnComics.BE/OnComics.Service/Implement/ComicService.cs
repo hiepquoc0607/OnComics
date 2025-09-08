@@ -4,7 +4,6 @@ using OnComics.Library.Models.Data;
 using OnComics.Library.Models.Request.Comic;
 using OnComics.Library.Models.Request.General;
 using OnComics.Library.Models.Response.Api;
-using OnComics.Library.Models.Response.Chapter;
 using OnComics.Library.Models.Response.Comic;
 using OnComics.Library.Utils.Constants;
 using OnComics.Library.Utils.Utils;
@@ -16,15 +15,18 @@ namespace OnComics.Service.Implement
     public class ComicService : IComicService
     {
         private readonly IComicRepository _comicRepository;
+        private readonly IChapterRepository _chapterRepository;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
         public ComicService(
             IComicRepository comicRepository,
+            IChapterRepository chapterRepository,
             IMapper mapper,
             Util util)
         {
             _comicRepository = comicRepository;
+            _chapterRepository = chapterRepository;
             _mapper = mapper;
             _util = util;
         }
@@ -42,17 +44,13 @@ namespace OnComics.Service.Implement
         }
 
         //Get Comic By Id
-        public async Task<ObjectResponse<ComicRes?>> GetComicByIdAsync(GetComicByIdReq getComicByIdReq)
+        public async Task<ObjectResponse<ComicRes?>> GetComicByIdAsync(int id)
         {
-            var comic = await _comicRepository.GetComicByIdNoTrackingAsync(getComicByIdReq.Id);
+            var comic = await _comicRepository.GetComicByIdNoTrackingAsync(id);
 
             if (comic == null) return new ObjectResponse<ComicRes?>("Error", 404, "Comic Not Found!");
 
             var data = comic.Adapt<ComicRes>();
-
-            var chapters = new List<ChapterRes>();
-
-            data.Chapters = chapters;
 
             return new ObjectResponse<ComicRes?>("Error", 200, "Fetch Data Successfully!", data);
         }

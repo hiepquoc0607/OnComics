@@ -29,9 +29,9 @@ namespace OnComics.API.Controller
         //Get Comic By Id
         [HttpGet]
         [Route("api/comic/{id}")]
-        public async Task<IActionResult> GetComicByIdAsync([FromRoute] GetComicByIdReq getComicByIdReq)
+        public async Task<IActionResult> GetComicByIdAsync([FromRoute] int id)
         {
-            var result = await _comicService.GetComicByIdAsync(getComicByIdReq);
+            var result = await _comicService.GetComicByIdAsync(id);
 
             return StatusCode(result.StatusCode, result);
         }

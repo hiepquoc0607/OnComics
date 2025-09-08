@@ -2,7 +2,7 @@
 {
     public class StatusConstant
     {
-        //Account Status
+        //Account And Chapter Status
         public const string ACTIVE = "ACTIVE";
         public const string INACTIVE = "INACTIVE";
 
@@ -10,5 +10,8 @@
         public const string ONGOING = "ONGOING";
         public const string UPCOMING = "UPCOMING";
         public const string FINISHED = "FINISHED";
+
+        //Chapter Status
+        public const string ERROR = "ERROR";
     }
 }

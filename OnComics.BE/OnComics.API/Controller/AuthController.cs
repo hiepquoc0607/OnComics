@@ -61,15 +61,7 @@ namespace OnComics.API.Controller
         {
             var result = await _authService.ResetPasswordAsync(infoQuery, resetPassReq);
 
-            //Frontend Reset Success Page URL
-            var url = "https://localhost:3000/success";
-
-            if (result.StatusCode != 200) return StatusCode(result.StatusCode, result);
-
-            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? link))
-                return BadRequest("Invalid URL Format!");
-
-            return Ok(link.ToString());
+            return StatusCode(result.StatusCode, result);
         }
 
         //Request Confirm Email
@@ -92,15 +84,7 @@ namespace OnComics.API.Controller
         {
             var result = await _authService.ConfirmEmailAsync(infoQuery);
 
-            //Frontend Success URL
-            var successUrl = "https://localhost:3000/success";
-
-            //Frontend Fail URL
-            var failUrl = "https://localhost:3000/fail?" + infoQuery.AccountId;
-
-            if (result.StatusCode != 200) return Redirect(failUrl);
-
-            return Redirect(successUrl);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

@@ -1,12 +1,22 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnComics.Library.Models.Request.Comic
+namespace OnComics.Library.Models.Request.Chapter
 {
-    public class GetComicByIdReq
+    public enum ChapStatus
+    {
+        ACTIVE,
+        INACTIVE,
+        ERROR
+    }
+
+    public class GetChapterReq
     {
         [Required]
-        public int Id { get; set; }
+        public int ComicId { get; set; }
+
+        [DefaultValue(null)]
+        public ChapStatus? Status { get; set; }
 
         [Required]
         [DefaultValue(false)]

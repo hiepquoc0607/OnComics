@@ -4,6 +4,7 @@ using OnComics.Library.Models.Request.Comic;
 using OnComics.Library.Models.Response.Api;
 using OnComics.Library.Models.Response.Category;
 using OnComics.Library.Models.Response.Comic;
+using OnComics.Library.Utils.Constants;
 using OnComics.Repository.Interface;
 using System.Linq.Expressions;
 
@@ -19,6 +20,15 @@ namespace OnComics.Repository.Implement
         public async Task<(IEnumerable<Comic>?, Pagination)> GetComicsAsync(GetComicReq getComicReq)
         {
             string? searchKey = getComicReq.SearchKey;
+
+            string? status = getComicReq.Status switch
+            {
+                ComicStatus.ONGOING => StatusConstant.ONGOING,
+                ComicStatus.UPCOMING => StatusConstant.UPCOMING,
+                ComicStatus.FINISHED => StatusConstant.FINISHED,
+                _ => null
+            };
+
             bool isDescending = getComicReq.IsDescending;
 
             int pageNum = getComicReq.PageNum;
@@ -27,7 +37,8 @@ namespace OnComics.Repository.Implement
             int totalPage = (int)Math.Ceiling((decimal)totalData / getComicReq.PageIndex);
 
             Expression<Func<Comic, bool>>? search = c =>
-                (!string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%"));
+                (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%")) &&
+                (string.IsNullOrEmpty(status) || c.Status.Equals(status));
 
             Func<IQueryable<Comic>, IOrderedQueryable<Comic>>? order = a => getComicReq.SortBy switch
             {
@@ -129,8 +140,7 @@ namespace OnComics.Repository.Implement
                     MonthReadNum = c.MonthReadNum,
                     TotalReadNum = c.TotalReadNum,
                     IsNovel = c.IsNovel,
-                    Status = c.Status,
-                    Chapters = null,
+                    Status = c.Status
                 })
                 .FirstOrDefaultAsync();
             }
@@ -166,6 +176,23 @@ namespace OnComics.Repository.Implement
                 .AnyAsync(c =>
                     EF.Functions.Like(c.Name, $"%{name}%") &&
                     EF.Functions.Like(c.Author, $"%{author}%"));
+        }
+
+        //Check If Comic Is Existed By Id
+        public async Task<bool> CheckComicIdAsync(int id)
+        {
+            return await _context.Comics
+                .AsNoTracking()
+                .AnyAsync(c => c.Id == id);
+        }
+
+        //Get All Comic Ids
+        public async Task<int[]> GetComicIdsAsync()
+        {
+            return await _context.Comics
+                .AsNoTracking()
+                .Select(c => c.Id)
+                .ToArrayAsync();
         }
     }
 }

@@ -2,6 +2,7 @@
 using OnComics.Library.Models.Data;
 using OnComics.Library.Models.Request.Account;
 using OnComics.Library.Models.Response.Api;
+using OnComics.Library.Utils.Constants;
 using OnComics.Repository.Interface;
 using System.Linq.Expressions;
 
@@ -17,6 +18,14 @@ namespace OnComics.Repository.Implement
         public async Task<(IEnumerable<Account>?, Pagination)> GetAccountsAsync(GetAccountReq getAccReq)
         {
             string? searchKey = getAccReq.SearchKey;
+
+            string? status = getAccReq.Status switch
+            {
+                AccStatus.ACTIVE => StatusConstant.ACTIVE,
+                AccStatus.INACTIVE => StatusConstant.INACTIVE,
+                _ => null
+            };
+
             bool isDescending = getAccReq.IsDescending;
 
             int pageNum = getAccReq.PageNum;
@@ -25,8 +34,9 @@ namespace OnComics.Repository.Implement
             int totalPage = (int)Math.Ceiling((decimal)totalData / getAccReq.PageIndex);
 
             Expression<Func<Account, bool>>? search = a =>
-                (!string.IsNullOrEmpty(searchKey) || EF.Functions.Like(a.Email, $"%{searchKey}%")) &&
-                (!string.IsNullOrEmpty(searchKey) || EF.Functions.Like(a.Fullname, $"%{searchKey}%"));
+                (string.IsNullOrEmpty(searchKey) || (EF.Functions.Like(a.Email, $"%{searchKey}%") ||
+                                                    EF.Functions.Like(a.Fullname, $"%{searchKey}%"))) &&
+                (string.IsNullOrEmpty(status) || a.Status.Equals(status));
 
             Func<IQueryable<Account>, IOrderedQueryable<Account>>? order = a => getAccReq.SortBy switch
             {
