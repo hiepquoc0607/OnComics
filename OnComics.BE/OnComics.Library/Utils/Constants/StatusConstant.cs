@@ -2,7 +2,7 @@
 {
     public class StatusConstant
     {
-        //Account And Chapter Status
+        //General Status
         public const string ACTIVE = "ACTIVE";
         public const string INACTIVE = "INACTIVE";
 

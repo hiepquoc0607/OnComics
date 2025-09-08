@@ -1,17 +1,25 @@
-﻿namespace OnComics.Library.Models.Request.Comic
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace OnComics.Library.Models.Request.Comic
 {
     public class UpdateComicReq
     {
-        public string Name { get; set; } = null!;
+        [Required]
+        public string Name { get; set; } = string.Empty;
 
-        public string Description { get; set; } = null!;
+        [Required]
+        public string Description { get; set; } = string.Empty;
 
-        public string Author { get; set; } = null!;
+        [Required]
+        public string Author { get; set; } = string.Empty;
 
+        [Required]
         public DateTime ReleaseDate { get; set; }
 
-        public string ThumbnailUrl { get; set; } = null!;
+        [Required]
+        public string ThumbnailUrl { get; set; } = string.Empty;
 
+        [Required]
         public bool IsNovel { get; set; }
     }
 }

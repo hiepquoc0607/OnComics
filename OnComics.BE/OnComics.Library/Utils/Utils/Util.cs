@@ -29,6 +29,14 @@ namespace OnComics.Library.Utils.Utils
 
             return result.ToString();
         }
+
+        //Compare 2 String Array And Get Differ
+        public string[] CompareStringArray(string[] a, string[] b)
+        {
+            HashSet<string> setB = new HashSet<string>(b);
+
+            return a.Where(x => setB.Contains(x)).ToArray();
+        }
         #endregion
 
         #region Password Utils

@@ -109,6 +109,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IComicRepository, ComicRepository>();
 builder.Services.AddScoped<IComicCategoryRepository, ComicCategoryRepository>();
 builder.Services.AddScoped<IChapterRepository, ChapterRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 #endregion
 
 #region Inject Service
@@ -117,6 +118,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IComicService, ComicService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 #endregion
 
 #region Inject Utils

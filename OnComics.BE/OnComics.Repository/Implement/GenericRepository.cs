@@ -46,7 +46,6 @@ namespace OnComics.Repository.Implement
             return await _dbSet.FindAsync(id);
         }
 
-
         //Insert
         public async Task InsertAsync(T entity)
         {

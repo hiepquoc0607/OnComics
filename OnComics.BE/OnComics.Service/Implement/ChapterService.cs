@@ -128,7 +128,7 @@ namespace OnComics.Service.Implement
         //Update Chapter
         public async Task<VoidResponse> UpdateChapterAsync(int id, UpdateChapterReq updateChapterReq)
         {
-            var oldChapter = await _chapterRepository.GetByIdAsync(id);
+            var oldChapter = await _chapterRepository.GetChapterByIdAsync(id, true);
 
             if (oldChapter == null) return new VoidResponse("Error", 404, "Chapter Not Found!");
 
@@ -154,7 +154,7 @@ namespace OnComics.Service.Implement
         //Update Chapter Status
         public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<ChapStatus> updateStatusReq)
         {
-            var chapter = await _chapterRepository.GetByIdAsync(id);
+            var chapter = await _chapterRepository.GetChapterByIdAsync(id, true);
 
             if (chapter == null) return new VoidResponse("Error", 404, "Chapter Not Found!");
 
@@ -180,7 +180,7 @@ namespace OnComics.Service.Implement
         //Delete Chapter
         public async Task<VoidResponse> DeleteChapterAsync(int id)
         {
-            var chapter = await _chapterRepository.GetByIdAsync(id);
+            var chapter = await _chapterRepository.GetChapterByIdAsync(id, true);
 
             if (chapter == null) return new VoidResponse("Error", 404, "Chapter Not Found!");
 
