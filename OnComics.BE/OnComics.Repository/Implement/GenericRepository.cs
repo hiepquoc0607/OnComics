@@ -51,6 +51,8 @@ namespace OnComics.Repository.Implement
         public async Task InsertAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
+
+            await _context.SaveChangesAsync();
         }
 
         // Bulk (Range) Insert
@@ -60,6 +62,8 @@ namespace OnComics.Repository.Implement
             //await _dbSet.AddRangeAsync(entities);
             // For high performance bulk insert (require EF BulkExtensions package):
             await _context.BulkInsertAsync(entities);
+
+            await _context.SaveChangesAsync();
         }
 
         //Update
@@ -67,6 +71,7 @@ namespace OnComics.Repository.Implement
         {
             _dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
+
             await _context.SaveChangesAsync();
         }
 
@@ -99,6 +104,8 @@ namespace OnComics.Repository.Implement
             //_dbSet.RemoveRange(entities);
             // For high performance bulk delete (require EF BulkExtensions package):
             await _context.BulkDeleteAsync(entities);
+
+            await _context.SaveChangesAsync();
         }
 
         //Run Transaction Operation

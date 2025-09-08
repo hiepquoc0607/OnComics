@@ -9,7 +9,7 @@ namespace OnComics.Service.Interface
     {
         Task<ObjectResponse<IEnumerable<ComicRes>?>> GetComicsAsync(GetComicReq getComicReq);
 
-        Task<ObjectResponse<ComicRes?>> GetComicByIdAsync(GetComicByIdReq getComicByIdReq);
+        Task<ObjectResponse<ComicRes?>> GetComicByIdAsync(int id);
 
         Task<ObjectResponse<ComicRes>> CreateComicAsync(CreateComicReq createComicReq);
 

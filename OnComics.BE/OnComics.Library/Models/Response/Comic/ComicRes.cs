@@ -42,8 +42,5 @@ namespace OnComics.Library.Models.Response.Comic
         public bool IsNovel { get; set; }
 
         public string Status { get; set; } = null!;
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ICollection<ChapterRes>? Chapters { get; set; } = null;
     }
 }

@@ -20,5 +20,9 @@ namespace OnComics.Repository.Interface
         Task DeleteComicAsync(int id);
 
         Task<bool> CheckComicExistedAsync(string name, string author);
+
+        Task<bool> CheckComicIdAsync(int id);
+
+        Task<int[]> GetComicIdsAsync();
     }
 }
