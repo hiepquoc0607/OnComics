@@ -113,7 +113,7 @@ CREATE TABLE ComicRating (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     AccountId INT NOT NULL,
     ComicId INT NOT NULL,
-    Rating DECIMAL(3 , 1 ) NOT NULL,
+    Rating DECIMAL(2,1) NOT NULL CHECK (Rating >= 0.0 AND Rating <= 5.0),
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ComicId)
