@@ -63,7 +63,7 @@ CREATE TABLE Category (
     Status VARCHAR(10) NOT NULL
 );
 
-CREATE TABLE LeaderBoardType (
+CREATE TABLE LeaderboardType (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
     Description TEXT NULL,
@@ -126,6 +126,7 @@ CREATE TABLE Comment (
     ComicId INT NOT NULL,
     Content TEXT NOT NULL,
     IsMainCmt BIT NOT NULL,
+    MainCmtId INT NULL,
     CmtTime DATETIME NOT NULL,
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
@@ -133,7 +134,7 @@ CREATE TABLE Comment (
         REFERENCES Comic (Id)
 );
 
-CREATE TABLE Favortite (
+CREATE TABLE Favorite (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     AccountId INT NOT NULL,
     ComicId INT NOT NULL,
@@ -154,11 +155,11 @@ CREATE TABLE History (
         REFERENCES Chapter (Id)
 );
 
-CREATE TABLE LeaderBoard (
+CREATE TABLE Leaderboard (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     ComicId INT NOT NULL,
     TypeId INT NOT NULL,
-    OrderNum INT NOT NULL,
+    RankNo INT NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id),
     FOREIGN KEY (TypeId)
@@ -176,5 +177,5 @@ CREATE TABLE Interaction (
     FOREIGN KEY (CommentId)
         REFERENCES Comment (Id),
     FOREIGN KEY (TypeId)
-        REFERENCES LeaderBoardType (Id)
+        REFERENCES InteractionType (Id)
 );
