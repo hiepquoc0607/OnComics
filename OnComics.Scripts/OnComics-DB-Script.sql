@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS Interaction,
                      ChapterSource,
                      Chapter,
                      InteractionType,
-                     LeaderBoardType,
+                     LeaderboardType,
                      Category,
                      Comic,
                      Account;
