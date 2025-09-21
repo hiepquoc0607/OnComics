@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OnComics.Service\OnComics.Service.csproj" />
+    <ProjectReference Include="..\OnComics.Application\OnComics.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

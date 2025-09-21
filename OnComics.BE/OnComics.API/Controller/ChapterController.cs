@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnComics.Library.Models.Request.Chapter;
-using OnComics.Library.Models.Request.General;
-using OnComics.Service.Interface;
+using OnComics.Application.Enums.Chapter;
+using OnComics.Application.Models.Request.Chapter;
+using OnComics.Application.Models.Request.General;
+using OnComics.Application.Services.Interfaces;
 
 namespace OnComics.API.Controller
 {
@@ -17,6 +18,7 @@ namespace OnComics.API.Controller
             _chapterService = chapterService;
         }
 
+        //Get All Chapters
         [HttpGet]
         [Route("api/chapter")]
         public async Task<IActionResult> GetChaptersByComicIdAsync([FromQuery] GetChapterReq getChapterReq)
@@ -26,6 +28,7 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Get Chapter By Id
         [HttpGet]
         [Route("api/chapter/{id}")]
         public async Task<IActionResult> GetChapterByIdAsync([FromRoute] int id)
@@ -35,6 +38,7 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Create Chapter
         [Authorize(Policy = "Admin")]
         [HttpPost]
         [Route("api/chapter")]
@@ -45,6 +49,7 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Bulk(Range) Create Chapters
         [Authorize(Policy = "Admin")]
         [HttpPost]
         [Route("api/chapter/bulk")]
@@ -55,6 +60,7 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Update Chapter
         [Authorize(Policy = "Admin")]
         [HttpPut]
         [Route("api/chapter/{id}")]
@@ -65,18 +71,18 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Update Chapter Status
         [Authorize(Policy = "Admin")]
-        [HttpPut]
+        [HttpPatch]
         [Route("api/chapter/{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] int id,
-            [FromBody] UpdateStatusReq<ChapStatus> updateStatusReq)
+        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<ChapterStatus> updateStatusReq)
         {
             var result = await _chapterService.UpdateStatusAsync(id, updateStatusReq);
 
             return StatusCode(result.StatusCode, result);
         }
 
+        //Delete Chapter
         [Authorize(Policy = "Admin")]
         [HttpDelete]
         [Route("api/chapter/{id}")]
