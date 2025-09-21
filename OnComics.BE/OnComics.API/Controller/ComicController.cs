@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnComics.Library.Models.Request.Comic;
-using OnComics.Library.Models.Request.General;
-using OnComics.Service.Interface;
+using OnComics.Application.Enums.Comic;
+using OnComics.Application.Models.Request.Comic;
+using OnComics.Application.Models.Request.General;
+using OnComics.Application.Services.Interfaces;
 
 namespace OnComics.API.Controller
 {
@@ -60,11 +61,9 @@ namespace OnComics.API.Controller
 
         //Update Comic Status
         [Authorize(Policy = "Admin")]
-        [HttpPut]
+        [HttpPatch]
         [Route("api/comic/{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] int id,
-            [FromBody] UpdateStatusReq<ComicStatus> updateStatusReq)
+        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<ComicStatus> updateStatusReq)
         {
             var result = await _comicService.UpdateStatusAsync(id, updateStatusReq);
 

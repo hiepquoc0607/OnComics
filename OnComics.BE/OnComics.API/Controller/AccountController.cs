@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnComics.Library.Models.Request.Account;
-using OnComics.Library.Models.Request.General;
-using OnComics.Library.Utils.Constants;
-using OnComics.Service.Interface;
+using OnComics.Application.Constants;
+using OnComics.Application.Enums.Account;
+using OnComics.Application.Models.Request.Account;
+using OnComics.Application.Models.Request.General;
+using OnComics.Application.Services.Interfaces;
 using System.Security.Claims;
 
 namespace OnComics.API.Controller
@@ -64,7 +65,7 @@ namespace OnComics.API.Controller
 
         //Update Password
         [Authorize(Policy = "User")]
-        [HttpPut]
+        [HttpPatch]
         [Route("api/account/{id}/password")]
         public async Task<IActionResult> UpdatePasswordAsync([FromRoute] int id, [FromBody] UpdatePasswordReq updatePasswordReq)
         {
@@ -77,11 +78,11 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
-        //Update Password
+        //Update Account Status
         [Authorize(Policy = "Admin")]
-        [HttpPut]
+        [HttpPatch]
         [Route("api/account/{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromQuery] UpdateStatusReq<AccStatus> updateStatusReq)
+        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromQuery] UpdateStatusReq<AccountStatus> updateStatusReq)
         {
 
             var result = await _accountService.UpdateStatusAsync(id, updateStatusReq);

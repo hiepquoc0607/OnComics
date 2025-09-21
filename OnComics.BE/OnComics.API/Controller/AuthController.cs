@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnComics.Library.Models.Request.Auth;
-using OnComics.Service.Interface;
+using OnComics.Application.Models.Request.Auth;
+using OnComics.Application.Services.Interfaces;
 using System.Security.Claims;
 
 namespace OnComics.API.Controller
