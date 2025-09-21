@@ -22,7 +22,7 @@ namespace OnComics.API.Controller
         //Get Accounts
         [Authorize(Policy = "Admin")]
         [HttpGet]
-        [Route("api/account")]
+        [Route("api/accounts")]
         public async Task<IActionResult> GetAccountsAsync([FromQuery] GetAccountReq getAccReq)
         {
             var result = await _accountService.GetAccountsAsync(getAccReq);
@@ -33,7 +33,7 @@ namespace OnComics.API.Controller
         //Get Account By Id
         [Authorize(Policy = "User")]
         [HttpGet]
-        [Route("api/account/{id}")]
+        [Route("api/accounts/{id}")]
         public async Task<IActionResult> GetAccountByIdAsync([FromRoute] int id)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -51,7 +51,7 @@ namespace OnComics.API.Controller
         //Update Account
         [Authorize(Policy = "User")]
         [HttpPut]
-        [Route("api/account/{id}")]
+        [Route("api/accounts/{id}")]
         public async Task<IActionResult> UpdateAccountAsync([FromRoute] int id, [FromBody] UpdateAccountReq updateAccReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -66,7 +66,7 @@ namespace OnComics.API.Controller
         //Update Password
         [Authorize(Policy = "User")]
         [HttpPatch]
-        [Route("api/account/{id}/password")]
+        [Route("api/accounts/{id}/password")]
         public async Task<IActionResult> UpdatePasswordAsync([FromRoute] int id, [FromBody] UpdatePasswordReq updatePasswordReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -81,7 +81,7 @@ namespace OnComics.API.Controller
         //Update Account Status
         [Authorize(Policy = "Admin")]
         [HttpPatch]
-        [Route("api/account/{id}/status")]
+        [Route("api/accounts/{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromQuery] UpdateStatusReq<AccountStatus> updateStatusReq)
         {
 
@@ -93,7 +93,7 @@ namespace OnComics.API.Controller
         //Delete Account
         [Authorize(Policy = "User")]
         [HttpDelete]
-        [Route("api/account/{id}")]
+        [Route("api/accounts/{id}")]
         public async Task<IActionResult> DeleteAccountAsync([FromRoute] int id)
         {
             var result = await _accountService.DeleteAccountAsync(id);

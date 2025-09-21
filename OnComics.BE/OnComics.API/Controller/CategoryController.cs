@@ -19,7 +19,7 @@ namespace OnComics.API.Controller
 
         //Get All Categories
         [HttpGet]
-        [Route("api/category")]
+        [Route("api/categories")]
         public async Task<IActionResult> GetCategoriesAsync([FromQuery] GetCategoryReq getCategoryReq)
         {
             var result = await _categoryService.GetCategoriesAsync(getCategoryReq);
@@ -29,7 +29,7 @@ namespace OnComics.API.Controller
 
         //Get Category By Id
         [HttpGet]
-        [Route("api/category/{id}")]
+        [Route("api/categories/{id}")]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
             var result = await _categoryService.GetCategoryByIdAsync(id);
@@ -40,7 +40,7 @@ namespace OnComics.API.Controller
         //Create Category
         [Authorize(Policy = "Admin")]
         [HttpPost]
-        [Route("api/category")]
+        [Route("api/categories")]
         public async Task<IActionResult> CreateCategoryAsync([FromBody] CreateCategoryReq createCategoryReq)
         {
             var result = await _categoryService.CreateCategoryAsync(createCategoryReq);
@@ -51,7 +51,7 @@ namespace OnComics.API.Controller
         //Bulk(Range) Create Categories
         [Authorize(Policy = "Admin")]
         [HttpPost]
-        [Route("api/category/bulk")]
+        [Route("api/categories/bulk")]
         public async Task<IActionResult> CreateCategoriesAsync([FromBody] List<CreateCategoryReq> categories)
         {
             var result = await _categoryService.CreateCategoriesAsync(categories);
@@ -62,7 +62,7 @@ namespace OnComics.API.Controller
         //Update Category
         [Authorize(Policy = "Admin")]
         [HttpPut]
-        [Route("api/category/{id}")]
+        [Route("api/categories/{id}")]
         public async Task<IActionResult> UpdateCategoryAsync([FromRoute] int id, [FromBody] UpdateCategoryReq updateCategoryReq)
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryReq);
@@ -73,7 +73,7 @@ namespace OnComics.API.Controller
         //Update Category Status
         [Authorize(Policy = "Admin")]
         [HttpPatch]
-        [Route("api/category/{id}/status")]
+        [Route("api/categories/{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<CategoryStatus> updateStatusReq)
         {
             var result = await _categoryService.UpdateStatusAsync(id, updateStatusReq);
@@ -84,7 +84,7 @@ namespace OnComics.API.Controller
         //Delete Category
         [Authorize(Policy = "Admin")]
         [HttpDelete]
-        [Route("api/category/{id}")]
+        [Route("api/categories/{id}")]
         public async Task<IActionResult> DeleteCategoryAsync([FromRoute] int id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
