@@ -5,18 +5,26 @@ namespace OnComics.Application.Models.Response.Common
 {
     public class ObjectResponse<T>
     {
-        public ObjectResponse(string status, int statusCode, string message, T? data, Pagination? pagination = null)
+        public ObjectResponse(int statusCode, string message, T? data, Pagination? pagination = null)
         {
-            Status = status;
+            Status = statusCode switch
+            {
+                >= 200 and < 300 => "Success",
+                _ => "Error"
+            };
             StatusCode = statusCode;
             Message = message;
             Data = data;
             Pagination = pagination;
         }
 
-        public ObjectResponse(string status, int statusCode, string message)
+        public ObjectResponse(int statusCode, string message)
         {
-            Status = status;
+            Status = statusCode switch
+            {
+                >= 200 and < 300 => "Success",
+                _ => "Error"
+            };
             StatusCode = statusCode;
             Message = message;
         }

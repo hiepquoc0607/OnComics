@@ -12,6 +12,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Domains;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -70,7 +71,10 @@ namespace OnComics.Application.Services.Implements
 
             var accounts = await _accountRepository.GetAsync(search, order, pageNum, pageIndex);
 
-            if (accounts == null) return new ObjectResponse<IEnumerable<AccountRes>?>("Error", 404, "Account Data Empty!");
+            if (accounts == null)
+                return new ObjectResponse<IEnumerable<AccountRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Account Data Empty!");
 
             var data = accounts.Adapt<IEnumerable<AccountRes>>();
 
@@ -78,7 +82,11 @@ namespace OnComics.Application.Services.Implements
             int totalPage = (int)Math.Ceiling((decimal)totalData / getAccReq.PageIndex);
             var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
-            return new ObjectResponse<IEnumerable<AccountRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
+            return new ObjectResponse<IEnumerable<AccountRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data,
+                pagination);
         }
 
         //Get Account By Id
@@ -86,11 +94,17 @@ namespace OnComics.Application.Services.Implements
         {
             var account = await _accountRepository.GetByIdAsync(id);
 
-            if (account == null) return new ObjectResponse<AccountRes?>("Error", 404, "Account Not Found!");
+            if (account == null)
+                return new ObjectResponse<AccountRes?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Account Not Found!");
 
             var data = account.Adapt<AccountRes>();
 
-            return new ObjectResponse<AccountRes?>("Success", 200, "Fetch Data Successfully!", data);
+            return new ObjectResponse<AccountRes?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data);
         }
 
         //Update Account
@@ -98,7 +112,10 @@ namespace OnComics.Application.Services.Implements
         {
             var oldAccount = await _accountRepository.GetByIdAsync(id, true);
 
-            if (oldAccount == null) return new VoidResponse("Error", 404, "Account Not Found!");
+            if (oldAccount == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Account Not Found!");
 
             var newAccount = _mapper.Map(updateAccReq, oldAccount);
             newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
@@ -107,11 +124,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _accountRepository.UpdateAsync(newAccount);
 
-                return new VoidResponse("Success", 200, "Update Account Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Account Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Account Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Account Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -120,7 +141,10 @@ namespace OnComics.Application.Services.Implements
         {
             var account = await _accountRepository.GetByIdAsync(id, true);
 
-            if (account == null) return new VoidResponse("Error", 404, "Account Not Found!");
+            if (account == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Account Not Found!");
 
             var newPass = _util.HashPassword(updatePasswordReq.NewPassword);
 
@@ -132,11 +156,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _accountRepository.UpdateAsync(account);
 
-                return new VoidResponse("Success", 200, "Update New Password Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update New Password Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update New Password Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update New Password Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -145,7 +173,10 @@ namespace OnComics.Application.Services.Implements
         {
             var account = await _accountRepository.GetByIdAsync(id, true);
 
-            if (account == null) return new VoidResponse("Error", 404, "Account Not Found!");
+            if (account == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Account Not Found!");
 
             account.Status = updateStatusReq.Status switch
             {
@@ -157,11 +188,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _accountRepository.UpdateAsync(account);
 
-                return new VoidResponse("Success", 200, "Update New Status Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update New Status Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update New Status Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update New Status Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -170,17 +205,24 @@ namespace OnComics.Application.Services.Implements
         {
             var account = await _accountRepository.GetByIdAsync(id);
 
-            if (account == null) return new VoidResponse("Error", 404, "Account Not Found!");
+            if (account == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Account Not Found!");
 
             try
             {
                 await _accountRepository.DeleteAsync(id);
 
-                return new VoidResponse("Success", 200, "Delete Account Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Delete Account Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Delete Account Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Delete Account Fail!, Error Message:\n\n" + ex);
             }
         }
     }
