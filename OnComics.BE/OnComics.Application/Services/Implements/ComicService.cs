@@ -12,6 +12,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Domains;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -97,7 +98,10 @@ namespace OnComics.Application.Services.Implements
 
             var comics = await _comicRepository.GetAsync(search, order, pageNum, pageIndex);
 
-            if (comics == null) return new ObjectResponse<IEnumerable<ComicRes>?>("Error", 404, "Comic Data Empty!");
+            if (comics == null)
+                return new ObjectResponse<IEnumerable<ComicRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Comic Data Empty!");
 
             var data = comics.Adapt<IEnumerable<ComicRes>>();
 
@@ -105,7 +109,11 @@ namespace OnComics.Application.Services.Implements
             int totalPage = (int)Math.Ceiling((decimal)totalData / getComicReq.PageIndex);
             var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
-            return new ObjectResponse<IEnumerable<ComicRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
+            return new ObjectResponse<IEnumerable<ComicRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data,
+                pagination);
         }
 
         //Get Comic By Id
@@ -113,11 +121,17 @@ namespace OnComics.Application.Services.Implements
         {
             var comic = await _comicRepository.GetByIdAsync(id);
 
-            if (comic == null) return new ObjectResponse<ComicRes?>("Error", 404, "Comic Not Found!");
+            if (comic == null)
+                return new ObjectResponse<ComicRes?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Comic Not Found!");
 
             var data = comic.Adapt<ComicRes>();
 
-            return new ObjectResponse<ComicRes?>("Error", 200, "Fetch Data Successfully!", data);
+            return new ObjectResponse<ComicRes?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data);
         }
 
         //Create Comic
@@ -125,7 +139,10 @@ namespace OnComics.Application.Services.Implements
         {
             var IsComicExisted = await _comicRepository.CheckComicExistedAsync(createComicReq.Name, createComicReq.Author);
 
-            if (IsComicExisted) return new ObjectResponse<Comic>("Error", 400, "Comic Is Existed!");
+            if (IsComicExisted)
+                return new ObjectResponse<Comic>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Comic Is Existed!");
 
             var newComic = _mapper.Map<Comic>(createComicReq);
 
@@ -133,11 +150,16 @@ namespace OnComics.Application.Services.Implements
             {
                 await _comicRepository.InsertAsync(newComic);
 
-                return new ObjectResponse<Comic>("Success", 200, "Create Comic Successfully!", newComic);
+                return new ObjectResponse<Comic>(
+                    (int)HttpStatusCode.Created,
+                    "Create Comic Successfully!",
+                    newComic);
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<Comic>("Error", 400, "Create Comic Fail!, Error Message:\n\n" + ex);
+                return new ObjectResponse<Comic>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Create Comic Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -146,7 +168,10 @@ namespace OnComics.Application.Services.Implements
         {
             var oldComic = await _comicRepository.GetByIdAsync(id, true);
 
-            if (oldComic == null) return new VoidResponse("Error", 404, "Comic Not Found!");
+            if (oldComic == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Comic Not Found!");
 
             var newComic = _mapper.Map(updateComicReq, oldComic);
             newComic.Name = _util.FormatStringName(updateComicReq.Name);
@@ -155,11 +180,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _comicRepository.UpdateAsync(newComic);
 
-                return new VoidResponse("Success", 200, "Update Comic Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Comic Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Comic Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Comic Fail!, Error Message:\n\n" + ex);
             }
 
             throw new NotImplementedException();
@@ -170,7 +199,10 @@ namespace OnComics.Application.Services.Implements
         {
             var comic = await _comicRepository.GetByIdAsync(id, true);
 
-            if (comic == null) return new VoidResponse("Error", 404, "Comic Not Found!");
+            if (comic == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Comic Not Found!");
 
             comic.Status = updateStatusReq.Status switch
             {
@@ -183,11 +215,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _comicRepository.UpdateAsync(comic);
 
-                return new VoidResponse("Success", 200, "Update Status Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Status Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Status Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Status Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -196,17 +232,24 @@ namespace OnComics.Application.Services.Implements
         {
             var comic = await _comicRepository.GetByIdAsync(id);
 
-            if (comic == null) return new VoidResponse("Error", 404, "Comic Not Found!");
+            if (comic == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Comic Not Found!");
 
             try
             {
                 await _comicRepository.DeleteAsync(id);
 
-                return new VoidResponse("Success", 200, "Delete Comic Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Delete Comic Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Delete Comic Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Delete Comic Fail!, Error Message:\n\n" + ex);
             }
         }
     }

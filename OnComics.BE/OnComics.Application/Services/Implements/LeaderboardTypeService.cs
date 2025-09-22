@@ -12,6 +12,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Domains;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -66,7 +67,9 @@ namespace OnComics.Application.Services.Implements
             var types = await _leaderboardTypeRepository.GetAsync(search, order, pageNum, pageIndex);
 
             if (types == null)
-                return new ObjectResponse<IEnumerable<LeaderboardTypeRes>?>("Error", 404, "Leaderboard Type Data Empty!");
+                return new ObjectResponse<IEnumerable<LeaderboardTypeRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Leaderboard Type Data Empty!");
 
             var data = types.Adapt<IEnumerable<LeaderboardTypeRes>>();
 
@@ -74,7 +77,11 @@ namespace OnComics.Application.Services.Implements
             var toatlPage = (int)Math.Ceiling((decimal)totalData / getLdbTypeReq.PageIndex);
             var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
 
-            return new ObjectResponse<IEnumerable<LeaderboardTypeRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
+            return new ObjectResponse<IEnumerable<LeaderboardTypeRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data,
+                pagination);
         }
 
         //Get Leaderboard Type By Id
@@ -82,11 +89,17 @@ namespace OnComics.Application.Services.Implements
         {
             var type = await _leaderboardTypeRepository.GetByIdAsync(id);
 
-            if (type == null) return new ObjectResponse<LeaderboardTypeRes?>("Error", 404, "Leaderboard Type Not Found!");
+            if (type == null)
+                return new ObjectResponse<LeaderboardTypeRes?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Leaderboard Type Not Found!");
 
             var data = _mapper.Map<LeaderboardTypeRes>(type);
 
-            return new ObjectResponse<LeaderboardTypeRes?>("Success", 200, "Data Fetch Successfully!", data);
+            return new ObjectResponse<LeaderboardTypeRes?>(
+                (int)HttpStatusCode.OK,
+                "Data Fetch Successfully!",
+                data);
         }
 
         //Create Leaderboard Type
@@ -96,7 +109,10 @@ namespace OnComics.Application.Services.Implements
 
             var isExisted = await _leaderboardTypeRepository.CheckTypeNameExistedAsync(typeName);
 
-            if (isExisted) return new ObjectResponse<Leaderboardtype>("Error", 400, "Leaderboard Type Is Existed!");
+            if (isExisted)
+                return new ObjectResponse<Leaderboardtype>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Leaderboard Type Is Existed!");
 
             var newType = _mapper.Map<Leaderboardtype>(createLdbTypeReq);
             newType.Name = typeName;
@@ -105,11 +121,16 @@ namespace OnComics.Application.Services.Implements
             {
                 await _leaderboardTypeRepository.InsertAsync(newType);
 
-                return new ObjectResponse<Leaderboardtype>("Success", 201, "Create Leaderboard Tyype Successfully!", newType);
+                return new ObjectResponse<Leaderboardtype>(
+                    (int)HttpStatusCode.Created,
+                    "Create Leaderboard Tyype Successfully!",
+                    newType);
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<Leaderboardtype>("Error", 400, "Create Leaderboaard Type Fail!, Error Message:\n\n" + ex);
+                return new ObjectResponse<Leaderboardtype>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Create Leaderboaard Type Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -120,11 +141,17 @@ namespace OnComics.Application.Services.Implements
 
             var isExisted = await _leaderboardTypeRepository.CheckTypeNameExistedAsync(typeName);
 
-            if (isExisted) return new VoidResponse("Error", 400, "Leaderboard Type Is Existed!");
+            if (isExisted)
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Leaderboard Type Is Existed!");
 
             var oldType = await _leaderboardTypeRepository.GetByIdAsync(id, true);
 
-            if (oldType == null) return new VoidResponse("Error", 404, "Leaderboard Type Not Found!");
+            if (oldType == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Leaderboard Type Not Found!");
 
             var newType = _mapper.Map(updateLdbTypeReq, oldType);
             newType.Name = typeName;
@@ -133,11 +160,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _leaderboardTypeRepository.UpdateAsync(newType);
 
-                return new VoidResponse("Success", 200, "Update Leaderboard Type Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Leaderboard Type Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Leaderboard Type Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Leaderboard Type Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -152,7 +183,10 @@ namespace OnComics.Application.Services.Implements
 
             var type = await _leaderboardTypeRepository.GetByIdAsync(id, true);
 
-            if (type == null) return new VoidResponse("Error", 404, "Leaderboard Type Not Found!");
+            if (type == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Leaderboard Type Not Found!");
 
             type.Status = status;
 
@@ -160,11 +194,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _leaderboardTypeRepository.UpdateAsync(type);
 
-                return new VoidResponse("Success", 200, "Update Status Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Status Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Status Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Status Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -173,17 +211,24 @@ namespace OnComics.Application.Services.Implements
         {
             var type = await _leaderboardTypeRepository.GetByIdAsync(id);
 
-            if (type == null) return new VoidResponse("Error", 404, "Leaderboard Type Not Found!");
+            if (type == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Leaderboard Type Not Found!");
 
             try
             {
                 await _leaderboardTypeRepository.DeleteAsync(id);
 
-                return new VoidResponse("Success", 200, "Delete Leaderboard Type Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Delete Leaderboard Type Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Delete Leaderboard Type Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Delete Leaderboard Type Fail!, Error Message:\n\n" + ex);
             }
         }
     }

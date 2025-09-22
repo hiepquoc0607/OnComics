@@ -5,9 +5,13 @@ namespace OnComics.Application.Models.Response.Common
 {
     public class VoidResponse
     {
-        public VoidResponse(string status, int statusCode, string message)
+        public VoidResponse(int statusCode, string message)
         {
-            Status = status;
+            Status = statusCode switch
+            {
+                >= 200 and < 300 => "Success",
+                _ => "Error"
+            };
             StatusCode = statusCode;
             Message = message;
         }

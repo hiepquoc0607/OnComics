@@ -12,6 +12,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Domains;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -66,7 +67,9 @@ namespace OnComics.Application.Services.Implements
             var types = await _interactionTypeRepository.GetAsync(search, order, pageNum, pageIndex);
 
             if (types == null)
-                return new ObjectResponse<IEnumerable<InteractionTypeRes>?>("Error", 404, "Interaction Type Data Empty!");
+                return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Interaction Type Data Empty!");
 
             var data = types.Adapt<IEnumerable<InteractionTypeRes>>();
 
@@ -74,7 +77,11 @@ namespace OnComics.Application.Services.Implements
             var toatlPage = (int)Math.Ceiling((decimal)totalData / getItrTypeReq.PageIndex);
             var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
 
-            return new ObjectResponse<IEnumerable<InteractionTypeRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
+            return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data,
+                pagination);
         }
 
         //Get Interaction Type By Id
@@ -83,11 +90,16 @@ namespace OnComics.Application.Services.Implements
             var type = await _interactionTypeRepository.GetByIdAsync(id);
 
             if (type == null)
-                return new ObjectResponse<InteractionTypeRes?>("Error", 404, "Interaction Type Not Found!");
+                return new ObjectResponse<InteractionTypeRes?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Interaction Type Not Found!");
 
             var data = _mapper.Map<InteractionTypeRes>(type);
 
-            return new ObjectResponse<InteractionTypeRes?>("Success", 200, "Fetch Data Successfully!", data);
+            return new ObjectResponse<InteractionTypeRes?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data);
         }
 
         //Create Interaction Type
@@ -97,7 +109,10 @@ namespace OnComics.Application.Services.Implements
 
             var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
 
-            if (isExisted) return new ObjectResponse<Interactiontype>("Error", 400, "Interaaction Type Is Existed!");
+            if (isExisted)
+                return new ObjectResponse<Interactiontype>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Interaction Type Is Existed!");
 
             var newType = _mapper.Map<Interactiontype>(createItrTypeReq);
             newType.Name = name;
@@ -106,11 +121,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _interactionTypeRepository.InsertAsync(newType);
 
-                return new ObjectResponse<Interactiontype>("Success", 201, "Create Interaction Type Successfully!", newType);
+                return new ObjectResponse<Interactiontype>(
+                    (int)HttpStatusCode.Created,
+                    "Create Interaction Type Successfully!", newType);
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<Interactiontype>("Error", 400, "Create Interaction Type Fail!, Error Message:\n\n" + ex);
+                return new ObjectResponse<Interactiontype>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Create Interaction Type Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -121,11 +140,17 @@ namespace OnComics.Application.Services.Implements
 
             var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
 
-            if (isExisted) return new VoidResponse("Error", 400, "Interaaction Type Is Existed!");
+            if (isExisted)
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Interaaction Type Is Existed!");
 
             var oldType = await _interactionTypeRepository.GetByIdAsync(id, true);
 
-            if (oldType == null) return new VoidResponse("Error", 404, "Interaction Type Not Found!");
+            if (oldType == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Interaction Type Not Found!");
 
             var newType = _mapper.Map(updateItrTypeReq, oldType);
             newType.Name = name;
@@ -134,11 +159,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _interactionTypeRepository.UpdateAsync(newType);
 
-                return new VoidResponse("Success", 200, "Update Interaction Type Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Interaction Type Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Interaction Type Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Interaction Type Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -153,7 +182,10 @@ namespace OnComics.Application.Services.Implements
 
             var type = await _interactionTypeRepository.GetByIdAsync(id, true);
 
-            if (type == null) return new VoidResponse("Error", 404, "Interaction Type Not Found!");
+            if (type == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Interaction Type Not Found!");
 
             type.Status = status;
 
@@ -161,11 +193,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _interactionTypeRepository.UpdateAsync(type);
 
-                return new VoidResponse("Success", 200, "Update Status Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Status Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Status Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Status Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -174,17 +210,24 @@ namespace OnComics.Application.Services.Implements
         {
             var type = await _interactionTypeRepository.GetByIdAsync(id);
 
-            if (type == null) return new VoidResponse("Error", 404, "Interaction Type Not Found!");
+            if (type == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Interaction Type Not Found!");
 
             try
             {
                 await _interactionTypeRepository.DeleteAsync(id);
 
-                return new VoidResponse("Success", 200, "Delete Interaction Type Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Delete Interaction Type Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Delete Interaction Type Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Delete Interaction Type Fail!, Error Message:\n\n" + ex);
             }
         }
     }

@@ -12,6 +12,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Domains;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -67,7 +68,9 @@ namespace OnComics.Application.Services.Implements
             var categories = await _categoryRepository.GetAsync(search, order, pageNum, pageIndex);
 
             if (categories == null)
-                return new ObjectResponse<IEnumerable<CategoryRes>?>("Error", 404, "Category Data Is Empty!");
+                return new ObjectResponse<IEnumerable<CategoryRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Category Data Is Empty!");
 
             var totalData = await _categoryRepository.CountRecordAsync();
             int totalPage = (int)Math.Ceiling((decimal)totalData / getCategoryReq.PageIndex);
@@ -75,7 +78,11 @@ namespace OnComics.Application.Services.Implements
 
             var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
-            return new ObjectResponse<IEnumerable<CategoryRes>?>("Success", 200, "Fetch Data Successfully!", data, pagination);
+            return new ObjectResponse<IEnumerable<CategoryRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data,
+                pagination);
         }
 
         //Get Category By Id
@@ -83,11 +90,16 @@ namespace OnComics.Application.Services.Implements
         {
             var category = await _categoryRepository.GetByIdAsync(id);
 
-            if (category == null) return new ObjectResponse<CategoryRes>("Error", 404, "Category Not Found!");
+            if (category == null)
+                return new ObjectResponse<CategoryRes>(
+                    (int)HttpStatusCode.NotFound,
+                    "Category Not Found!");
 
             var data = _mapper.Map<CategoryRes>(category);
 
-            return new ObjectResponse<CategoryRes>("Success", 200, "Fetch Data Successfully!", data);
+            return new ObjectResponse<CategoryRes>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!", data);
         }
 
         //Create Category
@@ -97,7 +109,10 @@ namespace OnComics.Application.Services.Implements
 
             var isExited = await _categoryRepository.CheckCategoryIsExistedAsync(name);
 
-            if (isExited) return new ObjectResponse<Category>("Error", 400, "Category Is Existed!");
+            if (isExited)
+                return new ObjectResponse<Category>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Category Is Existed!");
 
             var newCate = _mapper.Map<Category>(createCategoryReq);
             newCate.Name = name;
@@ -106,11 +121,16 @@ namespace OnComics.Application.Services.Implements
             {
                 await _categoryRepository.InsertAsync(newCate);
 
-                return new ObjectResponse<Category>("Success", 200, "Create Category Successfully!", newCate);
+                return new ObjectResponse<Category>(
+                    (int)HttpStatusCode.Created,
+                    "Create Category Successfully!",
+                    newCate);
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<Category>("Error", 400, "Create Category Fail!, Error Message:\n\n" + ex);
+                return new ObjectResponse<Category>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Create Category Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -118,14 +138,18 @@ namespace OnComics.Application.Services.Implements
         public async Task<ObjectResponse<IEnumerable<Category>>> CreateCategoriesAsync(List<CreateCategoryReq> categories)
         {
             if (categories.Count > 10)
-                return new ObjectResponse<IEnumerable<Category>>("Error", 400, "Only Create Max 10 Record At Once!");
+                return new ObjectResponse<IEnumerable<Category>>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Only Create Max 10 Record At Once!");
 
             string[] names = categories.Select(c => c.Name).ToArray();
             string[] dataNames = await _categoryRepository.GetCateNamesAsync();
             string[] existedNames = _util.CompareStringArray(names, dataNames);
 
             if (existedNames.Length > 0)
-                return new ObjectResponse<IEnumerable<Category>>("Error", 400, "Categories Are Existed!, Name: " + string.Join(", ", names));
+                return new ObjectResponse<IEnumerable<Category>>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Categories Are Existed!, Name: " + string.Join(", ", names));
 
             var newCategories = categories.Adapt<IEnumerable<Category>>();
 
@@ -138,14 +162,16 @@ namespace OnComics.Application.Services.Implements
             {
                 await _categoryRepository.InsertRangeAsync(newCategories);
 
-                return new ObjectResponse<IEnumerable<Category>>("Success", 200, "Create Category Successfully!");
+                return new ObjectResponse<IEnumerable<Category>>(
+                    (int)HttpStatusCode.OK,
+                    "Create Category Successfully!");
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<IEnumerable<Category>>("Error", 400, "Create Categories Fail!, Error Message:\n\n" + ex);
+                return new ObjectResponse<IEnumerable<Category>>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Create Categories Fail!, Error Message:\n\n" + ex);
             }
-
-            throw new NotImplementedException();
         }
 
         //Update Caategory
@@ -153,7 +179,10 @@ namespace OnComics.Application.Services.Implements
         {
             var oldCate = await _categoryRepository.GetByIdAsync(id, true);
 
-            if (oldCate == null) return new VoidResponse("Error", 404, "Category Not Found!");
+            if (oldCate == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Category Not Found!");
 
             var newCate = _mapper.Map(updateCategoryReq, oldCate);
             newCate.Name = _util.FormatStringName(updateCategoryReq.Name);
@@ -162,11 +191,15 @@ namespace OnComics.Application.Services.Implements
             {
                 await _categoryRepository.UpdateAsync(newCate);
 
-                return new VoidResponse("Success", 200, "Update Category Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Category Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Category Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Category Fail!, Error Message:\n\n" + ex);
             }
         }
 
@@ -175,7 +208,10 @@ namespace OnComics.Application.Services.Implements
         {
             var category = await _categoryRepository.GetByIdAsync(id, true);
 
-            if (category == null) return new VoidResponse("Error", 404, "Category Not Found!");
+            if (category == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Category Not Found!");
 
             category.Status = updateStatus.Status switch
             {
@@ -187,14 +223,16 @@ namespace OnComics.Application.Services.Implements
             {
                 await _categoryRepository.UpdateAsync(category);
 
-                return new VoidResponse("Success", 200, "Update Status Successfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Status Successfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Update Status Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Status Fail!, Error Message:\n\n" + ex);
             }
-
-            throw new NotImplementedException();
         }
 
         //Delete Category
@@ -202,17 +240,24 @@ namespace OnComics.Application.Services.Implements
         {
             var category = await _categoryRepository.GetByIdAsync(id);
 
-            if (category == null) return new VoidResponse("Error", 404, "Category Not Found!");
+            if (category == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Category Not Found!");
 
             try
             {
                 await _categoryRepository.DeleteAsync(id);
 
-                return new VoidResponse("Success", 200, "Delete Category Succesfully!");
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Delete Category Succesfully!");
             }
             catch (Exception ex)
             {
-                return new VoidResponse("Error", 400, "Delete Category Fail!, Error Message:\n\n" + ex);
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Delete Category Fail!, Error Message:\n\n" + ex);
             }
         }
     }
