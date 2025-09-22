@@ -54,7 +54,7 @@ namespace OnComics.Application.Services.Implements
                 c.ComicId == getChapterReq.ComicId &&
                 (string.IsNullOrEmpty(status) || c.Status.Equals(status));
 
-            Func<IQueryable<Chapter>, IOrderedQueryable<Chapter>>? order = c => getChapterReq.IsDescending switch
+            Func<IQueryable<Chapter>, IOrderedQueryable<Chapter>>? order = c => isDescending switch
             {
                 true => c.OrderByDescending(c => c.ChapNo),
                 _ => c.OrderBy(c => c.ChapNo),

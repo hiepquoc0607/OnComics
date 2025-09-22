@@ -56,40 +56,40 @@ namespace OnComics.Application.Services.Implements
 
             Func<IQueryable<Comic>, IOrderedQueryable<Comic>>? order = a => getComicReq.SortBy switch
             {
-                ComicSortOption.NAME => getComicReq.IsDescending
+                ComicSortOption.NAME => isDescending
                     ? a.OrderByDescending(a => a.Name)
                     : a.OrderBy(a => a.Name),
-                ComicSortOption.AUTHOR => getComicReq.IsDescending
+                ComicSortOption.AUTHOR => isDescending
                     ? a.OrderByDescending(a => a.Author)
                     : a.OrderBy(a => a.Author),
-                ComicSortOption.RELEASE => getComicReq.IsDescending
+                ComicSortOption.RELEASE => isDescending
                     ? a.OrderByDescending(a => a.ReleaseDate)
                     : a.OrderBy(a => a.ReleaseDate),
-                ComicSortOption.UPDATE => getComicReq.IsDescending
+                ComicSortOption.UPDATE => isDescending
                     ? a.OrderByDescending(a => a.UpdateTime)
                     : a.OrderBy(a => a.UpdateTime),
-                ComicSortOption.RATING => getComicReq.IsDescending
+                ComicSortOption.RATING => isDescending
                     ? a.OrderByDescending(a => a.Rating)
                     : a.OrderBy(a => a.Rating),
-                ComicSortOption.FAVORITE => getComicReq.IsDescending
+                ComicSortOption.FAVORITE => isDescending
                     ? a.OrderByDescending(a => a.FavoriteNum)
                     : a.OrderBy(a => a.FavoriteNum),
-                ComicSortOption.DATE => getComicReq.IsDescending
+                ComicSortOption.DATE => isDescending
                     ? a.OrderByDescending(a => a.DayReadNum)
                     : a.OrderBy(a => a.DayReadNum),
-                ComicSortOption.WEEK => getComicReq.IsDescending
+                ComicSortOption.WEEK => isDescending
                     ? a.OrderByDescending(a => a.WeekReadNum)
                     : a.OrderBy(a => a.WeekReadNum),
-                ComicSortOption.MONTH => getComicReq.IsDescending
+                ComicSortOption.MONTH => isDescending
                     ? a.OrderByDescending(a => a.MonthReadNum)
                     : a.OrderBy(a => a.MonthReadNum),
-                ComicSortOption.TOTAL => getComicReq.IsDescending
+                ComicSortOption.TOTAL => isDescending
                     ? a.OrderByDescending(a => a.TotalReadNum)
                     : a.OrderBy(a => a.TotalReadNum),
-                ComicSortOption.NOVEL => getComicReq.IsDescending
+                ComicSortOption.NOVEL => isDescending
                     ? a.OrderByDescending(a => a.IsNovel)
                     : a.OrderBy(a => a.IsNovel),
-                ComicSortOption.STATUS => getComicReq.IsDescending
+                ComicSortOption.STATUS => isDescending
                     ? a.OrderByDescending(a => a.Status)
                     : a.OrderBy(a => a.Status),
                 _ => a.OrderBy(a => a.Id)

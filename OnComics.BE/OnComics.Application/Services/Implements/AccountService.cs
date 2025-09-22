@@ -56,13 +56,13 @@ namespace OnComics.Application.Services.Implements
 
             Func<IQueryable<Account>, IOrderedQueryable<Account>>? order = a => getAccReq.SortBy switch
             {
-                AccountSortOption.EMAIL => getAccReq.IsDescending
+                AccountSortOption.EMAIL => isDescending
                     ? a.OrderByDescending(a => a.Email)
                     : a.OrderBy(a => a.Email),
-                AccountSortOption.FULLNAME => getAccReq.IsDescending
+                AccountSortOption.FULLNAME => isDescending
                     ? a.OrderByDescending(a => a.Fullname)
                     : a.OrderBy(a => a.Fullname),
-                AccountSortOption.STATUS => getAccReq.IsDescending
+                AccountSortOption.STATUS => isDescending
                     ? a.OrderByDescending(a => a.Status)
                     : a.OrderBy(a => a.Status),
                 _ => a.OrderBy(a => a.Id)

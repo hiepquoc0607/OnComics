@@ -54,10 +54,10 @@ namespace OnComics.Application.Services.Implements
 
             Func<IQueryable<Leaderboardtype>, IOrderedQueryable<Leaderboardtype>>? order = t => getLdbTypeReq.SortBy switch
             {
-                LdbTypeSortOption.NAME => getLdbTypeReq.IsDescending
+                LdbTypeSortOption.NAME => isDescending
                     ? t.OrderByDescending(t => t.Name)
                     : t.OrderBy(t => t.Name),
-                LdbTypeSortOption.STATUS => getLdbTypeReq.IsDescending
+                LdbTypeSortOption.STATUS => isDescending
                     ? t.OrderByDescending(t => t.Status)
                     : t.OrderBy(t => t.Status),
                 _ => t.OrderBy(t => t.Id)

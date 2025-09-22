@@ -55,10 +55,10 @@ namespace OnComics.Application.Services.Implements
 
             Func<IQueryable<Category>, IOrderedQueryable<Category>>? order = c => getCategoryReq.SortBy switch
             {
-                CategorySortOption.NAME => getCategoryReq.IsDescending
+                CategorySortOption.NAME => isDescending
                     ? c.OrderByDescending(c => c.Name)
                     : c.OrderBy(c => c.Name),
-                CategorySortOption.STATUS => getCategoryReq.IsDescending
+                CategorySortOption.STATUS => isDescending
                     ? c.OrderByDescending(c => c.Status)
                     : c.OrderBy(c => c.Status),
                 _ => c.OrderBy(c => c.Id)
