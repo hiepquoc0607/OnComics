@@ -128,6 +128,7 @@ CREATE TABLE Comment (
     IsMainCmt BIT NOT NULL,
     MainCmtId INT NULL,
     CmtTime DATETIME NOT NULL,
+    InteractionNum INT NOT NULL,
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ComicId)
