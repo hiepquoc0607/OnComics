@@ -17,4 +17,8 @@
     <ProjectReference Include="..\OnComics.Infrastructure\OnComics.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Request\Comment\" />
+  </ItemGroup>
+
 </Project>
