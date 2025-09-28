@@ -122,19 +122,19 @@ VALUES
 (9, 6, 4.1),
 (10, 6, 4.3);
 
-#Sample Data For Comment Table
-INSERT INTO Comment (AccountId, ComicId, Content, IsMainCmt, MainCmtId, CmtTime) 
+-- Sample Data For Comment Table
+INSERT INTO Comment (AccountId, ComicId, Content, IsMainCmt, MainCmtId, CmtTime, InteractionNum) 
 VALUES
-(1, 1, 'This comic is amazing! Can’t wait for the next chapter.', b'1', NULL, '2025-09-01 10:15:00'),
-(2, 1, 'I love the dragon fight scenes.', b'1', NULL, '2025-09-01 10:30:00'),
-(3, 1, 'Totally agree with you!', b'0', 1, '2025-09-01 10:45:00'), -- reply to comment 1
-(4, 2, 'Such a touching romance story ❤️', b'1', NULL, '2025-09-02 09:10:00'),
-(5, 2, 'The ending made me cry.', b'1', NULL, '2025-09-02 09:25:00'),
-(6, 2, 'Same here, I was in tears.', b'0', 5, '2025-09-02 09:40:00'), -- reply to comment 5
-(7, 3, 'Cyberpunk vibes are strong in this one.', b'1', NULL, '2025-09-03 14:20:00'),
-(8, 3, 'The hacking scenes are epic!', b'0', 7, '2025-09-03 14:35:00'), -- reply to comment 7
-(9, 4, 'Eternal Blossom is a masterpiece.', b'1', NULL, '2025-09-04 11:50:00'),
-(10, 5, 'Shadow Hunt has such a dark atmosphere, I love it.', b'1', NULL, '2025-09-05 20:05:00');
+(1, 1, 'This comic is amazing! Can’t wait for the next chapter.', b'1', NULL, '2025-09-01 10:15:00', 2),
+(2, 1, 'I love the dragon fight scenes.', b'1', NULL, '2025-09-01 10:30:00', 0),
+(3, 1, 'Totally agree with you!', b'0', 1, '2025-09-01 10:45:00', 0),
+(4, 2, 'Such a touching romance story ❤️', b'1', NULL, '2025-09-02 09:10:00', 0),
+(5, 2, 'The ending made me cry.', b'1', NULL, '2025-09-02 09:25:00', 1),
+(6, 2, 'Same here, I was in tears.', b'0', 5, '2025-09-02 09:40:00', 0),
+(7, 3, 'Cyberpunk vibes are strong in this one.', b'1', NULL, '2025-09-03 14:20:00', 1),
+(8, 3, 'The hacking scenes are epic!', b'0', 7, '2025-09-03 14:35:00', 0),
+(9, 4, 'Eternal Blossom is a masterpiece.', b'1', NULL, '2025-09-04 11:50:00', 0),
+(10, 5, 'Shadow Hunt has such a dark atmosphere, I love it.', b'1', NULL, '2025-09-05 20:05:00', 0);
 
 #Sample Data For Favorite Table
 INSERT INTO Favorite (AccountId, ComicId) 
