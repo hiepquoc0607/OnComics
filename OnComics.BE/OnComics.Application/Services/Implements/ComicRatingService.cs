@@ -16,13 +16,19 @@ namespace OnComics.Application.Services.Implements
     public class ComicRatingService : IComicRatingService
     {
         private readonly IComicRatingRepository _comicRatingRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IComicRepository _comicRepository;
         private readonly IMapper _mapper;
 
         public ComicRatingService(
             IComicRatingRepository comicRatingRepository,
+            IAccountRepository accountRepository,
+            IComicRepository comicRepository,
             IMapper mapper)
         {
             _comicRatingRepository = comicRatingRepository;
+            _accountRepository = accountRepository;
+            _comicRepository = comicRepository;
             _mapper = mapper;
         }
 
@@ -57,7 +63,19 @@ namespace OnComics.Application.Services.Implements
                     (int)HttpStatusCode.NotFound,
                     "Rating Data Is Empty!");
 
-            var data = ratings.Adapt<IEnumerable<ComicRatingRes>>();
+            int[] comicIds = ratings.Select(r => r.ComicId).ToArray();
+
+            var comicNames = await _comicRepository.GetNamesByIdsAsync(comicIds);
+
+            var data = ratings.Select(d => new ComicRatingRes
+            {
+                Id = d.Id,
+                AccountId = null,
+                Fullname = null,
+                ComicId = d.ComicId,
+                ComicName = comicNames[d.ComicId],
+                Rating = d.Rating
+            });
 
             var totalData = await _comicRatingRepository.CountRatingByAccountIdAsync(accId);
             var toatlPage = (int)Math.Ceiling((decimal)totalData / getComicRatingReq.PageIndex);
@@ -101,7 +119,19 @@ namespace OnComics.Application.Services.Implements
                     (int)HttpStatusCode.NotFound,
                     "Rating Data Is Empty!");
 
-            var data = ratings.Adapt<IEnumerable<ComicRatingRes>>();
+            int[] accIds = ratings.Select(r => r.AccountId).ToArray();
+
+            var fullnames = await _accountRepository.GetFullnameByIdsAsync(accIds);
+
+            var data = ratings.Select(d => new ComicRatingRes
+            {
+                Id = d.Id,
+                AccountId = d.AccountId,
+                Fullname = fullnames[d.Id],
+                ComicId = null,
+                ComicName = null,
+                Rating = d.Rating
+            });
 
             var totalData = await _comicRatingRepository.CountRatingByComicIdAsync(comicId);
             var toatlPage = (int)Math.Ceiling((decimal)totalData / getComicRatingReq.PageIndex);

@@ -34,10 +34,12 @@ namespace OnComics.Infrastructure.Repositories.Implements
         {
             return await _context.Chapters
                 .AsNoTracking()
+                .Where(c => ids.Contains(c.Id))
                 .GroupBy(c => c.ComicId)
                 .ToDictionaryAsync(
                     c => c.Key,
-                    c => c.Max(ct => ct.ChapNo));
+                    c => c.Where(ct => ct.Id == c.Key)
+                        .Max(ct => ct.ChapNo));
         }
     }
 }
