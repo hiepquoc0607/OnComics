@@ -6,13 +6,17 @@ namespace OnComics.Application.Models.Response.ComicRating
     {
         public int Id { get; set; }
 
-        public int AccountId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? AccountId { get; set; } = null;
 
-        public string Fullname { get; set; } = null!;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Fullname { get; set; } = null;
 
-        public int ComicId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? ComicId { get; set; } = null;
 
-        public string ComicName { get; set; } = null!;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? ComicName { get; set; } = null;
 
         public decimal Rating { get; set; }
     }

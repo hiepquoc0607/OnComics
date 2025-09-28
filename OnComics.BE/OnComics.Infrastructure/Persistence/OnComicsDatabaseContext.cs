@@ -48,7 +48,9 @@ public partial class OnComicsDatabaseContext : DbContext
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
         IConfiguration configuration = builder.Build();
+
         optionsBuilder.UseMySQL(configuration.GetConnectionString("DefaultConnection")!);
     }
 
@@ -171,7 +173,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasIndex(e => e.ComicId, "ComicId");
 
-            entity.Property(e => e.Rating).HasPrecision(3, 1);
+            entity.Property(e => e.Rating).HasPrecision(2, 1);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Comicratings)
                 .HasForeignKey(d => d.AccountId)
