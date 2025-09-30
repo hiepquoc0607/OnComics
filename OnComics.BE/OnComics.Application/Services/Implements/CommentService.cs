@@ -1,0 +1,310 @@
+﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
+using OnComics.Application.Enums.Comment;
+using OnComics.Application.Models.Request.Comment;
+using OnComics.Application.Models.Response.Comment;
+using OnComics.Application.Models.Response.Common;
+using OnComics.Application.Services.Interfaces;
+using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Repositories.Interfaces;
+using System.Linq.Expressions;
+using System.Net;
+
+namespace OnComics.Application.Services.Implements
+{
+    public class CommentService : ICommentService
+    {
+        private readonly ICommentRepository _commentRepository;
+        private readonly IMapper _mapper;
+
+        public CommentService(
+            ICommentRepository commentRepository,
+            IMapper mapper)
+        {
+            _commentRepository = commentRepository;
+            _mapper = mapper;
+        }
+
+        //Get All Comments
+        public async Task<ObjectResponse<IEnumerable<CommentRes>?>> GetCommentsAsync(GetCommentReq getCommentReq)
+        {
+            string? searchKey = getCommentReq.SearchKey;
+
+            int pageNum = getCommentReq.PageNum;
+            int pageIndex = getCommentReq.PageIndex;
+
+            bool isDecending = getCommentReq.IsDescending;
+
+            int? searchId = getCommentReq.Id;
+
+            bool? isComicId = getCommentReq.IdType switch
+            {
+                CmtIdType.ACCOUNT => false,
+                CmtIdType.COMIC => true,
+                _ => null
+            };
+
+            Expression<Func<Comment, bool>>? seacrh = null;
+
+            Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? order = null;
+
+            int totalData = 0;
+
+            if (!searchId.HasValue)
+            {
+                seacrh = c => (string.IsNullOrEmpty(searchKey) ||
+                    EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
+                    EF.Functions.Like(c.Comic.Name, $"%{searchKey}%"));
+
+                order = c => getCommentReq.SortBy switch
+                {
+                    CmtSortOption.ACCOUNT => isDecending
+                        ? c.OrderByDescending(c => c.Account.Fullname)
+                        : c.OrderBy(c => c.Account.Fullname),
+                    CmtSortOption.COMIC => isDecending
+                        ? c.OrderByDescending(c => c.Comic.Name)
+                        : c.OrderBy(c => c.Comic.Name),
+                    CmtSortOption.TIME => isDecending
+                        ? c.OrderByDescending(c => c.CmtTime)
+                        : c.OrderBy(c => c.CmtTime),
+                    CmtSortOption.INTERACTION => isDecending
+                        ? c.OrderByDescending(c => c.InteractionNum)
+                        : c.OrderBy(c => c.InteractionNum),
+                    _ => c.OrderBy(c => c.Id)
+                };
+
+                totalData = await _commentRepository.CountRecordAsync();
+            }
+            else if (searchId.HasValue && isComicId == true)
+            {
+                seacrh = c => (string.IsNullOrEmpty(searchKey) ||
+                    EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
+                    EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
+                    c.ComicId == searchId;
+
+                order = c => getCommentReq.SortBy switch
+                {
+                    CmtSortOption.ACCOUNT => isDecending
+                        ? c.OrderByDescending(c => c.Account.Fullname)
+                        : c.OrderBy(c => c.Account.Fullname),
+                    CmtSortOption.COMIC => isDecending
+                        ? c.OrderByDescending(c => c.Comic.Name)
+                        : c.OrderBy(c => c.Comic.Name),
+                    CmtSortOption.TIME => isDecending
+                        ? c.OrderByDescending(c => c.CmtTime)
+                        : c.OrderBy(c => c.CmtTime),
+                    CmtSortOption.INTERACTION => isDecending
+                        ? c.OrderByDescending(c => c.InteractionNum)
+                        : c.OrderBy(c => c.InteractionNum),
+                    _ => c.OrderBy(c => c.Id)
+                };
+
+                totalData = await _commentRepository.CountCommentByComicId(searchId.Value);
+            }
+            else
+            {
+                seacrh = c => (string.IsNullOrEmpty(searchKey) ||
+                    EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
+                    EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
+                    c.AccountId == searchId;
+
+                order = c => getCommentReq.SortBy switch
+                {
+                    CmtSortOption.ACCOUNT => isDecending
+                        ? c.OrderByDescending(c => c.Account.Fullname)
+                        : c.OrderBy(c => c.Account.Fullname),
+                    CmtSortOption.COMIC => isDecending
+                        ? c.OrderByDescending(c => c.Account.Fullname)
+                        : c.OrderBy(c => c.Account.Fullname),
+                    CmtSortOption.TIME => isDecending
+                        ? c.OrderByDescending(c => c.CmtTime)
+                        : c.OrderBy(c => c.CmtTime),
+                    CmtSortOption.INTERACTION => isDecending
+                        ? c.OrderByDescending(c => c.InteractionNum)
+                        : c.OrderBy(c => c.InteractionNum),
+                    _ => c.OrderBy(c => c.Id)
+                };
+
+                totalData = await _commentRepository.CountCommentByAccountId(searchId.Value);
+            }
+
+            var (comments, accounts, comics) = await _commentRepository
+                .GetCommentsAsync(seacrh, order, pageNum, pageIndex);
+
+            if (comments == null)
+                return new ObjectResponse<IEnumerable<CommentRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Comment Data Empty!");
+
+            var data = comments.Select(c => new CommentRes
+            {
+                Id = c.Id,
+                AccountId = c.Account.Id,
+                Fullname = accounts[c.AccountId],
+                ComicId = c.ComicId,
+                ComicName = comics[c.ComicId],
+                Content = c.Content,
+                IsMainCmt = c.IsMainCmt,
+                MainCmtId = c.MainCmtId,
+                CmtTime = c.CmtTime,
+                InteractionNum = c.InteractionNum
+            });
+
+            var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+            var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
+
+            return new ObjectResponse<IEnumerable<CommentRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Successfully!",
+                data,
+                pagination);
+        }
+
+        //Get Reply Comments
+        public async Task<ObjectResponse<IEnumerable<CommentRes>?>> GetReplyCommentsAsync(int mainCmtId)
+        {
+            var (comments, accounts) = await _commentRepository.GetReplyCommentsAsync(mainCmtId);
+
+            if (comments == null)
+                return new ObjectResponse<IEnumerable<CommentRes>?>(
+                    (int)HttpStatusCode.NotFound,
+                    "Comment Has No Reply!");
+
+            var data = comments.Select(d => new CommentRes
+            {
+                Id = d.Id,
+                AccountId = d.AccountId,
+                Fullname = accounts[d.AccountId],
+                ComicId = null,
+                ComicName = null,
+                Content = d.Content,
+                IsMainCmt = d.IsMainCmt,
+                MainCmtId = d.MainCmtId,
+                CmtTime = d.CmtTime,
+                InteractionNum = d.InteractionNum
+            });
+
+            return new ObjectResponse<IEnumerable<CommentRes>?>(
+                (int)HttpStatusCode.OK,
+                "Fetch Data Sucessfully!",
+                data);
+        }
+
+        //Create Comment
+        public async Task<ObjectResponse<Comment>> CreateCommentAsync(CreateCommentReq createCommentReq)
+        {
+            var isExisted = await _commentRepository.CheckCommentExistedAsync(
+                createCommentReq.AccountId,
+                createCommentReq.ComicId);
+
+            if (isExisted)
+                return new ObjectResponse<Comment>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Comment Is Existed!");
+
+            var newCmt = _mapper.Map<Comment>(createCommentReq);
+
+            try
+            {
+                await _commentRepository.InsertAsync(newCmt);
+
+                return new ObjectResponse<Comment>(
+                    (int)HttpStatusCode.Created,
+                    "Create Comment Successfully!",
+                    newCmt);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<Comment>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Create Comment Fail!, Error Message:\n\n" + ex);
+            }
+        }
+
+        //Reply Comment
+        public async Task<ObjectResponse<Comment>> ReplyCommentAsync(int mainCmtId, CreateCommentReq createCommentReq)
+        {
+            var mainCmt = await _commentRepository.GetByIdAsync(mainCmtId);
+
+            if (mainCmt == null)
+                return new ObjectResponse<Comment>(
+                    (int)HttpStatusCode.NotFound,
+                    "Comment Not Found!");
+
+            var newCmt = _mapper.Map<Comment>(createCommentReq);
+            newCmt.IsMainCmt = false;
+            newCmt.MainCmtId = mainCmtId;
+
+            try
+            {
+                await _commentRepository.InsertAsync(newCmt);
+
+                return new ObjectResponse<Comment>(
+                    (int)HttpStatusCode.Created,
+                    "Reply Comment Successfully!",
+                    newCmt);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<Comment>(
+                    (int)HttpStatusCode.BadRequest,
+                    "Reply Comment Fail!, Error Message:\n\n" + ex);
+            }
+        }
+
+        //Update Comment
+        public async Task<VoidResponse> UpdateCommentAsync(int id, UpdateCommentReq updateCommentReq)
+        {
+            var oldCmt = await _commentRepository.GetByIdAsync(id, true);
+
+            if (oldCmt == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Comment Not Found!");
+
+            var newCmt = _mapper.Map(updateCommentReq, oldCmt);
+
+            try
+            {
+                await _commentRepository.UpdateAsync(newCmt);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Comment Successfully!");
+            }
+            catch (Exception ex)
+            {
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Update Comment Fail!, Error Meessage:\n\n" + ex);
+            }
+        }
+
+        //Delete Comment
+        public async Task<VoidResponse> DeleteCommentAsync(int id)
+        {
+
+            var cmt = await _commentRepository.GetByIdAsync(id);
+
+            if (cmt == null)
+                return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Comment Not Found!");
+
+            try
+            {
+                await _commentRepository.DeleteAsync(id);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Delete Comment Successfully!");
+            }
+            catch (Exception ex)
+            {
+                return new VoidResponse(
+                    (int)HttpStatusCode.BadRequest,
+                    "Delete Comment Fail!, Error Message:\n\n" + ex);
+            }
+        }
+    }
+}

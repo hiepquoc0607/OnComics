@@ -113,6 +113,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ILeaderboardTypeRepository, LeaderboardTypeRepository>();
 builder.Services.AddScoped<IInteractionTypeRepository, InteractionTypeRepository>();
 builder.Services.AddScoped<IComicRatingRepository, ComicRatingRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 #endregion
 
 #region Inject Service
@@ -125,6 +126,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILeaderboardTypeService, LeaderboardTypeService>();
 builder.Services.AddScoped<IInteractionService, InteractionTypeService>();
 builder.Services.AddScoped<IComicRatingService, ComicRatingService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 #endregion
 
 #region Inject Utils

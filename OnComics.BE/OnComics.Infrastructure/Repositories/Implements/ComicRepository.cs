@@ -11,17 +11,6 @@ namespace OnComics.Infrastructure.Repositories.Implements
         {
         }
 
-        //Get Comic Names By Each Comic Id
-        public async Task<Dictionary<int, string>> GetNamesByIdsAsync(int[] ids)
-        {
-            return await _context.Comics
-                .AsNoTracking()
-                .Where(c => ids.Contains(c.Id))
-                .ToDictionaryAsync(
-                    c => c.Id,
-                    c => c.Name);
-        }
-
         //Check If Comic Is Existed
         public async Task<bool> CheckComicExistedAsync(string name, string author)
         {

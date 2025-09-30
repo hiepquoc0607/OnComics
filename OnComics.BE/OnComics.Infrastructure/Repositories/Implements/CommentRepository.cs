@@ -1,6 +1,8 @@
-﻿using OnComics.Infrastructure.Domains;
+﻿using Microsoft.EntityFrameworkCore;
+using OnComics.Infrastructure.Domains;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace OnComics.Infrastructure.Repositories.Implements
 {
@@ -8,6 +10,102 @@ namespace OnComics.Infrastructure.Repositories.Implements
     {
         public CommentRepository(OnComicsDatabaseContext context) : base(context)
         {
+        }
+
+        //Get All Comments
+        public async Task<(IEnumerable<Comment>?, Dictionary<int, string>, Dictionary<int, string>)> GetCommentsAsync(
+            Expression<Func<Comment, bool>>? filter = null,
+            Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? orderBy = null,
+            int? pageNumber = null,
+            int? pageSize = null)
+        {
+            var query = _context.Comments
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            if (pageNumber.HasValue && pageSize.HasValue)
+                query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
+                             .Take(pageSize.Value);
+
+            var comments = new List<Comment>();
+
+            var accounts = new Dictionary<int, string>();
+
+            var comics = new Dictionary<int, string>();
+
+            var projected = await query
+                    .Select(c => new
+                    {
+                        Comments = c,
+                        AccountId = c.Account.Id,
+                        Fullname = c.Account.Fullname,
+                        ComicId = c.Comic.Id,
+                        ComicName = c.Comic.Name
+                    })
+                    .ToListAsync();
+
+            comments = projected.Select(c => c.Comments).ToList();
+
+            accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+
+            comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
+
+            return (comments, accounts, comics);
+        }
+
+        //Get Reply Comment By Main Comment Id
+        public async Task<(IEnumerable<Comment>?, Dictionary<int, string>)> GetReplyCommentsAsync(int id)
+        {
+            var projected = await _context.Comments
+                .AsNoTracking()
+                .Where(c => c.MainCmtId == id)
+                .Select(c => new
+                {
+                    Comments = c,
+                    AccountId = c.Account.Id,
+                    Fullname = c.Account.Fullname
+                })
+                .ToListAsync();
+
+            var comments = projected.Select(c => c.Comments).ToList();
+
+            var accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+
+            return (comments, accounts);
+        }
+
+        //Check If Comment Is Existed
+        public async Task<bool> CheckCommentExistedAsync(int accId, int comicId)
+        {
+            return await _context.Comments
+                .AsNoTracking()
+                .AnyAsync(c =>
+                    c.AccountId == accId &&
+                    c.ComicId == comicId);
+        }
+
+        //Count Comment Data By Account Id
+        public async Task<int> CountCommentByAccountId(int id)
+        {
+            return await _context.Comments
+                .AsNoTracking()
+                .Where(c => c.AccountId == id)
+                .CountAsync();
+        }
+
+        //Count Comment Data By Comic Id
+        public async Task<int> CountCommentByComicId(int id)
+        {
+            return await _context.Comments
+                .AsNoTracking()
+                .Where(c => c.ComicId == id)
+                .CountAsync();
         }
     }
 }
