@@ -28,17 +28,6 @@ namespace OnComics.Infrastructure.Repositories.Implements
             }
         }
 
-        //Get Fullnames By Each Account Ids
-        public async Task<Dictionary<int, string>> GetFullnameByIdsAsync(int[] ids)
-        {
-            return await _context.Accounts
-                .AsNoTracking()
-                .Where(a => ids.Contains(a.Id))
-                .ToDictionaryAsync(
-                    a => a.Id,
-                    a => a.Fullname);
-        }
-
         //Check If Email is Existed
         public async Task<bool> CheckEmailExistedAsync(string email)
         {

@@ -6,8 +6,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
     {
         Task<Account?> GetAccountByEmailAsync(string email, bool isTracking = false);
 
-        Task<Dictionary<int, string>> GetFullnameByIdsAsync(int[] ids);
-
         Task<bool> CheckEmailExistedAsync(string email);
     }
 }

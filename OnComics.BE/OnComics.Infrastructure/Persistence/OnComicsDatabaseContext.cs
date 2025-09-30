@@ -198,7 +198,6 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.Property(e => e.CmtTime).HasColumnType("datetime");
             entity.Property(e => e.Content).HasColumnType("text");
-            entity.Property(e => e.IsMainCmt).HasColumnType("bit(1)");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.AccountId)

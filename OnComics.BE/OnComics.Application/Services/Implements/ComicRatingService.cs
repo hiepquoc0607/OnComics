@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using OnComics.Application.Enums.ComicRating;
 using OnComics.Application.Models.Request.ComicRating;
@@ -16,22 +15,17 @@ namespace OnComics.Application.Services.Implements
     public class ComicRatingService : IComicRatingService
     {
         private readonly IComicRatingRepository _comicRatingRepository;
-        private readonly IAccountRepository _accountRepository;
-        private readonly IComicRepository _comicRepository;
         private readonly IMapper _mapper;
 
         public ComicRatingService(
             IComicRatingRepository comicRatingRepository,
-            IAccountRepository accountRepository,
-            IComicRepository comicRepository,
             IMapper mapper)
         {
             _comicRatingRepository = comicRatingRepository;
-            _accountRepository = accountRepository;
-            _comicRepository = comicRepository;
             _mapper = mapper;
         }
 
+        //Get All Ratings By Account Id
         public async Task<ObjectResponse<IEnumerable<ComicRatingRes>?>> GetRatingsByAccountIdAsync(int accId, GetComicRatingReq getComicRatingReq)
         {
             string? searchKey = getComicRatingReq.SearchKey;
@@ -45,7 +39,7 @@ namespace OnComics.Application.Services.Implements
                 (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
                 r.AccountId == accId;
 
-            Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>> order = r => getComicRatingReq.SortBy switch
+            Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? order = r => getComicRatingReq.SortBy switch
             {
                 RatingSortOption.NAME => isDecending
                     ? r.OrderByDescending(r => r.Comic.Name)
@@ -56,16 +50,13 @@ namespace OnComics.Application.Services.Implements
                 _ => r.OrderBy(r => r.Id)
             };
 
-            var ratings = await _comicRatingRepository.GetAsync(seacrh, order, pageNum, pageIndex);
+            var (ratings, comics) = await _comicRatingRepository
+                .GetRatingsByAccountId(seacrh, order, pageNum, pageIndex);
 
             if (ratings == null)
                 return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
                     (int)HttpStatusCode.NotFound,
                     "Rating Data Is Empty!");
-
-            int[] comicIds = ratings.Select(r => r.ComicId).ToArray();
-
-            var comicNames = await _comicRepository.GetNamesByIdsAsync(comicIds);
 
             var data = ratings.Select(d => new ComicRatingRes
             {
@@ -73,7 +64,7 @@ namespace OnComics.Application.Services.Implements
                 AccountId = null,
                 Fullname = null,
                 ComicId = d.ComicId,
-                ComicName = comicNames[d.ComicId],
+                ComicName = comics[d.ComicId],
                 Rating = d.Rating
             });
 
@@ -88,6 +79,7 @@ namespace OnComics.Application.Services.Implements
                 pagination);
         }
 
+        //Get All Ratings By Comic Id
         public async Task<ObjectResponse<IEnumerable<ComicRatingRes>?>> GetRatingsByComicIdAsync(int comicId, GetComicRatingReq getComicRatingReq)
         {
             string? searchKey = getComicRatingReq.SearchKey;
@@ -101,7 +93,7 @@ namespace OnComics.Application.Services.Implements
                 (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(r.Account.Fullname, $"%{searchKey}%")) &&
                 r.ComicId == comicId;
 
-            Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>> order = r => getComicRatingReq.SortBy switch
+            Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? order = r => getComicRatingReq.SortBy switch
             {
                 RatingSortOption.NAME => isDecending
                     ? r.OrderByDescending(r => r.Account.Fullname)
@@ -112,22 +104,19 @@ namespace OnComics.Application.Services.Implements
                 _ => r.OrderBy(r => r.Id)
             };
 
-            var ratings = await _comicRatingRepository.GetAsync(seacrh, order, pageNum, pageIndex);
+            var (ratings, accounts) = await _comicRatingRepository
+                .GetRatingsByComicId(seacrh, order, pageNum, pageIndex);
 
             if (ratings == null)
                 return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
                     (int)HttpStatusCode.NotFound,
                     "Rating Data Is Empty!");
 
-            int[] accIds = ratings.Select(r => r.AccountId).ToArray();
-
-            var fullnames = await _accountRepository.GetFullnameByIdsAsync(accIds);
-
             var data = ratings.Select(d => new ComicRatingRes
             {
                 Id = d.Id,
                 AccountId = d.AccountId,
-                Fullname = fullnames[d.Id],
+                Fullname = accounts[d.AccountId],
                 ComicId = null,
                 ComicName = null,
                 Rating = d.Rating
@@ -144,6 +133,7 @@ namespace OnComics.Application.Services.Implements
                 pagination);
         }
 
+        //Create Rating
         public async Task<ObjectResponse<Comicrating>> CreateRatingAsync(int accId, CreateComicRatingReq createComicRatingReq)
         {
             var rating = await _comicRatingRepository
@@ -174,6 +164,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Update Rating
         public async Task<VoidResponse> UpdateRatingAsync(int id, UpdateComicRatingReq updateRatingReq)
         {
             var rating = await _comicRatingRepository.GetByIdAsync(id, true);
@@ -201,6 +192,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Delete Rating
         public async Task<VoidResponse> DeleteRatingAsync(int id)
         {
             var rating = await _comicRatingRepository.GetByIdAsync(id);
