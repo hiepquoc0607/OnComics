@@ -46,8 +46,6 @@ namespace OnComics.Application.Services.Implements
 
             Expression<Func<Comment, bool>>? seacrh = null;
 
-            Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? order = null;
-
             int totalData = 0;
 
             if (!searchId.HasValue)
@@ -55,23 +53,6 @@ namespace OnComics.Application.Services.Implements
                 seacrh = c => (string.IsNullOrEmpty(searchKey) ||
                     EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
                     EF.Functions.Like(c.Comic.Name, $"%{searchKey}%"));
-
-                order = c => getCommentReq.SortBy switch
-                {
-                    CmtSortOption.ACCOUNT => isDecending
-                        ? c.OrderByDescending(c => c.Account.Fullname)
-                        : c.OrderBy(c => c.Account.Fullname),
-                    CmtSortOption.COMIC => isDecending
-                        ? c.OrderByDescending(c => c.Comic.Name)
-                        : c.OrderBy(c => c.Comic.Name),
-                    CmtSortOption.TIME => isDecending
-                        ? c.OrderByDescending(c => c.CmtTime)
-                        : c.OrderBy(c => c.CmtTime),
-                    CmtSortOption.INTERACTION => isDecending
-                        ? c.OrderByDescending(c => c.InteractionNum)
-                        : c.OrderBy(c => c.InteractionNum),
-                    _ => c.OrderBy(c => c.Id)
-                };
 
                 totalData = await _commentRepository.CountRecordAsync();
             }
@@ -82,23 +63,6 @@ namespace OnComics.Application.Services.Implements
                     EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
                     c.ComicId == searchId;
 
-                order = c => getCommentReq.SortBy switch
-                {
-                    CmtSortOption.ACCOUNT => isDecending
-                        ? c.OrderByDescending(c => c.Account.Fullname)
-                        : c.OrderBy(c => c.Account.Fullname),
-                    CmtSortOption.COMIC => isDecending
-                        ? c.OrderByDescending(c => c.Comic.Name)
-                        : c.OrderBy(c => c.Comic.Name),
-                    CmtSortOption.TIME => isDecending
-                        ? c.OrderByDescending(c => c.CmtTime)
-                        : c.OrderBy(c => c.CmtTime),
-                    CmtSortOption.INTERACTION => isDecending
-                        ? c.OrderByDescending(c => c.InteractionNum)
-                        : c.OrderBy(c => c.InteractionNum),
-                    _ => c.OrderBy(c => c.Id)
-                };
-
                 totalData = await _commentRepository.CountCommentByComicId(searchId.Value);
             }
             else
@@ -108,25 +72,25 @@ namespace OnComics.Application.Services.Implements
                     EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
                     c.AccountId == searchId;
 
-                order = c => getCommentReq.SortBy switch
-                {
-                    CmtSortOption.ACCOUNT => isDecending
-                        ? c.OrderByDescending(c => c.Account.Fullname)
-                        : c.OrderBy(c => c.Account.Fullname),
-                    CmtSortOption.COMIC => isDecending
-                        ? c.OrderByDescending(c => c.Account.Fullname)
-                        : c.OrderBy(c => c.Account.Fullname),
-                    CmtSortOption.TIME => isDecending
-                        ? c.OrderByDescending(c => c.CmtTime)
-                        : c.OrderBy(c => c.CmtTime),
-                    CmtSortOption.INTERACTION => isDecending
-                        ? c.OrderByDescending(c => c.InteractionNum)
-                        : c.OrderBy(c => c.InteractionNum),
-                    _ => c.OrderBy(c => c.Id)
-                };
-
                 totalData = await _commentRepository.CountCommentByAccountId(searchId.Value);
             }
+
+            Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? order = c => getCommentReq.SortBy switch
+            {
+                CmtSortOption.ACCOUNT => isDecending
+                    ? c.OrderByDescending(c => c.Account.Fullname)
+                    : c.OrderBy(c => c.Account.Fullname),
+                CmtSortOption.COMIC => isDecending
+                    ? c.OrderByDescending(c => c.Account.Fullname)
+                    : c.OrderBy(c => c.Account.Fullname),
+                CmtSortOption.TIME => isDecending
+                    ? c.OrderByDescending(c => c.CmtTime)
+                    : c.OrderBy(c => c.CmtTime),
+                CmtSortOption.INTERACTION => isDecending
+                    ? c.OrderByDescending(c => c.InteractionNum)
+                    : c.OrderBy(c => c.InteractionNum),
+                _ => c.OrderBy(c => c.Id)
+            };
 
             var (comments, accounts, comics) = await _commentRepository
                 .GetCommentsAsync(seacrh, order, pageNum, pageIndex);

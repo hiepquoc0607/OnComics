@@ -33,12 +33,6 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
                              .Take(pageSize.Value);
 
-            var comments = new List<Comment>();
-
-            var accounts = new Dictionary<int, string>();
-
-            var comics = new Dictionary<int, string>();
-
             var projected = await query
                     .Select(c => new
                     {
@@ -50,11 +44,11 @@ namespace OnComics.Infrastructure.Repositories.Implements
                     })
                     .ToListAsync();
 
-            comments = projected.Select(c => c.Comments).ToList();
+            var comments = projected.Select(c => c.Comments).ToList();
 
-            accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+            var accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
 
-            comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
+            var comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
 
             return (comments, accounts, comics);
         }
