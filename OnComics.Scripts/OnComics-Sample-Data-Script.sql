@@ -44,16 +44,6 @@ VALUES
 ('Slice of Life', NULL, 'ACTIVE'),
 ('Sports', NULL, 'ACTIVE');
 
-#Sample Data For LeaderboardType Table
-INSERT INTO LeaderboardType (Name, Description, Status) 
-VALUES
-('Most Read Daily', NULL, 'ACTIVE'),
-('Most Read Weekly', NULL, 'ACTIVE'),
-('Most Read Monthly', NULL, 'ACTIVE'),
-('Top Rated', NULL, 'ACTIVE'),
-('Most Favorite', NULL, 'ACTIVE'),
-('New Releases', NULL, 'ACTIVE');
-
 #Sample Data For InteractionType Table
 INSERT INTO InteractionType (Name, ImgUrl, Status) 
 VALUES
@@ -163,20 +153,6 @@ VALUES
 (7, 8, '2025-09-02 10:00:00'),
 (8, 9, '2025-09-03 11:15:00'),
 (9, 10, '2025-09-03 12:00:00');
-
-#Sample Data For Leaderboard Table
-INSERT INTO Leaderboard (ComicId, TypeId, RankNo) 
-VALUES
-(1, 1, 1),
-(2, 1, 2),
-(3, 1, 3),
-(4, 1, 4),
-(5, 1, 5),
-(2, 2, 1),
-(1, 2, 2),
-(4, 2, 3),
-(3, 2, 4),
-(5, 3, 1);
 
 #Sample Data For Interaction Table
 INSERT INTO Interaction (AccountId, CommentId, TypeId, ReactTime) 
