@@ -5,7 +5,6 @@ CREATE DATABASE IF NOT EXISTS OnComics_Database;
 USE OnComics_Database;
 
 DROP TABLE IF EXISTS Interaction,
-                     LeaderBoard,
                      History,
                      Favortite, 
                      Comment, 
@@ -14,7 +13,6 @@ DROP TABLE IF EXISTS Interaction,
                      ChapterSource,
                      Chapter,
                      InteractionType,
-                     LeaderboardType,
                      Category,
                      Comic,
                      Account;
@@ -57,13 +55,6 @@ CREATE TABLE Comic (
 );
 
 CREATE TABLE Category (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    Name NVARCHAR(100) UNIQUE NOT NULL,
-    Description TEXT NULL,
-    Status VARCHAR(10) NOT NULL
-);
-
-CREATE TABLE LeaderboardType (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
     Description TEXT NULL,
@@ -155,17 +146,6 @@ CREATE TABLE History (
         REFERENCES Account (Id),
     FOREIGN KEY (ChapterId)
         REFERENCES Chapter (Id)
-);
-
-CREATE TABLE Leaderboard (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    ComicId INT NOT NULL,
-    TypeId INT NOT NULL,
-    RankNo INT NOT NULL,
-    FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id),
-    FOREIGN KEY (TypeId)
-        REFERENCES LeaderBoardType (Id)
 );
 
 CREATE TABLE Interaction (
