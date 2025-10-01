@@ -1,9 +1,8 @@
 ﻿namespace OnComics.Application.Enums.ComicRating
 {
-    public enum RatingSortOption
+    public enum RatingIdType
     {
         ACCOUNT,
-        COMIC,
-        RATING
+        COMIC
     }
 }

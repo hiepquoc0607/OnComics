@@ -25,8 +25,8 @@ namespace OnComics.Application.Services.Implements
             _mapper = mapper;
         }
 
-        //Get All Ratings By Account Id
-        public async Task<ObjectResponse<IEnumerable<ComicRatingRes>?>> GetRatingsByAccountIdAsync(int accId, GetComicRatingReq getComicRatingReq)
+        //Get All Ratings
+        public async Task<ObjectResponse<IEnumerable<ComicRatingRes>?>> GetRatingsAsync(GetComicRatingReq getComicRatingReq)
         {
             string? searchKey = getComicRatingReq.SearchKey;
 
@@ -35,13 +35,46 @@ namespace OnComics.Application.Services.Implements
 
             bool isDecending = getComicRatingReq.IsDescending;
 
-            Expression<Func<Comicrating, bool>>? seacrh = r =>
-                (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
-                r.AccountId == accId;
+            int searchId = getComicRatingReq.Id;
+
+            bool isComicId = getComicRatingReq.IdType switch
+            {
+                RatingIdType.ACCOUNT => false,
+                _ => true
+            };
+
+            Expression<Func<Comicrating, bool>>? seacrh = null;
+
+
+            int totalData = 0;
+
+            if (isComicId)
+            {
+                seacrh = r =>
+                    (string.IsNullOrEmpty(searchKey) ||
+                    EF.Functions.Like(r.Account.Fullname, $"%{searchKey}%") ||
+                    EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
+                    r.ComicId == searchId;
+
+                totalData = await _comicRatingRepository.CountRatingByComicIdAsync(searchId);
+            }
+            else
+            {
+                seacrh = r =>
+                    (string.IsNullOrEmpty(searchKey) ||
+                    EF.Functions.Like(r.Account.Fullname, $"%{searchKey}%") ||
+                    EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
+                    r.AccountId == searchId;
+
+                totalData = await _comicRatingRepository.CountRatingByAccountIdAsync(searchId);
+            }
 
             Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? order = r => getComicRatingReq.SortBy switch
             {
-                RatingSortOption.NAME => isDecending
+                RatingSortOption.ACCOUNT => isDecending
+                    ? r.OrderByDescending(r => r.Account.Fullname)
+                    : r.OrderBy(r => r.Account.Fullname),
+                RatingSortOption.COMIC => isDecending
                     ? r.OrderByDescending(r => r.Comic.Name)
                     : r.OrderBy(r => r.Comic.Name),
                 RatingSortOption.RATING => isDecending
@@ -50,62 +83,8 @@ namespace OnComics.Application.Services.Implements
                 _ => r.OrderBy(r => r.Id)
             };
 
-            var (ratings, comics) = await _comicRatingRepository
-                .GetRatingsByAccountId(seacrh, order, pageNum, pageIndex);
-
-            if (ratings == null)
-                return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Rating Data Is Empty!");
-
-            var data = ratings.Select(d => new ComicRatingRes
-            {
-                Id = d.Id,
-                AccountId = null,
-                Fullname = null,
-                ComicId = d.ComicId,
-                ComicName = comics[d.ComicId],
-                Rating = d.Rating
-            });
-
-            var totalData = await _comicRatingRepository.CountRatingByAccountIdAsync(accId);
-            var toatlPage = (int)Math.Ceiling((decimal)totalData / getComicRatingReq.PageIndex);
-            var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
-
-            return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data,
-                pagination);
-        }
-
-        //Get All Ratings By Comic Id
-        public async Task<ObjectResponse<IEnumerable<ComicRatingRes>?>> GetRatingsByComicIdAsync(int comicId, GetComicRatingReq getComicRatingReq)
-        {
-            string? searchKey = getComicRatingReq.SearchKey;
-
-            int pageNum = getComicRatingReq.PageNum;
-            int pageIndex = getComicRatingReq.PageIndex;
-
-            bool isDecending = getComicRatingReq.IsDescending;
-
-            Expression<Func<Comicrating, bool>>? seacrh = r =>
-                (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(r.Account.Fullname, $"%{searchKey}%")) &&
-                r.ComicId == comicId;
-
-            Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? order = r => getComicRatingReq.SortBy switch
-            {
-                RatingSortOption.NAME => isDecending
-                    ? r.OrderByDescending(r => r.Account.Fullname)
-                    : r.OrderBy(r => r.Account.Fullname),
-                RatingSortOption.RATING => isDecending
-                    ? r.OrderByDescending(r => r.Rating)
-                    : r.OrderBy(r => r.Rating),
-                _ => r.OrderBy(r => r.Id)
-            };
-
-            var (ratings, accounts) = await _comicRatingRepository
-                .GetRatingsByComicId(seacrh, order, pageNum, pageIndex);
+            var (ratings, accounts, comics) = await _comicRatingRepository
+                .GetRatingsAsync(seacrh, order, pageNum, pageIndex);
 
             if (ratings == null)
                 return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
@@ -117,12 +96,11 @@ namespace OnComics.Application.Services.Implements
                 Id = d.Id,
                 AccountId = d.AccountId,
                 Fullname = accounts[d.AccountId],
-                ComicId = null,
-                ComicName = null,
+                ComicId = d.ComicId,
+                ComicName = comics[d.ComicId],
                 Rating = d.Rating
             });
 
-            var totalData = await _comicRatingRepository.CountRatingByComicIdAsync(comicId);
             var toatlPage = (int)Math.Ceiling((decimal)totalData / getComicRatingReq.PageIndex);
             var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnComics.Application.Constants;
+using OnComics.Application.Enums.ComicRating;
+using OnComics.Application.Enums.Comment;
 using OnComics.Application.Models.Request.ComicRating;
 using OnComics.Application.Services.Interfaces;
 using System.Security.Claims;
@@ -17,31 +19,35 @@ namespace OnComics.API.Controller
             _comicRatingService = comicRatingService;
         }
 
-        //Get All Ratings By Account Id
+        private bool CheckAuthentication(int id, string? idClaim, string? roleClaim, RatingIdType idType)
+        {
+            if (idType.Equals(CmtIdType.ACCOUNT) &&
+                !string.IsNullOrEmpty(roleClaim) &&
+                roleClaim.Equals(RoleConstant.USER) &&
+                id != int.Parse(idClaim!))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        //Get All Ratings
         [Authorize]
-        [Route("api/comic-ratings/accounts/{accId}")]
+        [Route("api/comic-ratings")]
         [HttpGet]
-        public async Task<IActionResult> GetRatingsByAccountIdAsync([FromRoute] int accId, [FromQuery] GetComicRatingReq getComicRatingReq)
+        public async Task<IActionResult> GetRatingsByAccountIdAsync([FromQuery] GetComicRatingReq getComicRatingReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (userIdClaim == null || userRoleClaim == null ||
-                (!userIdClaim.Equals(accId.ToString()) && !userRoleClaim.Equals(RoleConstant.ADMIN)))
-                return Forbid();
+            bool isAuthen = CheckAuthentication(
+                getComicRatingReq.Id,
+                userIdClaim,
+                userRoleClaim,
+                getComicRatingReq.IdType);
 
-            var result = await _comicRatingService.GetRatingsByAccountIdAsync(accId, getComicRatingReq);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
-        //Get All Ratings By Comic Id
-        [Authorize(Roles = "Admin")]
-        [Route("api/comic-ratings/comics/{comicId}")]
-        [HttpGet]
-        public async Task<IActionResult> GetRatingsByComicIdAsync([FromRoute] int comicId, [FromQuery] GetComicRatingReq getComicRatingReq)
-        {
-            var result = await _comicRatingService.GetRatingsByComicIdAsync(comicId, getComicRatingReq);
+            var result = await _comicRatingService.GetRatingsAsync(getComicRatingReq);
 
             return StatusCode(result.StatusCode, result);
         }
