@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnComics.Application.Models.Request.Account
 {
     public class UpdatePasswordReq
     {
         [Required]
+        [DefaultValue("string")]
         [MinLength(8)]
         public string NewPassword { get; set; } = string.Empty;
 

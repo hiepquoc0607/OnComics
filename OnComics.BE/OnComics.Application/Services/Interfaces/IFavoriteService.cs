@@ -1,0 +1,18 @@
+﻿using OnComics.Application.Models.Request.Favorite;
+using OnComics.Application.Models.Response.Common;
+using OnComics.Application.Models.Response.Favorite;
+using OnComics.Infrastructure.Entities;
+
+namespace OnComics.Application.Services.Interfaces
+{
+    public interface IFavoriteService
+    {
+        Task<ObjectResponse<IEnumerable<FavoriteRes>?>> GetFavoritesAsync(GetFavoriteReq getFavoriteReq);
+
+        Task<ObjectResponse<FavoriteRes?>> GetFavoriteByIdAsync(int id);
+
+        Task<ObjectResponse<Favorite>> CreateFavoriteAsync(int accId, CreateFavoriteReq createFavoriteReq);
+
+        Task<VoidResponse> DeleteFavoriteAsync(int id);
+    }
+}
