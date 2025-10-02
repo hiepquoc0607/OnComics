@@ -2,7 +2,7 @@
 using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.Chapter;
 using OnComics.Application.Models.Response.Chapter;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Mappers
 {

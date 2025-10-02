@@ -110,10 +110,10 @@ builder.Services.AddScoped<IComicRepository, ComicRepository>();
 builder.Services.AddScoped<IComicCategoryRepository, ComicCategoryRepository>();
 builder.Services.AddScoped<IChapterRepository, ChapterRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ILeaderboardTypeRepository, LeaderboardTypeRepository>();
 builder.Services.AddScoped<IInteractionTypeRepository, InteractionTypeRepository>();
 builder.Services.AddScoped<IComicRatingRepository, ComicRatingRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
 #endregion
 
 #region Inject Service
@@ -123,10 +123,10 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IComicService, ComicService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<ILeaderboardTypeService, LeaderboardTypeService>();
-builder.Services.AddScoped<IInteractionService, InteractionTypeService>();
+builder.Services.AddScoped<IInteractionTypeService, InteractionTypeService>();
 builder.Services.AddScoped<IComicRatingService, ComicRatingService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IInteractionService, InteractionService>();
 #endregion
 
 #region Inject Utils

@@ -1,7 +1,6 @@
 ﻿using OnComics.Application.Enums.Comic;
 using OnComics.Application.Models.Request.Common;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace OnComics.Application.Models.Request.Comic
 {

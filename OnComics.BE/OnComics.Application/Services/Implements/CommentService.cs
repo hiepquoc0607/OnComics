@@ -5,7 +5,7 @@ using OnComics.Application.Models.Request.Comment;
 using OnComics.Application.Models.Response.Comment;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
 using System.Net;

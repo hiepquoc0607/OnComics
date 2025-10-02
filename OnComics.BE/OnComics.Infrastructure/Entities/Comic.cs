@@ -1,4 +1,4 @@
-﻿namespace OnComics.Infrastructure.Domains;
+﻿namespace OnComics.Infrastructure.Entities;
 
 public partial class Comic
 {
@@ -47,6 +47,4 @@ public partial class Comic
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
-
-    public virtual ICollection<Leaderboard> Leaderboards { get; set; } = new List<Leaderboard>();
 }

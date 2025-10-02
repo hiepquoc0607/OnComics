@@ -7,7 +7,7 @@ using OnComics.Application.Models.Response.Auth;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;

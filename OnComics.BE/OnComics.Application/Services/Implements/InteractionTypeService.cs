@@ -9,14 +9,14 @@ using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Models.Response.InteractionType;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
 using System.Net;
 
 namespace OnComics.Application.Services.Implements
 {
-    public class InteractionTypeService : IInteractionService
+    public class InteractionTypeService : IInteractionTypeService
     {
         private readonly IInteractionTypeRepository _interactionTypeRepository;
         private readonly IMapper _mapper;
