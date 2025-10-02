@@ -97,7 +97,8 @@ CREATE TABLE ComicCategory (
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id),
     FOREIGN KEY (CategoryId)
-        REFERENCES Category (Id)
+        REFERENCES Category (Id),
+	UNIQUE (ComicId, CategoryId)
 );
 
 CREATE TABLE ComicRating (
@@ -108,7 +109,8 @@ CREATE TABLE ComicRating (
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id)
+        REFERENCES Comic (Id),
+	UNIQUE (AccountId, ComicId)
 );
 
 CREATE TABLE Comment (
@@ -134,7 +136,8 @@ CREATE TABLE Favorite (
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id)
+        REFERENCES Comic (Id),
+	UNIQUE (AccountId, ComicId)
 );
 
 CREATE TABLE History (
@@ -145,7 +148,8 @@ CREATE TABLE History (
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ChapterId)
-        REFERENCES Chapter (Id)
+        REFERENCES Chapter (Id),
+	UNIQUE (AccountId, ChapterId)
 );
 
 CREATE TABLE Interaction (
@@ -159,5 +163,6 @@ CREATE TABLE Interaction (
     FOREIGN KEY (CommentId)
         REFERENCES Comment (Id),
     FOREIGN KEY (TypeId)
-        REFERENCES InteractionType (Id)
+        REFERENCES InteractionType (Id),
+	UNIQUE (AccountId, CommentId)
 );
