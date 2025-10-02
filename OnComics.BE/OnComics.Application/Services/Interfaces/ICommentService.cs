@@ -1,7 +1,7 @@
 ﻿using OnComics.Application.Models.Request.Comment;
 using OnComics.Application.Models.Response.Comment;
 using OnComics.Application.Models.Response.Common;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Services.Interfaces
 {

@@ -1,14 +1,12 @@
-﻿namespace OnComics.Infrastructure.Domains;
+﻿namespace OnComics.Infrastructure.Entities;
 
-public partial class Comicrating
+public partial class Favorite
 {
     public int Id { get; set; }
 
     public int AccountId { get; set; }
 
     public int ComicId { get; set; }
-
-    public decimal Rating { get; set; }
 
     public virtual Account Account { get; set; } = null!;
 

@@ -1,24 +1,20 @@
-﻿using OnComics.Application.Enums.InteractionType;
-using OnComics.Application.Models.Request.General;
-using OnComics.Application.Models.Request.InteractionType;
+﻿using OnComics.Application.Models.Request.Interaction;
 using OnComics.Application.Models.Response.Common;
-using OnComics.Application.Models.Response.InteractionType;
-using OnComics.Infrastructure.Domains;
+using OnComics.Application.Models.Response.Interaction;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Services.Interfaces
 {
     public interface IInteractionService
     {
-        Task<ObjectResponse<IEnumerable<InteractionTypeRes>?>> GetItrTypesAsync(GetItrTypeReq getItrTypeReq);
+        Task<ObjectResponse<IEnumerable<InteractionRes>?>> GetInteractionsAsync(GetInteractionReq getInteractionReq);
 
-        Task<ObjectResponse<InteractionTypeRes?>> GetItrTypeByIdAsync(int id);
+        Task<ObjectResponse<InteractionRes?>> GetInteractionByIdAsync(int id);
 
-        Task<ObjectResponse<Interactiontype>> CreateItrTypeAsync(CreateItrTypeReq createItrTypeReq);
+        Task<ObjectResponse<Interaction>> CreateInteractionAsync(int accId, CreateInteractionReq createInteractionReq);
 
-        Task<VoidResponse> UpdateItrTypeAsync(int id, UpdateItrTypeReq updateItrTypeReq);
+        Task<VoidResponse> UpdateInteractionAsync(int id, UpdateInteractionReq updateInteractionReq);
 
-        Task<VoidResponse> UpdateItrTypeStatusAsync(int id, UpdateStatusReq<ItrTypeStatus> updateStatusReq);
-
-        Task<VoidResponse> DeleteItrTypeAsync(int id);
+        Task<VoidResponse> DeleteInteractionAsync(int id);
     }
 }

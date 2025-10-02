@@ -1,7 +1,7 @@
 ﻿using OnComics.Application.Models.Request.ComicRating;
 using OnComics.Application.Models.Response.ComicRating;
 using OnComics.Application.Models.Response.Common;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Services.Interfaces
 {

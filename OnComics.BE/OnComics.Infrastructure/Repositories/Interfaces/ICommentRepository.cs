@@ -1,4 +1,4 @@
-﻿using OnComics.Infrastructure.Domains;
+﻿using OnComics.Infrastructure.Entities;
 using System.Linq.Expressions;
 
 namespace OnComics.Infrastructure.Repositories.Interfaces

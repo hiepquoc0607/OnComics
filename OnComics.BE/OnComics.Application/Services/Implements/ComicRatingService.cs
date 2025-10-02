@@ -5,7 +5,7 @@ using OnComics.Application.Models.Request.ComicRating;
 using OnComics.Application.Models.Response.ComicRating;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
 using System.Net;
@@ -44,7 +44,6 @@ namespace OnComics.Application.Services.Implements
             };
 
             Expression<Func<Comicrating, bool>>? seacrh = null;
-
 
             int totalData = 0;
 
@@ -101,7 +100,7 @@ namespace OnComics.Application.Services.Implements
                 Rating = d.Rating
             });
 
-            var toatlPage = (int)Math.Ceiling((decimal)totalData / getComicRatingReq.PageIndex);
+            var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
             var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
 
             return new ObjectResponse<IEnumerable<ComicRatingRes>?>(

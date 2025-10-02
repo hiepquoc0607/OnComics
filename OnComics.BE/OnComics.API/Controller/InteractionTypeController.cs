@@ -9,9 +9,9 @@ namespace OnComics.API.Controller
     [ApiController]
     public class InteractionTypeController : ControllerBase
     {
-        private readonly IInteractionService _interactionService;
+        private readonly IInteractionTypeService _interactionService;
 
-        public InteractionTypeController(IInteractionService interactionService)
+        public InteractionTypeController(IInteractionTypeService interactionService)
         {
             _interactionService = interactionService;
         }

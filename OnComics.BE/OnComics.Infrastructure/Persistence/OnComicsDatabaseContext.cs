@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Infrastructure.Persistence;
 
@@ -38,10 +38,6 @@ public partial class OnComicsDatabaseContext : DbContext
     public virtual DbSet<Interaction> Interactions { get; set; }
 
     public virtual DbSet<Interactiontype> Interactiontypes { get; set; }
-
-    public virtual DbSet<Leaderboard> Leaderboards { get; set; }
-
-    public virtual DbSet<Leaderboardtype> Leaderboardtypes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -293,40 +289,6 @@ public partial class OnComicsDatabaseContext : DbContext
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
             entity.Property(e => e.ImgUrl).HasColumnType("text");
-            entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Status).HasMaxLength(10);
-        });
-
-        modelBuilder.Entity<Leaderboard>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("leaderboard");
-
-            entity.HasIndex(e => e.ComicId, "ComicId");
-
-            entity.HasIndex(e => e.TypeId, "TypeId");
-
-            entity.HasOne(d => d.Comic).WithMany(p => p.Leaderboards)
-                .HasForeignKey(d => d.ComicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("leaderboard_ibfk_1");
-
-            entity.HasOne(d => d.Type).WithMany(p => p.Leaderboards)
-                .HasForeignKey(d => d.TypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("leaderboard_ibfk_2");
-        });
-
-        modelBuilder.Entity<Leaderboardtype>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("leaderboardtype");
-
-            entity.HasIndex(e => e.Name, "Name").IsUnique();
-
-            entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(10);
         });

@@ -3,7 +3,7 @@ using OnComics.Application.Models.Request.Category;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Response.Category;
 using OnComics.Application.Models.Response.Common;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Services.Interfaces
 {

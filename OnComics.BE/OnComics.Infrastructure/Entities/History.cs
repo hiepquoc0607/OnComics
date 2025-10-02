@@ -1,4 +1,4 @@
-﻿namespace OnComics.Infrastructure.Domains;
+﻿namespace OnComics.Infrastructure.Entities;
 
 public partial class History
 {

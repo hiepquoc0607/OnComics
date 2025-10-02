@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using OnComics.Application.Enums.Chapter;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using OnComics.Application.Enums.Chapter;
 
 namespace OnComics.Application.Models.Request.Chapter
 {

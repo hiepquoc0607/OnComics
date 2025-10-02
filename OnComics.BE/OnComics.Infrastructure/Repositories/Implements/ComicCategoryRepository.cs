@@ -1,4 +1,4 @@
-﻿using OnComics.Infrastructure.Domains;
+﻿using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Interfaces;
 

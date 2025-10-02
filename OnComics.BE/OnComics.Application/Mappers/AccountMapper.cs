@@ -4,7 +4,7 @@ using OnComics.Application.Models.Request.Account;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Models.Response.Account;
 using OnComics.Application.Models.Response.Auth;
-using OnComics.Infrastructure.Domains;
+using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Mappers
 {
