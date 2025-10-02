@@ -114,6 +114,7 @@ builder.Services.AddScoped<IInteractionTypeRepository, InteractionTypeRepository
 builder.Services.AddScoped<IComicRatingRepository, ComicRatingRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 #endregion
 
 #region Inject Service
@@ -127,6 +128,7 @@ builder.Services.AddScoped<IInteractionTypeService, InteractionTypeService>();
 builder.Services.AddScoped<IComicRatingService, ComicRatingService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IInteractionService, InteractionService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 #endregion
 
 #region Inject Utils

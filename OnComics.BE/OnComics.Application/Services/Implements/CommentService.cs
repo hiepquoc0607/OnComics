@@ -73,6 +73,12 @@ namespace OnComics.Application.Services.Implements
                     c.AccountId == searchId;
 
                 totalData = await _commentRepository.CountCommentByAccountId(searchId.Value);
+
+                seacrh = c => (string.IsNullOrEmpty(searchKey) ||
+                    EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
+                    EF.Functions.Like(c.Comic.Name, $"%{searchKey}%"));
+
+                totalData = await _commentRepository.CountRecordAsync();
             }
 
             Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? order = c => getCommentReq.SortBy switch
