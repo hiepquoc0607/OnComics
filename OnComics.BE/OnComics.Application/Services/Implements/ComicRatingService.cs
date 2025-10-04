@@ -43,13 +43,13 @@ namespace OnComics.Application.Services.Implements
                 _ => true
             };
 
-            Expression<Func<Comicrating, bool>>? seacrh = null;
+            Expression<Func<Comicrating, bool>>? search = null;
 
             int totalData = 0;
 
             if (isComicId)
             {
-                seacrh = r =>
+                search = r =>
                     (string.IsNullOrEmpty(searchKey) ||
                     EF.Functions.Like(r.Account.Fullname, $"%{searchKey}%") ||
                     EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
@@ -59,7 +59,7 @@ namespace OnComics.Application.Services.Implements
             }
             else
             {
-                seacrh = r =>
+                search = r =>
                     (string.IsNullOrEmpty(searchKey) ||
                     EF.Functions.Like(r.Account.Fullname, $"%{searchKey}%") ||
                     EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
@@ -83,7 +83,7 @@ namespace OnComics.Application.Services.Implements
             };
 
             var (ratings, accounts, comics) = await _comicRatingRepository
-                .GetRatingsAsync(seacrh, order, pageNum, pageIndex);
+                .GetRatingsAsync(search, order, pageNum, pageIndex);
 
             if (ratings == null)
                 return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
@@ -100,8 +100,8 @@ namespace OnComics.Application.Services.Implements
                 Rating = d.Rating
             });
 
-            var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
-            var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
+            var totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+            var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
             return new ObjectResponse<IEnumerable<ComicRatingRes>?>(
                 (int)HttpStatusCode.OK,
