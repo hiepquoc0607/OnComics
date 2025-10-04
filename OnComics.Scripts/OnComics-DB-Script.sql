@@ -82,12 +82,13 @@ CREATE TABLE Chapter (
 
 CREATE TABLE ChapterSource (
     Id INT AUTO_INCREMENT PRIMARY KEY,
-    ComicId INT NOT NULL,
+    ChapterId INT NOT NULL,
     SrcUrl TEXT NOT NULL,
+    ViewUrl TEXT NOT NULL,
     Arrangement INT NOT NULL,
-    IsEditable BOOL CHECK(IsEditable IN (0,1)) NOT NULL,
-    FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id)
+    IsImage BOOL CHECK(IsImage IN (0,1)) NOT NULL,
+    FOREIGN KEY (ChapterId)
+        REFERENCES Chapter (Id)
 );
 
 CREATE TABLE ComicCategory (
