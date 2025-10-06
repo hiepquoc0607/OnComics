@@ -112,12 +112,13 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.ToTable("chaptersource");
 
-            entity.HasIndex(e => e.ComicId, "ComicId");
+            entity.HasIndex(e => e.ChapterId, "ChapterId");
 
             entity.Property(e => e.SrcUrl).HasColumnType("text");
+            entity.Property(e => e.ViewUrl).HasColumnType("text");
 
-            entity.HasOne(d => d.Comic).WithMany(p => p.Chaptersources)
-                .HasForeignKey(d => d.ComicId)
+            entity.HasOne(d => d.Chapter).WithMany(p => p.Chaptersources)
+                .HasForeignKey(d => d.ChapterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("chaptersource_ibfk_1");
         });
@@ -146,7 +147,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasIndex(e => e.CategoryId, "CategoryId");
 
-            entity.HasIndex(e => e.ComicId, "ComicId");
+            entity.HasIndex(e => new { e.ComicId, e.CategoryId }, "ComicId").IsUnique();
 
             entity.HasOne(d => d.Category).WithMany(p => p.Comiccategories)
                 .HasForeignKey(d => d.CategoryId)
@@ -165,7 +166,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.ToTable("comicrating");
 
-            entity.HasIndex(e => e.AccountId, "AccountId");
+            entity.HasIndex(e => new { e.AccountId, e.ComicId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.ComicId, "ComicId");
 
@@ -212,7 +213,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.ToTable("favorite");
 
-            entity.HasIndex(e => e.AccountId, "AccountId");
+            entity.HasIndex(e => new { e.AccountId, e.ComicId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.ComicId, "ComicId");
 
@@ -233,7 +234,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.ToTable("history");
 
-            entity.HasIndex(e => e.AccountId, "AccountId");
+            entity.HasIndex(e => new { e.AccountId, e.ChapterId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.ChapterId, "ChapterId");
 
@@ -256,7 +257,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.ToTable("interaction");
 
-            entity.HasIndex(e => e.AccountId, "AccountId");
+            entity.HasIndex(e => new { e.AccountId, e.CommentId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.CommentId, "CommentId");
 

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Google.Protobuf.WellKnownTypes;
+using System.Text;
 
 namespace OnComics.Application.Utils
 {
@@ -89,6 +90,21 @@ namespace OnComics.Application.Utils
             HashSet<int> setB = new HashSet<int>(b);
 
             return a.Where(x => !setB.Contains(x)).ToArray();
+        }
+
+        public Dictionary<int, int> CompareIntDictionary(Dictionary<int, int> a, Dictionary<int, int> b)
+        {
+            var dictionary = new Dictionary<int, int>();
+
+            foreach (var kv in a)
+            {
+                if (b.TryGetValue(kv.Key, out int value) && kv.Value == value)
+                {
+                    dictionary[kv.Key] = kv.Value;
+                }
+            }
+
+            return dictionary;
         }
         #endregion
     }

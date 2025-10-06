@@ -38,8 +38,6 @@ public partial class Comic
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
 
-    public virtual ICollection<Chaptersource> Chaptersources { get; set; } = new List<Chaptersource>();
-
     public virtual ICollection<Comiccategory> Comiccategories { get; set; } = new List<Comiccategory>();
 
     public virtual ICollection<Comicrating> Comicratings { get; set; } = new List<Comicrating>();

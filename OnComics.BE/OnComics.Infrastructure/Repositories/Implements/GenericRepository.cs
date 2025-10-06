@@ -68,10 +68,10 @@ namespace OnComics.Infrastructure.Repositories.Implements
         {
             // Default bulk insert of EF:
             //await _dbSet.AddRangeAsync(entities);
+            //await _context.SaveChangesAsync();
+
             // For high performance bulk insert (require EF BulkExtensions package):
             await _context.BulkInsertAsync(entities);
-
-            await _context.SaveChangesAsync();
         }
 
         //Update
@@ -110,16 +110,17 @@ namespace OnComics.Infrastructure.Repositories.Implements
         {
             // Default bulk delete of EF:
             //_dbSet.RemoveRange(entities);
+            //await _context.SaveChangesAsync();
+
             // For high performance bulk delete (require EF BulkExtensions package):
             await _context.BulkDeleteAsync(entities);
-
-            await _context.SaveChangesAsync();
         }
 
         //Run Transaction Operation
         public async Task RunTransactionAsync(Func<Task> operations)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            using (var transaction = await _context.Database
+                .BeginTransactionAsync())
             {
                 try
                 {
