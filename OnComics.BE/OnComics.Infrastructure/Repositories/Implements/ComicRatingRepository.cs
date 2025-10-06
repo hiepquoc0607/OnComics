@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Ratings
-        public async Task<(IEnumerable<Comicrating>, Dictionary<int, string>, Dictionary<int, string>)> GetRatingsAsync(
+        public async Task<(IEnumerable<Comicrating>, IDictionary<int, string>, IDictionary<int, string>)> GetRatingsAsync(
             Expression<Func<Comicrating, bool>>? filter = null,
             Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? orderBy = null,
             int? pageNumber = null,

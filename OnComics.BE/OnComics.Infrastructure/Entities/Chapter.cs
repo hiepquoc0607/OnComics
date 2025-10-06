@@ -16,6 +16,8 @@ public partial class Chapter
 
     public string Status { get; set; } = null!;
 
+    public virtual ICollection<Chaptersource> Chaptersources { get; set; } = new List<Chaptersource>();
+
     public virtual Comic Comic { get; set; } = null!;
 
     public virtual ICollection<History> Histories { get; set; } = new List<History>();
