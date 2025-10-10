@@ -15,6 +15,6 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<VoidResponse> DeleteHistoryAsync(int id);
 
-        Task<VoidResponse> DeleteHistoriesAsync(int accId);
+        Task<VoidResponse> DeleteRangeHistoriesAsync(int accId);
     }
 }

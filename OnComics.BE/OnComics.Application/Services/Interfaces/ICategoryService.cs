@@ -15,7 +15,7 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<ObjectResponse<Category>> CreateCategoryAsync(CreateCategoryReq createCategoryReq);
 
-        Task<ObjectResponse<IEnumerable<Category>>> CreateCategoriesAsync(List<CreateCategoryReq> categories);
+        Task<ObjectResponse<IEnumerable<Category>>> CreateRangeCategoriesAsync(List<CreateCategoryReq> categories);
 
         Task<VoidResponse> UpdateCategoryAsync(int id, UpdateCategoryReq updateCategoryReq);
 

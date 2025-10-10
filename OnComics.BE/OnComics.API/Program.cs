@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OnComics.Application.Constants;
 using OnComics.Application.Services.Implements;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
@@ -99,8 +100,8 @@ builder.Services.AddAuthentication(options =>
 #region Authorization
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireRole("ADMIN"));
-    options.AddPolicy("User", policy => policy.RequireRole("ADMIN", "USER"));
+    options.AddPolicy("Admin", policy => policy.RequireRole(RoleConstant.ADMIN));
+    options.AddPolicy("User", policy => policy.RequireRole(RoleConstant.ADMIN, RoleConstant.USER));
 });
 #endregion
 

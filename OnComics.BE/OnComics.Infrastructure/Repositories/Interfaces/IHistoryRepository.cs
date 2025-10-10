@@ -5,7 +5,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IHistoryRepository : IGenericRepository<History>
     {
-        Task<(IEnumerable<History>?, Dictionary<int, string>, Dictionary<int, string>)> GetHistoriesAsync(
+        Task<(IEnumerable<History>?, IDictionary<int, string>, IDictionary<int, string>)> GetHistoriesAsync(
             Expression<Func<History, bool>>? filter = null,
             Func<IQueryable<History>, IOrderedQueryable<History>>? orderBy = null,
             int? pageNumber = null,

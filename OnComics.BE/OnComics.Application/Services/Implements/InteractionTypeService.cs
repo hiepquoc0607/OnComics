@@ -35,90 +35,110 @@ namespace OnComics.Application.Services.Implements
         //Get All Interaction Types
         public async Task<ObjectResponse<IEnumerable<InteractionTypeRes>?>> GetItrTypesAsync(GetItrTypeReq getItrTypeReq)
         {
-            string? searchKey = getItrTypeReq.SearchKey;
-
-            string? status = getItrTypeReq.Status switch
+            try
             {
-                ItrTypeStatus.ACTIVE => StatusConstant.ACTIVE,
-                ItrTypeStatus.INACTIVE => StatusConstant.INACTIVE,
-                _ => null
-            };
+                string? searchKey = getItrTypeReq.SearchKey;
 
-            bool isDescending = getItrTypeReq.IsDescending;
+                string? status = getItrTypeReq.Status switch
+                {
+                    ItrTypeStatus.ACTIVE => StatusConstant.ACTIVE,
+                    ItrTypeStatus.INACTIVE => StatusConstant.INACTIVE,
+                    _ => null
+                };
 
-            int pageNum = getItrTypeReq.PageNum;
-            int pageIndex = getItrTypeReq.PageIndex;
+                bool isDescending = getItrTypeReq.IsDescending;
 
-            Expression<Func<Interactiontype, bool>>? search = i =>
-                (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(i.Name, $"%{searchKey}%")) &&
-                (string.IsNullOrEmpty(status) || i.Status.Equals(status));
+                int pageNum = getItrTypeReq.PageNum;
+                int pageIndex = getItrTypeReq.PageIndex;
 
-            Func<IQueryable<Interactiontype>, IOrderedQueryable<Interactiontype>>? order = i => getItrTypeReq.SortBy switch
-            {
-                ItrTypeSortOption.NAME => isDescending
-                    ? i.OrderByDescending(i => i.Name)
-                    : i.OrderBy(i => i.Name),
-                ItrTypeSortOption.STATUS => isDescending
-                    ? i.OrderByDescending(i => i.Name)
-                    : i.OrderBy(i => i.Name),
-                _ => i.OrderBy(i => i.Id)
-            };
+                Expression<Func<Interactiontype, bool>>? search = i =>
+                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(i.Name, $"%{searchKey}%")) &&
+                    (string.IsNullOrEmpty(status) || i.Status.Equals(status));
 
-            var types = await _interactionTypeRepository.GetAsync(search, order, pageNum, pageIndex);
+                Func<IQueryable<Interactiontype>, IOrderedQueryable<Interactiontype>>? order = i => getItrTypeReq.SortBy switch
+                {
+                    ItrTypeSortOption.NAME => isDescending
+                        ? i.OrderByDescending(i => i.Name)
+                        : i.OrderBy(i => i.Name),
+                    ItrTypeSortOption.STATUS => isDescending
+                        ? i.OrderByDescending(i => i.Name)
+                        : i.OrderBy(i => i.Name),
+                    _ => i.OrderBy(i => i.Id)
+                };
 
-            if (types == null)
+                var types = await _interactionTypeRepository.GetAsync(search, order, pageNum, pageIndex);
+
+                if (types == null)
+                    return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Interaction Type Data Empty!");
+
+                var data = types.Adapt<IEnumerable<InteractionTypeRes>>();
+
+                var totalData = await _interactionTypeRepository.CountRecordAsync();
+                var toatlPage = (int)Math.Ceiling((decimal)totalData / getItrTypeReq.PageIndex);
+                var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
+
                 return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Interaction Type Data Empty!");
-
-            var data = types.Adapt<IEnumerable<InteractionTypeRes>>();
-
-            var totalData = await _interactionTypeRepository.CountRecordAsync();
-            var toatlPage = (int)Math.Ceiling((decimal)totalData / getItrTypeReq.PageIndex);
-            var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
-
-            return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data,
-                pagination);
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!",
+                    data,
+                    pagination);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
         }
 
         //Get Interaction Type By Id
         public async Task<ObjectResponse<InteractionTypeRes?>> GetItrTypeByIdAsync(int id)
         {
-            var type = await _interactionTypeRepository.GetByIdAsync(id);
+            try
+            {
+                var type = await _interactionTypeRepository.GetByIdAsync(id);
 
-            if (type == null)
+                if (type == null)
+                    return new ObjectResponse<InteractionTypeRes?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Interaction Type Not Found!");
+
+                var data = _mapper.Map<InteractionTypeRes>(type);
+
                 return new ObjectResponse<InteractionTypeRes?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Interaction Type Not Found!");
-
-            var data = _mapper.Map<InteractionTypeRes>(type);
-
-            return new ObjectResponse<InteractionTypeRes?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data);
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!",
+                    data);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<InteractionTypeRes?>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
         }
 
         //Create Interaction Type
         public async Task<ObjectResponse<Interactiontype>> CreateItrTypeAsync(CreateItrTypeReq createItrTypeReq)
         {
-            string name = _util.FormatStringName(createItrTypeReq.Name);
-
-            var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
-
-            if (isExisted)
-                return new ObjectResponse<Interactiontype>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Interaction Type Is Existed!");
-
-            var newType = _mapper.Map<Interactiontype>(createItrTypeReq);
-            newType.Name = name;
-
             try
             {
+                string name = _util.FormatStringName(createItrTypeReq.Name);
+
+                var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
+
+                if (isExisted)
+                    return new ObjectResponse<Interactiontype>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Interaction Type Is Existed!");
+
+                var newType = _mapper.Map<Interactiontype>(createItrTypeReq);
+                newType.Name = name;
+
                 await _interactionTypeRepository.InsertAsync(newType);
 
                 return new ObjectResponse<Interactiontype>(
@@ -128,35 +148,36 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<Interactiontype>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Create Interaction Type Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Update Interaction Type
         public async Task<VoidResponse> UpdateItrTypeAsync(int id, UpdateItrTypeReq updateItrTypeReq)
         {
-            string name = _util.FormatStringName(updateItrTypeReq.Name);
-
-            var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
-
-            if (isExisted)
-                return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Interaaction Type Is Existed!");
-
-            var oldType = await _interactionTypeRepository.GetByIdAsync(id, true);
-
-            if (oldType == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Interaction Type Not Found!");
-
-            var newType = _mapper.Map(updateItrTypeReq, oldType);
-            newType.Name = name;
-
             try
             {
+                string name = _util.FormatStringName(updateItrTypeReq.Name);
+
+                var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
+
+                if (isExisted)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Interaaction Type Is Existed!");
+
+                var oldType = await _interactionTypeRepository.GetByIdAsync(id, true);
+
+                if (oldType == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Interaction Type Not Found!");
+
+                var newType = _mapper.Map(updateItrTypeReq, oldType);
+                newType.Name = name;
+
                 await _interactionTypeRepository.UpdateAsync(newType);
 
                 return new VoidResponse(
@@ -166,31 +187,32 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Update Interaction Type Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Update Interaction Type Status
         public async Task<VoidResponse> UpdateItrTypeStatusAsync(int id, UpdateStatusReq<ItrTypeStatus> updateStatusReq)
         {
-            string status = updateStatusReq.Status switch
-            {
-                ItrTypeStatus.ACTIVE => StatusConstant.ACTIVE,
-                _ => StatusConstant.INACTIVE,
-            };
-
-            var type = await _interactionTypeRepository.GetByIdAsync(id, true);
-
-            if (type == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Interaction Type Not Found!");
-
-            type.Status = status;
-
             try
             {
+                string status = updateStatusReq.Status switch
+                {
+                    ItrTypeStatus.ACTIVE => StatusConstant.ACTIVE,
+                    _ => StatusConstant.INACTIVE,
+                };
+
+                var type = await _interactionTypeRepository.GetByIdAsync(id, true);
+
+                if (type == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Interaction Type Not Found!");
+
+                type.Status = status;
+
                 await _interactionTypeRepository.UpdateAsync(type);
 
                 return new VoidResponse(
@@ -200,23 +222,24 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Update Status Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Delete Interaction Type
         public async Task<VoidResponse> DeleteItrTypeAsync(int id)
         {
-            var type = await _interactionTypeRepository.GetByIdAsync(id);
-
-            if (type == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Interaction Type Not Found!");
-
             try
             {
+                var type = await _interactionTypeRepository.GetByIdAsync(id);
+
+                if (type == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Interaction Type Not Found!");
+
                 await _interactionTypeRepository.DeleteAsync(id);
 
                 return new VoidResponse(
@@ -226,8 +249,9 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Delete Interaction Type Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
     }

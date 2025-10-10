@@ -79,31 +79,31 @@ namespace OnComics.Application.Services.Implements
         //Login
         public async Task<ObjectResponse<AuthRes?>> LoginAsync(LoginReq loginReq)
         {
-            var email = loginReq.Email.ToLowerInvariant();
-
-            var account = await _accountRepository.GetAccountByEmailAsync(email, true);
-
-            if (account == null)
-                return new ObjectResponse<AuthRes?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Email Not Found!");
-
-            if (!_util.CompareHashedPassword(loginReq.Password, account.PasswordHash))
-                return new ObjectResponse<AuthRes?>(
-                    (int)HttpStatusCode.Unauthorized,
-                    "Incorrect Password!");
-
-            var expiredSeccond = CaculateExpiredSeccond();
-
-            account.RefreshToken = GenerateRefreshToken();
-            account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
-
-            var data = _mapper.Map<AuthRes>(account);
-            data.Token = GenerateToken(account);
-            data.TokenExpiredIn = expiredSeccond;
-
             try
             {
+                var email = loginReq.Email.ToLowerInvariant();
+
+                var account = await _accountRepository.GetAccountByEmailAsync(email, true);
+
+                if (account == null)
+                    return new ObjectResponse<AuthRes?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Email Not Found!");
+
+                if (!_util.CompareHashedPassword(loginReq.Password, account.PasswordHash))
+                    return new ObjectResponse<AuthRes?>(
+                        (int)HttpStatusCode.Unauthorized,
+                        "Incorrect Password!");
+
+                var expiredSeccond = CaculateExpiredSeccond();
+
+                account.RefreshToken = GenerateRefreshToken();
+                account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
+
+                var data = _mapper.Map<AuthRes>(account);
+                data.Token = GenerateToken(account);
+                data.TokenExpiredIn = expiredSeccond;
+
                 await _accountRepository.UpdateAsync(account);
 
                 return new ObjectResponse<AuthRes?>(
@@ -114,17 +114,20 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<AuthRes?>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Login Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Register
         public async Task<ObjectResponse<Account>> RegisterAsync(RegisterReq registerReq)
         {
-            var passError = _util.CheckPasswordErrorType(registerReq.Password);
+            try
+            {
+                var passError = _util.CheckPasswordErrorType(registerReq.Password);
 
-            var passErrorMessage = new Dictionary<string, string>
+                var passErrorMessage = new Dictionary<string, string>
             {
                 { "Number", "Password Must Have At Least One Number Digit!" },
                 { "Lower", "Password Must Have At Least One Lowercase Digit!" },
@@ -132,30 +135,29 @@ namespace OnComics.Application.Services.Implements
                 { "Special", "Password Must Have At Least One Special  Digit (!, @, #, $,...)!" },
             };
 
-            if (passErrorMessage.TryGetValue(passError, out var message))
-                return new ObjectResponse<Account>(
-                    (int)HttpStatusCode.BadRequest,
-                    message);
+                if (passErrorMessage.TryGetValue(passError, out var message))
+                    return new ObjectResponse<Account>(
+                        (int)HttpStatusCode.BadRequest,
+                        message);
 
-            var isEmailExisted = await _accountRepository.CheckEmailExistedAsync(registerReq.Email);
+                var isEmailExisted = await _accountRepository
+                    .CheckEmailExistedAsync(registerReq.Email);
 
-            if (isEmailExisted)
-                return new ObjectResponse<Account>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Email Has Already Been Used!");
+                if (isEmailExisted)
+                    return new ObjectResponse<Account>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Email Has Already Been Used!");
 
-            var newAccount = _mapper.Map<Account>(registerReq);
-            newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
-            newAccount.Gender = registerReq.Gender switch
-            {
-                Gender.MALE => "Male",
-                _ => "Female"
-            };
-            newAccount.PasswordHash = _util.HashPassword(registerReq.Password);
-            newAccount.RefreshToken = GenerateRefreshToken();
+                var newAccount = _mapper.Map<Account>(registerReq);
+                newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
+                newAccount.Gender = registerReq.Gender switch
+                {
+                    Gender.MALE => "Male",
+                    _ => "Female"
+                };
+                newAccount.PasswordHash = _util.HashPassword(registerReq.Password);
+                newAccount.RefreshToken = GenerateRefreshToken();
 
-            try
-            {
                 await _accountRepository.InsertAsync(newAccount);
 
                 return new ObjectResponse<Account>(
@@ -166,39 +168,42 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<Account>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Register Fail!, Message Error:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Refresh Login Token
         public async Task<ObjectResponse<AuthRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq)
         {
-            var account = await _accountRepository.GetByIdAsync(refreshTokenReq.AccountId, true);
-
-            if (account == null)
-                return new ObjectResponse<AuthRes>(
-                    (int)HttpStatusCode.NotFound,
-                    "Account Not Found!");
-
-            if (account.RefreshToken == null || account.RefreshExpireTime <= DateTime.UtcNow)
-                return new ObjectResponse<AuthRes>(
-                    (int)HttpStatusCode.Unauthorized,
-                    "Token Is Expired!");
-
-            var token = GenerateToken(account);
-            var newRefreshToken = GenerateRefreshToken();
-            var expiredSeccond = CaculateExpiredSeccond();
-
-            account.RefreshToken = newRefreshToken;
-            account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
-
-            var data = _mapper.Map<AuthRes>(account);
-            data.Token = token;
-            data.TokenExpiredIn = expiredSeccond;
-
             try
             {
+                var account = await _accountRepository
+                    .GetByIdAsync(refreshTokenReq.AccountId, true);
+
+                if (account == null)
+                    return new ObjectResponse<AuthRes>(
+                        (int)HttpStatusCode.NotFound,
+                        "Account Not Found!");
+
+                if (account.RefreshToken == null ||
+                    account.RefreshExpireTime <= DateTime.UtcNow)
+                    return new ObjectResponse<AuthRes>(
+                        (int)HttpStatusCode.Unauthorized,
+                        "Token Is Expired!");
+
+                var token = GenerateToken(account);
+                var newRefreshToken = GenerateRefreshToken();
+                var expiredSeccond = CaculateExpiredSeccond();
+
+                account.RefreshToken = newRefreshToken;
+                account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
+
+                var data = _mapper.Map<AuthRes>(account);
+                data.Token = token;
+                data.TokenExpiredIn = expiredSeccond;
+
                 await _accountRepository.UpdateAsync(account);
 
                 return new ObjectResponse<AuthRes>(
@@ -208,29 +213,31 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<AuthRes>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Refresh Token Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Reset (Forgot) Password
         public async Task<VoidResponse> RequestResetPasswordAsync(string email)
         {
-            var account = await _accountRepository.GetAccountByEmailAsync(email, true);
-
-            if (account == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Email Not Found!");
-
-            account.RefreshToken = GenerateRefreshToken();
-            account.RefreshExpireTime = DateTime.UtcNow.AddSeconds(180);
-
-            //Reset Password API URL
-            string url = _configuration["AppReturnUrl:ResetPassword"]! + $"AccountId={account.Id}&Token={account.RefreshToken}";
-
             try
             {
+                var account = await _accountRepository.GetAccountByEmailAsync(email, true);
+
+                if (account == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Email Not Found!");
+
+                account.RefreshToken = GenerateRefreshToken();
+                account.RefreshExpireTime = DateTime.UtcNow.AddSeconds(180);
+
+                //Reset Password API URL
+                string url = _configuration["AppReturnUrl:ResetPassword"]! +
+                    $"AccountId={account.Id}&Token={account.RefreshToken}";
+
                 await _accountRepository.RunTransactionAsync(async () =>
                 {
                     await _accountRepository.UpdateAsync(account);
@@ -245,35 +252,38 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Request Reset Password Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Reset Password
         public async Task<VoidResponse> ResetPasswordAsync(InfoQuery infoQuery, ResetPassReq resetPassReq)
         {
-            var account = await _accountRepository.GetByIdAsync(infoQuery.AccountId, true);
+            try
+            {
+                var account = await _accountRepository.GetByIdAsync(infoQuery.AccountId, true);
 
-            if (account == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Email Not Found!");
+                if (account == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Email Not Found!");
 
-            if (!string.IsNullOrEmpty(account.RefreshToken) &&
-                !account.RefreshToken.Equals(infoQuery.Token))
-                return new VoidResponse(
-                    (int)HttpStatusCode.Unauthorized,
-                    "Incorect Token!");
+                if (!string.IsNullOrEmpty(account.RefreshToken) &&
+                    !account.RefreshToken.Equals(infoQuery.Token))
+                    return new VoidResponse(
+                        (int)HttpStatusCode.Unauthorized,
+                        "Incorect Token!");
 
-            if (account.RefreshExpireTime <= DateTime.UtcNow)
-                return new VoidResponse(
-                    (int)HttpStatusCode.Unauthorized,
-                    "Token Is Expried!");
+                if (account.RefreshExpireTime <= DateTime.UtcNow)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.Unauthorized,
+                        "Token Is Expried!");
 
-            var passError = _util.CheckPasswordErrorType(resetPassReq.NewPassword);
+                var passError = _util.CheckPasswordErrorType(resetPassReq.NewPassword);
 
-            var passErrorMessage = new Dictionary<string, string>
+                var passErrorMessage = new Dictionary<string, string>
             {
                 { "Number", "Password Must Have At Least One Number Digit!" },
                 { "Lower", "Password Must Have At Least One Lowercase Digit!" },
@@ -281,17 +291,16 @@ namespace OnComics.Application.Services.Implements
                 { "Special", "Password Must Have At Least One Special  Digit (!, @, #, $,...)!" },
             };
 
-            if (passErrorMessage.TryGetValue(passError, out var message))
-                return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    message);
+                if (passErrorMessage.TryGetValue(passError, out var message))
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        message);
 
-            account.PasswordHash = _util.HashPassword(resetPassReq.NewPassword);
-            account.RefreshToken = String.Empty;
-            account.RefreshExpireTime = null;
+                account.PasswordHash = _util.HashPassword(resetPassReq.NewPassword);
+                account.RefreshToken = String.Empty;
+                account.RefreshExpireTime = null;
 
-            try
-            {
+
                 await _accountRepository.UpdateAsync(account);
 
                 return new VoidResponse(
@@ -301,27 +310,32 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Change Password Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Send Confirm Email Request
         public async Task<VoidResponse> RequestConfirmEmailAsync(int id)
         {
-            var account = await _accountRepository.GetByIdAsync(id);
-
-            if (account == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Email Not Found!");
-
-            //Confirm Email API URL
-            string url = _configuration["AppReturnUrl:ComfirmEmail"]! + $"AccountId={account.Id}&Token={account.RefreshToken}";
-
             try
             {
-                await _mailService.SendEmailAsync(account.Email, "OnComics Email Verification Link:", url);
+                var account = await _accountRepository.GetByIdAsync(id);
+
+                if (account == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Email Not Found!");
+
+                //Confirm Email API URL
+                string url = _configuration["AppReturnUrl:ComfirmEmail"]! +
+                    $"AccountId={account.Id}&Token={account.RefreshToken}";
+
+                await _mailService.SendEmailAsync(
+                    account.Email,
+                    "OnComics Email Verification Link:",
+                    url);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -330,37 +344,38 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Request Confirm Email Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Confirm Email
         public async Task<VoidResponse> ConfirmEmailAsync(InfoQuery infoQuery)
         {
-            var account = await _accountRepository.GetByIdAsync(infoQuery.AccountId, true);
-
-            if (account == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Account Not Found!");
-
-            if (account.RefreshToken != infoQuery.Token)
-                return new VoidResponse(
-                    (int)HttpStatusCode.Unauthorized,
-                    "Invalid Request Token!");
-
-            if (account.IsVerified)
-                return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Email Is Already Verified!");
-
-            account.IsVerified = true;
-            account.RefreshToken = string.Empty;
-            account.RefreshExpireTime = null;
-
             try
             {
+                var account = await _accountRepository.GetByIdAsync(infoQuery.AccountId, true);
+
+                if (account == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Account Not Found!");
+
+                if (account.RefreshToken != infoQuery.Token)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.Unauthorized,
+                        "Invalid Request Token!");
+
+                if (account.IsVerified)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Email Is Already Verified!");
+
+                account.IsVerified = true;
+                account.RefreshToken = string.Empty;
+                account.RefreshExpireTime = null;
+
                 await _accountRepository.UpdateAsync(account);
 
                 return new VoidResponse(
@@ -370,8 +385,9 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Confirm Email Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                   ex.GetType().FullName!,
+                    ex.Message);
             }
         }
     }

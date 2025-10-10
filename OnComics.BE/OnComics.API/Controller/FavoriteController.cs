@@ -5,6 +5,7 @@ using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
+    [Route("api/favorite")]
     [ApiController]
     public class FavoriteController : ControllerBase
     {
@@ -17,8 +18,7 @@ namespace OnComics.API.Controller
 
         //Get All Favorite
         [HttpGet]
-        [Route("api/favorite")]
-        public async Task<IActionResult> GetFavoritesAsync([FromQuery] GetFavoriteReq getFavoriteReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetFavoriteReq getFavoriteReq)
         {
             var result = await _favoriteService.GetFavoritesAsync(getFavoriteReq);
 
@@ -26,9 +26,8 @@ namespace OnComics.API.Controller
         }
 
         //Get Favorite By Id
-        [HttpGet]
-        [Route("api/favorite/{id}")]
-        public async Task<IActionResult> GetFavoriteByIdAsync([FromRoute] int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
         {
             var result = await _favoriteService.GetFavoriteByIdAsync(id);
 
@@ -37,8 +36,7 @@ namespace OnComics.API.Controller
 
         //Create Favorite
         [HttpPost]
-        [Route("api/favorite")]
-        public async Task<IActionResult> CreateFavoriteAsync([FromBody] CreateFavoriteReq createFavoriteReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateFavoriteReq createFavoriteReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -50,9 +48,8 @@ namespace OnComics.API.Controller
         }
 
         //Delete Favorite
-        [HttpDelete]
-        [Route("api/favorite/{id}")]
-        public async Task<IActionResult> DeleteFavoriteAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _favoriteService.DeleteFavoriteAsync(id);
 

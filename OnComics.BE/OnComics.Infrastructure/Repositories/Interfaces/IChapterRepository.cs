@@ -8,6 +8,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<int> GetMaxChapNoByComicIdAsync(int id);
 
-        Task<Dictionary<int, int>> GetMaxChapNosByComicIdsAsync(int[] ids);
+        Task<IDictionary<int, int>> GetMaxChapNosByComicIdsAsync(int[] ids);
     }
 }

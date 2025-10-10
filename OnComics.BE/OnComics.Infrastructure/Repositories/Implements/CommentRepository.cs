@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Comments
-        public async Task<(IEnumerable<Comment>?, Dictionary<int, string>, Dictionary<int, string>)> GetCommentsAsync(
+        public async Task<(IEnumerable<Comment>?, IDictionary<int, string>, IDictionary<int, string>)> GetCommentsAsync(
             Expression<Func<Comment, bool>>? filter = null,
             Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? orderBy = null,
             int? pageNumber = null,
@@ -54,7 +54,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Reply Comment By Main Comment Id
-        public async Task<(IEnumerable<Comment>?, Dictionary<int, string>)> GetReplyCommentsAsync(int id)
+        public async Task<(IEnumerable<Comment>?, IDictionary<int, string>)> GetReplyCommentsAsync(int id)
         {
             var projected = await _context.Comments
                 .AsNoTracking()
@@ -85,21 +85,21 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Comment Data By Account Id
-        public async Task<int> CountCommentByAccountId(int id)
+        public async Task<int> CountCommentAsync(int id, bool isComicId = false)
         {
-            return await _context.Comments
-                .AsNoTracking()
-                .Where(c => c.AccountId == id)
-                .CountAsync();
-        }
-
-        //Count Comment Data By Comic Id
-        public async Task<int> CountCommentByComicId(int id)
-        {
-            return await _context.Comments
-                .AsNoTracking()
-                .Where(c => c.ComicId == id)
-                .CountAsync();
+            switch (isComicId)
+            {
+                case true:
+                    return await _context.Comments
+                        .AsNoTracking()
+                        .Where(c => c.ComicId == id)
+                        .CountAsync();
+                default:
+                    return await _context.Comments
+                        .AsNoTracking()
+                        .Where(c => c.AccountId == id)
+                        .CountAsync();
+            }
         }
     }
 }

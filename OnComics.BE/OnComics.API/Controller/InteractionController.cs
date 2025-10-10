@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.Interaction;
 using OnComics.Application.Services.Interfaces;
@@ -9,7 +7,7 @@ using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/interactions")]
     [ApiController]
     public class InteractionController : ControllerBase
     {
@@ -23,8 +21,7 @@ namespace OnComics.API.Controller
         //Get All Interactions
         [Authorize]
         [HttpGet]
-        [Route("api/interactions")]
-        public async Task<IActionResult> GetInteractionsAsync([FromQuery] GetInteractionReq getInteractionReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetInteractionReq getInteractionReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -43,9 +40,8 @@ namespace OnComics.API.Controller
 
         //Get Interaction By Id
         [Authorize]
-        [HttpGet]
-        [Route("api/interactions/{id}")]
-        public async Task<IActionResult> GetInteractionByIdAsync([FromRoute] int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
         {
             var result = await _interactionService.GetInteractionByIdAsync(id);
 
@@ -55,8 +51,7 @@ namespace OnComics.API.Controller
         //Create Interaction
         [Authorize]
         [HttpPost]
-        [Route("api/interactions")]
-        public async Task<IActionResult> CreateInteractionAsync([FromBody] CreateInteractionReq createInteractionReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateInteractionReq createInteractionReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -69,9 +64,8 @@ namespace OnComics.API.Controller
 
         //Update Interaction
         [Authorize]
-        [HttpPut]
-        [Route("api/interactions/{id}")]
-        public async Task<IActionResult> UpdateInteractionAsync([FromRoute] int id, UpdateInteractionReq updateInteractionReq)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, UpdateInteractionReq updateInteractionReq)
         {
             var result = await _interactionService.UpdateInteractionAsync(id, updateInteractionReq);
 
@@ -80,9 +74,8 @@ namespace OnComics.API.Controller
 
         //Delete Interaction
         [Authorize]
-        [HttpDelete]
-        [Route("api/interactions/{id}")]
-        public async Task<IActionResult> DeleteInteractionAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _interactionService.DeleteInteractionAsync(id);
 

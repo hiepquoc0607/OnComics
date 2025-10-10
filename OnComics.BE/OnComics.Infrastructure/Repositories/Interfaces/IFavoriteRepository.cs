@@ -5,7 +5,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IFavoriteRepository : IGenericRepository<Favorite>
     {
-        Task<(IEnumerable<Favorite>?, Dictionary<int, string>, Dictionary<int, string>)> GetFavoritesAsync(
+        Task<(IEnumerable<Favorite>?, IDictionary<int, string>, IDictionary<int, string>)> GetFavoritesAsync(
             Expression<Func<Favorite, bool>>? filter = null,
             Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? orderBy = null,
             int? pageNumber = null,

@@ -31,130 +31,150 @@ namespace OnComics.Application.Services.Implements
         //Get All Favorites
         public async Task<ObjectResponse<IEnumerable<FavoriteRes>?>> GetFavoritesAsync(GetFavoriteReq getFavoriteReq)
         {
-            string? searchKey = getFavoriteReq.SearchKey;
-
-            int pageNum = getFavoriteReq.PageNum;
-            int pageIndex = getFavoriteReq.PageIndex;
-
-            bool isDecending = getFavoriteReq.IsDescending;
-
-            int? searchId = getFavoriteReq.Id;
-
-            bool? isComicId = getFavoriteReq.IdType switch
+            try
             {
-                FavoriteIdType.ACCOUNT => false,
-                FavoriteIdType.COMIC => true,
-                _ => null
-            };
+                string? searchKey = getFavoriteReq.SearchKey;
 
-            Expression<Func<Favorite, bool>>? seacrh = null;
+                int pageNum = getFavoriteReq.PageNum;
+                int pageIndex = getFavoriteReq.PageIndex;
 
-            int totalData = 0;
+                bool isDecending = getFavoriteReq.IsDescending;
 
-            if (searchId.HasValue && isComicId == true)
-            {
-                seacrh = f =>
-                    (string.IsNullOrEmpty(searchKey) ||
-                    EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
-                    EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%") &&
-                    f.ComicId == searchId);
+                int? searchId = getFavoriteReq.Id;
 
-                totalData = await _favoriteRepository.CountFavoriteAsync(searchId.Value, true);
-            }
-            else if (searchId.HasValue && isComicId == false)
-            {
-                seacrh = f =>
-                    (string.IsNullOrEmpty(searchKey) ||
-                    EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
-                    EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%") &&
-                    f.AccountId == searchId);
+                bool? isComicId = getFavoriteReq.IdType switch
+                {
+                    FavoriteIdType.ACCOUNT => false,
+                    FavoriteIdType.COMIC => true,
+                    _ => null
+                };
 
-                totalData = await _favoriteRepository.CountFavoriteAsync(searchId.Value, false);
-            }
-            else
-            {
-                seacrh = f =>
-                    (string.IsNullOrEmpty(searchKey) ||
-                    EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
-                    EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%"));
+                Expression<Func<Favorite, bool>>? seacrh = null;
 
-                totalData = await _favoriteRepository.CountRecordAsync();
-            }
+                int totalData = 0;
 
-            Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? order = f => getFavoriteReq.SortBy switch
-            {
-                FavoriteSortOption.ACCOUNT => isDecending
-                    ? f.OrderByDescending(f => f.Account.Fullname)
-                    : f.OrderBy(f => f.Account.Fullname),
-                FavoriteSortOption.COMIC => isDecending
-                    ? f.OrderByDescending(f => f.Account.Fullname)
-                    : f.OrderBy(f => f.Account.Fullname),
-                _ => f.OrderBy(f => f.Id)
-            };
+                if (searchId.HasValue && isComicId == true)
+                {
+                    seacrh = f =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
+                        EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%") &&
+                        f.ComicId == searchId);
 
-            var (favorites, accounts, comics) = await _favoriteRepository
-                .GetFavoritesAsync(seacrh, order, pageNum, pageIndex);
+                    totalData = await _favoriteRepository.CountFavoriteAsync(searchId.Value, true);
+                }
+                else if (searchId.HasValue && isComicId == false)
+                {
+                    seacrh = f =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
+                        EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%") &&
+                        f.AccountId == searchId);
 
-            if (favorites == null)
+                    totalData = await _favoriteRepository.CountFavoriteAsync(searchId.Value, false);
+                }
+                else
+                {
+                    seacrh = f =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
+                        EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%"));
+
+                    totalData = await _favoriteRepository.CountRecordAsync();
+                }
+
+                Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? order = f => getFavoriteReq.SortBy switch
+                {
+                    FavoriteSortOption.ACCOUNT => isDecending
+                        ? f.OrderByDescending(f => f.Account.Fullname)
+                        : f.OrderBy(f => f.Account.Fullname),
+                    FavoriteSortOption.COMIC => isDecending
+                        ? f.OrderByDescending(f => f.Account.Fullname)
+                        : f.OrderBy(f => f.Account.Fullname),
+                    _ => f.OrderBy(f => f.Id)
+                };
+
+                var (favorites, accounts, comics) = await _favoriteRepository
+                    .GetFavoritesAsync(seacrh, order, pageNum, pageIndex);
+
+                if (favorites == null)
+                    return new ObjectResponse<IEnumerable<FavoriteRes>?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Favorite Data Empty!");
+
+                var data = favorites.Select(f => new FavoriteRes
+                {
+                    Id = f.Id,
+                    AccountId = f.AccountId,
+                    Fullname = accounts[f.AccountId],
+                    ComicId = f.ComicId,
+                    ComicName = comics[f.ComicId]
+                });
+
+                var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+                var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
+
                 return new ObjectResponse<IEnumerable<FavoriteRes>?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Favorite Data Empty!");
-
-            var data = favorites.Select(f => new FavoriteRes
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!",
+                    data,
+                    pagination);
+            }
+            catch (Exception ex)
             {
-                Id = f.Id,
-                AccountId = f.AccountId,
-                Fullname = accounts[f.AccountId],
-                ComicId = f.ComicId,
-                ComicName = comics[f.ComicId]
-            });
-
-            var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
-            var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
-
-            return new ObjectResponse<IEnumerable<FavoriteRes>?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data,
-                pagination);
+                return new ObjectResponse<IEnumerable<FavoriteRes>?>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
         }
 
         //Get Favorite By Id
         public async Task<ObjectResponse<FavoriteRes?>> GetFavoriteByIdAsync(int id)
         {
-            var (favorite, fullname, comicName) = await _favoriteRepository.GetFavoriteByIdAsync(id);
+            try
+            {
+                var (favorite, fullname, comicName) = await _favoriteRepository.GetFavoriteByIdAsync(id);
 
-            if (favorite == null)
+                if (favorite == null)
+                    return new ObjectResponse<FavoriteRes?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Favorite Not Found!");
+
+                var data = _mapper.Map<FavoriteRes>(favorite);
+                data.Fullname = fullname;
+                data.ComicName = comicName;
+
                 return new ObjectResponse<FavoriteRes?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Favorite Not Found!");
-
-            var data = _mapper.Map<FavoriteRes>(favorite);
-            data.Fullname = fullname;
-            data.ComicName = comicName;
-
-            return new ObjectResponse<FavoriteRes?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data);
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!",
+                    data);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<FavoriteRes?>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!, 
+                    ex.Message);
+            }
         }
 
         //Create Favorite
         public async Task<ObjectResponse<Favorite>> CreateFavoriteAsync(int accId, CreateFavoriteReq createFavoriteReq)
         {
-            bool isExisted = await _favoriteRepository
-                .CheckFavoriteExistedAsync(accId, createFavoriteReq.ComicId);
-
-            if (isExisted)
-                return new ObjectResponse<Favorite>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Favorite Is Existed!");
-
-            var newFav = _mapper.Map<Favorite>(createFavoriteReq);
-            newFav.AccountId = accId;
-
             try
             {
+                bool isExisted = await _favoriteRepository
+                    .CheckFavoriteExistedAsync(accId, createFavoriteReq.ComicId);
+
+                if (isExisted)
+                    return new ObjectResponse<Favorite>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Favorite Is Existed!");
+
+                var newFav = _mapper.Map<Favorite>(createFavoriteReq);
+                newFav.AccountId = accId;
+
                 await _favoriteRepository.InsertAsync(newFav);
 
                 return new ObjectResponse<Favorite>(
@@ -165,23 +185,24 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<Favorite>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Create Favorite Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Delete Favorite
         public async Task<VoidResponse> DeleteFavoriteAsync(int id)
         {
-            var fav = await _favoriteRepository.GetByIdAsync(id);
-
-            if (fav == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Favorite Not Found!");
-
             try
             {
+                var fav = await _favoriteRepository.GetByIdAsync(id);
+
+                if (fav == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Favorite Not Found!");
+
                 await _favoriteRepository.DeleteAsync(id);
 
                 return new VoidResponse(
@@ -191,8 +212,9 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Delete Favorite Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
     }

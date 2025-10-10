@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Favorite
-        public async Task<(IEnumerable<Favorite>?, Dictionary<int, string>, Dictionary<int, string>)> GetFavoritesAsync(
+        public async Task<(IEnumerable<Favorite>?, IDictionary<int, string>, IDictionary<int, string>)> GetFavoritesAsync(
             Expression<Func<Favorite, bool>>? filter = null,
             Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? orderBy = null,
             int? pageNumber = null,

@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Histories
-        public async Task<(IEnumerable<History>?, Dictionary<int, string>, Dictionary<int, string>)> GetHistoriesAsync(
+        public async Task<(IEnumerable<History>?, IDictionary<int, string>, IDictionary<int, string>)> GetHistoriesAsync(
             Expression<Func<History, bool>>? filter = null,
             Func<IQueryable<History>, IOrderedQueryable<History>>? orderBy = null,
             int? pageNumber = null,

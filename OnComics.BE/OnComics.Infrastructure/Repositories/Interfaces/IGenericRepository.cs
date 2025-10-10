@@ -14,15 +14,17 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task InsertAsync(T entity);
 
-        Task InsertRangeAsync(IEnumerable<T> entities);
+        Task BulkInsertRangeAsync(IEnumerable<T> entities);
 
         Task UpdateAsync(T entity);
+
+        Task BulkUpdateRangeAsync(IEnumerable<T> entities);
 
         Task DeleteAsync(T entity);
 
         Task DeleteAsync(object id);
 
-        Task DeleteRangeAsync(IEnumerable<T> entities);
+        Task BulkDeleteRangeAsync(IEnumerable<T> entities);
 
         Task RunTransactionAsync(Func<Task> operations);
 

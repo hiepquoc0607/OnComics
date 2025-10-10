@@ -63,8 +63,8 @@ namespace OnComics.Infrastructure.Repositories.Implements
             await _context.SaveChangesAsync();
         }
 
-        // Bulk (Range) Insert
-        public async Task InsertRangeAsync(IEnumerable<T> entities)
+        // Bulk Insert Range
+        public async Task BulkInsertRangeAsync(IEnumerable<T> entities)
         {
             // Default bulk insert of EF:
             //await _dbSet.AddRangeAsync(entities);
@@ -83,6 +83,12 @@ namespace OnComics.Infrastructure.Repositories.Implements
             await _context.SaveChangesAsync();
         }
 
+        //Bulk Update Range
+        public async Task BulkUpdateRangeAsync(IEnumerable<T> entities)
+        {
+            await _context.BulkUpdateAsync(entities);
+        }
+
         //Delete Ojbect
         public async Task DeleteAsync(T entity)
         {
@@ -97,7 +103,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Delete By Id
         public async Task DeleteAsync(object id)
         {
-            var entity = await GetByIdAsync(id);
+            var entity = await GetByIdAsync(id, true);
 
             if (entity != null)
                 _dbSet.Remove(entity);
@@ -105,8 +111,8 @@ namespace OnComics.Infrastructure.Repositories.Implements
             await _context.SaveChangesAsync();
         }
 
-        //Bulk (Range) Delete 
-        public async Task DeleteRangeAsync(IEnumerable<T> entities)
+        //Bulk Delete Range
+        public async Task BulkDeleteRangeAsync(IEnumerable<T> entities)
         {
             // Default bulk delete of EF:
             //_dbSet.RemoveRange(entities);
