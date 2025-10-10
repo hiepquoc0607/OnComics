@@ -30,7 +30,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Max Chapter ChapNo For Each ComicIds
-        public async Task<Dictionary<int, int>> GetMaxChapNosByComicIdsAsync(int[] ids)
+        public async Task<IDictionary<int, int>> GetMaxChapNosByComicIdsAsync(int[] ids)
         {
             return await _context.Chapters
                 .AsNoTracking()

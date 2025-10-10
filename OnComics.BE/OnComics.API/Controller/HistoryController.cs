@@ -9,6 +9,7 @@ using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
+    [Route("api/history")]
     [ApiController]
     public class HistoryController : ControllerBase
     {
@@ -38,11 +39,10 @@ namespace OnComics.API.Controller
             return true;
         }
 
-        //Get All Histories
+        //Get All History
         [Authorize]
         [HttpGet]
-        [Route("api/history")]
-        public async Task<IActionResult> GetHistoriesAsync([FromRoute] GetHistoryReq getHistoryReq)
+        public async Task<IActionResult> GetAllAsync([FromRoute] GetHistoryReq getHistoryReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -63,8 +63,7 @@ namespace OnComics.API.Controller
         //Create History
         [Authorize]
         [HttpPost]
-        [Route("api/history")]
-        public async Task<IActionResult> CreateHistoryAsync([FromBody] CreateHistoryReq createHistoryReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateHistoryReq createHistoryReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -77,9 +76,8 @@ namespace OnComics.API.Controller
 
         //Updaate History
         [Authorize]
-        [HttpPut]
-        [Route("api/history/{id}")]
-        public async Task<IActionResult> UpdateHistoryAsync([FromRoute] int id, UpdateHistoryReq updateHistoryReq)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, UpdateHistoryReq updateHistoryReq)
         {
             var result = await _historyService.UpdateHistroyAsync(id, updateHistoryReq);
 
@@ -88,9 +86,8 @@ namespace OnComics.API.Controller
 
         //Delete History
         [Authorize]
-        [HttpDelete]
-        [Route("api/history/{id}")]
-        public async Task<IActionResult> DeleteHistoryAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _historyService.DeleteHistoryAsync(id);
 
@@ -99,9 +96,8 @@ namespace OnComics.API.Controller
 
         //Bulk(Range) Delete History
         [Authorize]
-        [HttpDelete]
-        [Route("api/history/{accId}/bulk")]
-        public async Task<IActionResult> DeleteHistoriesAsync([FromRoute] int accId)
+        [HttpDelete("{accId}/bulk")]
+        public async Task<IActionResult> BulkDeleteAsync([FromRoute] int accId)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -109,7 +105,7 @@ namespace OnComics.API.Controller
                 accId != int.Parse(userIdClaim))
                 return Forbid();
 
-            var result = await _historyService.DeleteHistoriesAsync(accId);
+            var result = await _historyService.DeleteRangeHistoriesAsync(accId);
 
             return StatusCode(result.StatusCode, result);
         }

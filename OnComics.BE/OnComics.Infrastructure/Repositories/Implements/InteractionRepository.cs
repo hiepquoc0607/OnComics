@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Interactions
-        public async Task<(IEnumerable<Interaction>?, Dictionary<int, string>, Dictionary<int, string>)> GetInteractionsAsync(
+        public async Task<(IEnumerable<Interaction>?, IDictionary<int, string>, IDictionary<int, string>)> GetInteractionsAsync(
             Expression<Func<Interaction, bool>>? filter = null,
             Func<IQueryable<Interaction>, IOrderedQueryable<Interaction>>? orderBy = null,
             int? pageNumber = null,

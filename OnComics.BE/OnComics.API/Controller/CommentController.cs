@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
+    [Route("api/comments")]
     [ApiController]
     public class CommentController : ControllerBase
     {
@@ -40,8 +41,7 @@ namespace OnComics.API.Controller
         //Get All Comments
         [Authorize]
         [HttpGet]
-        [Route("api/comments")]
-        public async Task<IActionResult> GetCommentsAsync([FromQuery] GetCommentReq getCommentReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetCommentReq getCommentReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -61,8 +61,7 @@ namespace OnComics.API.Controller
 
         //Get All Reply Comments
         [Authorize]
-        [HttpGet]
-        [Route("api/comments/{id}/reply-comments")]
+        [HttpGet("{id}/reply-comments")]
         public async Task<IActionResult> GetReplyCommentsAsync([FromRoute] int id)
         {
             var result = await _commentService.GetReplyCommentsAsync(id);
@@ -73,8 +72,7 @@ namespace OnComics.API.Controller
         //Create Comment
         [Authorize]
         [HttpPost]
-        [Route("api/comments")]
-        public async Task<IActionResult> CreateCommentAsync([FromBody] CreateCommentReq createCommentReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateCommentReq createCommentReq)
         {
             var result = await _commentService.CreateCommentAsync(createCommentReq);
 
@@ -83,8 +81,7 @@ namespace OnComics.API.Controller
 
         //Reply Comment
         [Authorize]
-        [HttpPost]
-        [Route("api/comments/{id}/reply-comments")]
+        [HttpPost("{id}/reply-comments")]
         public async Task<IActionResult> ReplyCommentAsync([FromRoute] int id, CreateCommentReq createCommentReq)
         {
             var result = await _commentService.ReplyCommentAsync(id, createCommentReq);
@@ -94,9 +91,8 @@ namespace OnComics.API.Controller
 
         //Update Comment
         [Authorize]
-        [HttpPut]
-        [Route("api/comments/{id}")]
-        public async Task<IActionResult> UpdateCommentAsync([FromRoute] int id, UpdateCommentReq updateCommentReq)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, UpdateCommentReq updateCommentReq)
         {
             var result = await _commentService.UpdateCommentAsync(id, updateCommentReq);
 
@@ -105,9 +101,8 @@ namespace OnComics.API.Controller
 
         //Delete Comment
         [Authorize]
-        [HttpDelete]
-        [Route("api/comments/{id}")]
-        public async Task<IActionResult> DeleteCommentAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _commentService.DeleteCommentAsync(id);
 

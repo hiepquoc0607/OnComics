@@ -6,6 +6,7 @@ using OnComics.Application.Services.Interfaces;
 
 namespace OnComics.API.Controller
 {
+    [Route("api/interaction-types")]
     [ApiController]
     public class InteractionTypeController : ControllerBase
     {
@@ -18,8 +19,7 @@ namespace OnComics.API.Controller
 
         //Get All Interaction Types
         [HttpGet]
-        [Route("api/interaction-types")]
-        public async Task<IActionResult> GetIrtTypesAsync([FromQuery] GetItrTypeReq getItrTypeReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetItrTypeReq getItrTypeReq)
         {
             var result = await _interactionService.GetItrTypesAsync(getItrTypeReq);
 
@@ -27,9 +27,8 @@ namespace OnComics.API.Controller
         }
 
         //Get Interaction Type By Id
-        [HttpGet]
-        [Route("api/interaction-types/{id}")]
-        public async Task<IActionResult> GetItrTypeByIdAsync([FromRoute] int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
         {
             var result = await _interactionService.GetItrTypeByIdAsync(id);
 
@@ -38,8 +37,7 @@ namespace OnComics.API.Controller
 
         //Create Interaction Type
         [HttpPut]
-        [Route("api/interaction-types")]
-        public async Task<IActionResult> CreateItrTypeAsync([FromBody] CreateItrTypeReq createItrTypeReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateItrTypeReq createItrTypeReq)
         {
             var result = await _interactionService.CreateItrTypeAsync(createItrTypeReq);
 
@@ -47,9 +45,8 @@ namespace OnComics.API.Controller
         }
 
         //Update Interaction Type
-        [HttpPost]
-        [Route("api/interaction-types/{id}")]
-        public async Task<IActionResult> UpdateItrTypeAsync([FromRoute] int id, [FromBody] UpdateItrTypeReq updateItrTypeReq)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateItrTypeReq updateItrTypeReq)
         {
             var result = await _interactionService.UpdateItrTypeAsync(id, updateItrTypeReq);
 
@@ -57,9 +54,8 @@ namespace OnComics.API.Controller
         }
 
         //Update Interaction Type Status
-        [HttpPatch]
-        [Route("api/interaction-types/{id}/status")]
-        public async Task<IActionResult> UpdateIrtTypeStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
         {
             var result = await _interactionService.UpdateItrTypeStatusAsync(id, updateStatusReq);
 
@@ -67,9 +63,8 @@ namespace OnComics.API.Controller
         }
 
         //Delete Interaction Type
-        [HttpDelete]
-        [Route("api/interaction-types/{id}")]
-        public async Task<IActionResult> DeleteIrtTypeAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _interactionService.DeleteItrTypeAsync(id);
 

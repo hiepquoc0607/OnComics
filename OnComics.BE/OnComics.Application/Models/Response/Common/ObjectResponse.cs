@@ -29,11 +29,23 @@ namespace OnComics.Application.Models.Response.Common
             Message = message;
         }
 
+        //Exception Rsponse
+        public ObjectResponse(int statusCode, string errorType, string message)
+        {
+            Status = "Error";
+            StatusCode = statusCode;
+            ErrorType = errorType;
+            Message = message;
+        }
+
         public string Status { get; set; } = string.Empty;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [DefaultValue(200)]
         public int StatusCode { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? ErrorType { get; set; } = null;
 
         public string Message { get; set; } = string.Empty;
 

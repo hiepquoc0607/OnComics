@@ -13,8 +13,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(int accId, int comicId);
 
-        Task<int> CountRatingByAccountIdAsync(int id);
-
-        Task<int> CountRatingByComicIdAsync(int id);
+        Task<int> CountRatingAsync(int id, bool isComicId = false);
     }
 }

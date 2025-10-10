@@ -9,6 +9,7 @@ using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
+    [Route("api/comic-ratings")]
     [ApiController]
     public class ComicRatingController : ControllerBase
     {
@@ -34,9 +35,8 @@ namespace OnComics.API.Controller
 
         //Get All Ratings
         [Authorize]
-        [Route("api/comic-ratings")]
         [HttpGet]
-        public async Task<IActionResult> GetRatingsByAccountIdAsync([FromQuery] GetComicRatingReq getComicRatingReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetComicRatingReq getComicRatingReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -54,9 +54,8 @@ namespace OnComics.API.Controller
 
         //Create Rating
         [Authorize]
-        [Route("api/comic-ratings/")]
         [HttpPost]
-        public async Task<IActionResult> CreateRatingAsync([FromBody] CreateComicRatingReq createComicRatingReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateComicRatingReq createComicRatingReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -69,9 +68,8 @@ namespace OnComics.API.Controller
 
         //Update Rating
         [Authorize]
-        [Route("api/comic-ratings/{id}")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateRatingAsync([FromRoute] int id, [FromBody] CreateComicRatingReq createComicRatingReq)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] CreateComicRatingReq createComicRatingReq)
         {
             var result = await _comicRatingService.CreateRatingAsync(id, createComicRatingReq);
 
@@ -80,9 +78,8 @@ namespace OnComics.API.Controller
 
         //Delete Rating
         [Authorize]
-        [Route("api/comic-ratings/{id}")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteRatingAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _comicRatingService.DeleteRatingAsync(id);
 

@@ -28,113 +28,125 @@ namespace OnComics.Application.Services.Implements
         //Get All Histories
         public async Task<ObjectResponse<IEnumerable<HistoryRes>?>> GetHistoriesAsync(GetHistoryReq getHistoryReq)
         {
-            string? searchKey = getHistoryReq.SearchKey;
-
-            int pageNum = getHistoryReq.PageNum;
-            int pageIndex = getHistoryReq.PageIndex;
-
-            bool isDecending = getHistoryReq.IsDescending;
-
-            int? searchId = getHistoryReq.Id;
-
-            bool? isComicId = getHistoryReq.IdType switch
+            try
             {
-                HistoryIdType.ACCOUNT => false,
-                HistoryIdType.COMIC => true,
-                _ => null
-            };
+                string? searchKey = getHistoryReq.SearchKey;
 
-            Expression<Func<History, bool>>? search = null;
+                int pageNum = getHistoryReq.PageNum;
+                int pageIndex = getHistoryReq.PageIndex;
 
-            int totalData = 0;
+                bool isDecending = getHistoryReq.IsDescending;
 
-            if (searchId.HasValue && isComicId == true)
-            {
-                search = h =>
-                    (string.IsNullOrEmpty(searchKey) ||
-                    EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%")) &&
-                    h.Chapter.Comic.Id == searchId;
+                int? searchId = getHistoryReq.Id;
 
-                totalData = await _historyRepository.CountHistoryAsync(searchId.Value, isComicId.Value);
-            }
-            else if (searchId.HasValue && isComicId == false)
-            {
-                search = h =>
-                    (string.IsNullOrEmpty(searchKey) ||
-                    EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
-                    h.Chapter.Comic.Id == searchId;
+                bool? isComicId = getHistoryReq.IdType switch
+                {
+                    HistoryIdType.ACCOUNT => false,
+                    HistoryIdType.COMIC => true,
+                    _ => null
+                };
 
-                totalData = await _historyRepository.CountHistoryAsync(searchId.Value, isComicId.Value);
-            }
-            else
-            {
-                search = h =>
-                    (string.IsNullOrEmpty(searchKey) ||
-                    EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%") ||
-                    EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
-                    h.Chapter.Comic.Id == searchId;
+                Expression<Func<History, bool>>? search = null;
 
-                totalData = await _historyRepository.CountRecordAsync();
-            }
+                int totalData = 0;
 
-            Func<IQueryable<History>, IOrderedQueryable<History>>? order = h => getHistoryReq.SortBy switch
-            {
-                HistorySortOption.ACCOUNT => isDecending
-                    ? h.OrderByDescending(h => h.Account.Fullname)
-                    : h.OrderBy(h => h.Account.Fullname),
-                HistorySortOption.COMIC => isDecending
-                    ? h.OrderByDescending(h => h.Chapter.Comic.Name)
-                    : h.OrderBy(h => h.Chapter.Comic.Name),
-                HistorySortOption.TIME => isDecending
-                    ? h.OrderByDescending(h => h.ReadTime)
-                    : h.OrderBy(h => h.ReadTime),
-                _ => h.OrderBy(h => h.Id)
-            };
+                if (searchId.HasValue && isComicId == true)
+                {
+                    search = h =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%")) &&
+                        h.Chapter.Comic.Id == searchId;
 
-            var (histories, accounts, comics) = await _historyRepository
-                .GetHistoriesAsync(search, order, pageNum, pageIndex);
+                    totalData = await _historyRepository
+                        .CountHistoryAsync(searchId.Value, isComicId.Value);
+                }
+                else if (searchId.HasValue && isComicId == false)
+                {
+                    search = h =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
+                        h.Chapter.Comic.Id == searchId;
 
-            if (histories == null)
+                    totalData = await _historyRepository
+                        .CountHistoryAsync(searchId.Value, isComicId.Value);
+                }
+                else
+                {
+                    search = h =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%") ||
+                        EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
+                        h.Chapter.Comic.Id == searchId;
+
+                    totalData = await _historyRepository.CountRecordAsync();
+                }
+
+                Func<IQueryable<History>, IOrderedQueryable<History>>? order = h => getHistoryReq.SortBy switch
+                {
+                    HistorySortOption.ACCOUNT => isDecending
+                        ? h.OrderByDescending(h => h.Account.Fullname)
+                        : h.OrderBy(h => h.Account.Fullname),
+                    HistorySortOption.COMIC => isDecending
+                        ? h.OrderByDescending(h => h.Chapter.Comic.Name)
+                        : h.OrderBy(h => h.Chapter.Comic.Name),
+                    HistorySortOption.TIME => isDecending
+                        ? h.OrderByDescending(h => h.ReadTime)
+                        : h.OrderBy(h => h.ReadTime),
+                    _ => h.OrderBy(h => h.Id)
+                };
+
+                var (histories, accounts, comics) = await _historyRepository
+                    .GetHistoriesAsync(search, order, pageNum, pageIndex);
+
+                if (histories == null)
+                    return new ObjectResponse<IEnumerable<HistoryRes>?>(
+                        (int)HttpStatusCode.NotFound,
+                        "History Data Is Empty!");
+
+                var data = histories.Select(h => new HistoryRes
+                {
+                    Id = h.Id,
+                    AccountId = h.AccountId,
+                    Fullname = accounts[h.AccountId],
+                    ComicId = h.Chapter.Comic.Id,
+                    ComicName = comics[h.Chapter.Comic.Id],
+                    ChapterId = h.ChapterId,
+                    ReadTime = h.ReadTime
+                });
+
+                var totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+                var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+
                 return new ObjectResponse<IEnumerable<HistoryRes>?>(
-                    (int)HttpStatusCode.NotFound,
-                    "History Data Is Empty!");
-
-            var data = histories.Select(h => new HistoryRes
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!",
+                    data,
+                    pagination);
+            }
+            catch (Exception ex)
             {
-                Id = h.Id,
-                AccountId = h.AccountId,
-                Fullname = accounts[h.AccountId],
-                ComicId = h.Chapter.Comic.Id,
-                ComicName = comics[h.Chapter.Comic.Id],
-                ChapterId = h.ChapterId,
-                ReadTime = h.ReadTime
-            });
-
-            var totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
-            var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
-
-            return new ObjectResponse<IEnumerable<HistoryRes>?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data,
-                pagination);
+                return new ObjectResponse<IEnumerable<HistoryRes>?>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
         }
 
         //Create History
         public async Task<ObjectResponse<History>> CreateHistroyAsync(int accId, CreateHistoryReq createHistoryReq)
         {
-            bool isExisted = await _historyRepository
-                .CheckHistoryExistedAsync(accId, createHistoryReq.ChapterId);
-
-            if (isExisted)
-                return new ObjectResponse<History>(
-                    (int)HttpStatusCode.BadRequest,
-                    "History Is Existed!");
-
-            var newHistory = _mapper.Map<History>(createHistoryReq);
-
             try
             {
+                bool isExisted = await _historyRepository
+                    .CheckHistoryExistedAsync(accId, createHistoryReq.ChapterId);
+
+                if (isExisted)
+                    return new ObjectResponse<History>(
+                        (int)HttpStatusCode.BadRequest,
+                        "History Is Existed!");
+
+                var newHistory = _mapper.Map<History>(createHistoryReq);
+
                 await _historyRepository.InsertAsync(newHistory);
 
                 return new ObjectResponse<History>(
@@ -145,25 +157,26 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<History>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Create History Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Update History
         public async Task<VoidResponse> UpdateHistroyAsync(int id, UpdateHistoryReq updateHistoryReq)
         {
-            var oldHistory = await _historyRepository.GetByIdAsync(id, true);
-
-            if (oldHistory == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "History Not Found!");
-
-            var newHistory = _mapper.Map(updateHistoryReq, oldHistory);
-
             try
             {
+                var oldHistory = await _historyRepository.GetByIdAsync(id, true);
+
+                if (oldHistory == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "History Not Found!");
+
+                var newHistory = _mapper.Map(updateHistoryReq, oldHistory);
+
                 await _historyRepository.UpdateAsync(newHistory);
 
                 return new VoidResponse(
@@ -173,23 +186,24 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Update Hisotry Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Delete History
         public async Task<VoidResponse> DeleteHistoryAsync(int id)
         {
-            var history = await _historyRepository.GetByIdAsync(id);
-
-            if (history == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "History Not Found!");
-
             try
             {
+                var history = await _historyRepository.GetByIdAsync(id);
+
+                if (history == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "History Not Found!");
+
                 await _historyRepository.DeleteAsync(id);
 
                 return new VoidResponse(
@@ -199,25 +213,26 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Delete Hisotry Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
-        //Bulk(Range) Delete Histories By Account Id
-        public async Task<VoidResponse> DeleteHistoriesAsync(int accId)
+        //Bulk Delete Range Histories By Account Id
+        public async Task<VoidResponse> DeleteRangeHistoriesAsync(int accId)
         {
-            var histories = await _historyRepository
-                .GetHistoriesByAccountIdAsync(accId);
-
-            if (histories == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Account's History Data Empty!");
-
             try
             {
-                await _historyRepository.DeleteRangeAsync(histories);
+                var histories = await _historyRepository
+                    .GetHistoriesByAccountIdAsync(accId);
+
+                if (histories == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Account's History Data Empty!");
+
+                await _historyRepository.BulkDeleteRangeAsync(histories);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -226,8 +241,9 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Delete Histories Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
     }

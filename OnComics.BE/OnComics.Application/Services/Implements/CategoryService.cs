@@ -35,90 +35,110 @@ namespace OnComics.Application.Services.Implements
         //Get All Categoriess
         public async Task<ObjectResponse<IEnumerable<CategoryRes>?>> GetCategoriesAsync(GetCategoryReq getCategoryReq)
         {
-            string? searchKey = getCategoryReq.SearchKey;
-
-            string? status = getCategoryReq.Status switch
+            try
             {
-                CategoryStatus.ACTIVE => StatusConstant.ACTIVE,
-                CategoryStatus.INACTIVE => StatusConstant.INACTIVE,
-                _ => null
-            };
+                string? searchKey = getCategoryReq.SearchKey;
 
-            bool isDescending = getCategoryReq.IsDescending;
+                string? status = getCategoryReq.Status switch
+                {
+                    CategoryStatus.ACTIVE => StatusConstant.ACTIVE,
+                    CategoryStatus.INACTIVE => StatusConstant.INACTIVE,
+                    _ => null
+                };
 
-            int pageNum = getCategoryReq.PageNum;
-            int pageIndex = getCategoryReq.PageIndex;
+                bool isDescending = getCategoryReq.IsDescending;
+
+                int pageNum = getCategoryReq.PageNum;
+                int pageIndex = getCategoryReq.PageIndex;
 
 
-            Expression<Func<Category, bool>>? search = c =>
-                (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%")) &&
-                (string.IsNullOrEmpty(status) || c.Status.Equals(status));
+                Expression<Func<Category, bool>>? search = c =>
+                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%")) &&
+                    (string.IsNullOrEmpty(status) || c.Status.Equals(status));
 
-            Func<IQueryable<Category>, IOrderedQueryable<Category>>? order = c => getCategoryReq.SortBy switch
-            {
-                CategorySortOption.NAME => isDescending
-                    ? c.OrderByDescending(c => c.Name)
-                    : c.OrderBy(c => c.Name),
-                CategorySortOption.STATUS => isDescending
-                    ? c.OrderByDescending(c => c.Status)
-                    : c.OrderBy(c => c.Status),
-                _ => c.OrderBy(c => c.Id)
-            };
+                Func<IQueryable<Category>, IOrderedQueryable<Category>>? order = c => getCategoryReq.SortBy switch
+                {
+                    CategorySortOption.NAME => isDescending
+                        ? c.OrderByDescending(c => c.Name)
+                        : c.OrderBy(c => c.Name),
+                    CategorySortOption.STATUS => isDescending
+                        ? c.OrderByDescending(c => c.Status)
+                        : c.OrderBy(c => c.Status),
+                    _ => c.OrderBy(c => c.Id)
+                };
 
-            var categories = await _categoryRepository.GetAsync(search, order, pageNum, pageIndex);
+                var categories = await _categoryRepository.GetAsync(search, order, pageNum, pageIndex);
 
-            if (categories == null)
+                if (categories == null)
+                    return new ObjectResponse<IEnumerable<CategoryRes>?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Category Data Is Empty!");
+
+                var totalData = await _categoryRepository.CountRecordAsync();
+                int totalPage = (int)Math.Ceiling((decimal)totalData / getCategoryReq.PageIndex);
+                var data = categories.Adapt<IEnumerable<CategoryRes>>();
+
+                var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+
                 return new ObjectResponse<IEnumerable<CategoryRes>?>(
-                    (int)HttpStatusCode.NotFound,
-                    "Category Data Is Empty!");
-
-            var totalData = await _categoryRepository.CountRecordAsync();
-            int totalPage = (int)Math.Ceiling((decimal)totalData / getCategoryReq.PageIndex);
-            var data = categories.Adapt<IEnumerable<CategoryRes>>();
-
-            var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
-
-            return new ObjectResponse<IEnumerable<CategoryRes>?>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!",
-                data,
-                pagination);
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!",
+                    data,
+                    pagination);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<IEnumerable<CategoryRes>?>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
         }
 
         //Get Category By Id
         public async Task<ObjectResponse<CategoryRes>> GetCategoryByIdAsync(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            try
+            {
+                var category = await _categoryRepository.GetByIdAsync(id);
 
-            if (category == null)
+                if (category == null)
+                    return new ObjectResponse<CategoryRes>(
+                        (int)HttpStatusCode.NotFound,
+                        "Category Not Found!");
+
+                var data = _mapper.Map<CategoryRes>(category);
+
                 return new ObjectResponse<CategoryRes>(
-                    (int)HttpStatusCode.NotFound,
-                    "Category Not Found!");
-
-            var data = _mapper.Map<CategoryRes>(category);
-
-            return new ObjectResponse<CategoryRes>(
-                (int)HttpStatusCode.OK,
-                "Fetch Data Successfully!", data);
+                    (int)HttpStatusCode.OK,
+                    "Fetch Data Successfully!", data);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<CategoryRes>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
         }
 
         //Create Category
         public async Task<ObjectResponse<Category>> CreateCategoryAsync(CreateCategoryReq createCategoryReq)
         {
-            var name = _util.FormatStringName(createCategoryReq.Name);
-
-            var isExited = await _categoryRepository.CheckCategoryIsExistedAsync(name);
-
-            if (isExited)
-                return new ObjectResponse<Category>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Category Is Existed!");
-
-            var newCate = _mapper.Map<Category>(createCategoryReq);
-            newCate.Name = name;
-
             try
             {
+                var name = _util.FormatStringName(createCategoryReq.Name);
+
+                var isExited = await _categoryRepository.CheckCategoryIsExistedAsync(name);
+
+                if (isExited)
+                    return new ObjectResponse<Category>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Category Is Existed!");
+
+                var newCate = _mapper.Map<Category>(createCategoryReq);
+                newCate.Name = name;
+
                 await _categoryRepository.InsertAsync(newCate);
 
                 return new ObjectResponse<Category>(
@@ -129,38 +149,39 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<Category>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Create Category Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Bulk (Range) Create Categories
-        public async Task<ObjectResponse<IEnumerable<Category>>> CreateCategoriesAsync(List<CreateCategoryReq> categories)
+        public async Task<ObjectResponse<IEnumerable<Category>>> CreateRangeCategoriesAsync(List<CreateCategoryReq> categories)
         {
-            if (categories.Count > 10)
-                return new ObjectResponse<IEnumerable<Category>>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Only Create Max 10 Record At Once!");
-
-            string[] names = categories.Select(c => c.Name).ToArray();
-            string[] dataNames = await _categoryRepository.GetCateNamesAsync();
-            string[] existedNames = _util.CompareStringArray(names, dataNames);
-
-            if (existedNames.Length > 0)
-                return new ObjectResponse<IEnumerable<Category>>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Categories Are Existed!, Name: " + string.Join(", ", names));
-
-            var newCategories = categories.Adapt<IEnumerable<Category>>();
-
-            foreach (var items in newCategories)
-            {
-                items.Name = _util.FormatStringName(items.Name);
-            }
-
             try
             {
-                await _categoryRepository.InsertRangeAsync(newCategories);
+                if (categories.Count > 10)
+                    return new ObjectResponse<IEnumerable<Category>>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Only Create Max 10 Record At Once!");
+
+                string[] names = categories.Select(c => c.Name).ToArray();
+                string[] dataNames = await _categoryRepository.GetCateNamesAsync();
+                string[] existedNames = _util.CompareStringArray(names, dataNames);
+
+                if (existedNames.Length > 0)
+                    return new ObjectResponse<IEnumerable<Category>>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Categories Are Existed!, Name: " + string.Join(", ", names));
+
+                var newCategories = categories.Adapt<IEnumerable<Category>>();
+
+                foreach (var items in newCategories)
+                {
+                    items.Name = _util.FormatStringName(items.Name);
+                }
+
+                await _categoryRepository.BulkInsertRangeAsync(newCategories);
 
                 return new ObjectResponse<IEnumerable<Category>>(
                     (int)HttpStatusCode.OK,
@@ -169,26 +190,27 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new ObjectResponse<IEnumerable<Category>>(
-                    (int)HttpStatusCode.BadRequest,
-                    "Create Categories Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Update Caategory
         public async Task<VoidResponse> UpdateCategoryAsync(int id, UpdateCategoryReq updateCategoryReq)
         {
-            var oldCate = await _categoryRepository.GetByIdAsync(id, true);
-
-            if (oldCate == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Category Not Found!");
-
-            var newCate = _mapper.Map(updateCategoryReq, oldCate);
-            newCate.Name = _util.FormatStringName(updateCategoryReq.Name);
-
             try
             {
+                var oldCate = await _categoryRepository.GetByIdAsync(id, true);
+
+                if (oldCate == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Category Not Found!");
+
+                var newCate = _mapper.Map(updateCategoryReq, oldCate);
+                newCate.Name = _util.FormatStringName(updateCategoryReq.Name);
+
                 await _categoryRepository.UpdateAsync(newCate);
 
                 return new VoidResponse(
@@ -198,29 +220,30 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Update Category Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Update Category Status
         public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<CategoryStatus> updateStatus)
         {
-            var category = await _categoryRepository.GetByIdAsync(id, true);
-
-            if (category == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Category Not Found!");
-
-            category.Status = updateStatus.Status switch
-            {
-                CategoryStatus.ACTIVE => StatusConstant.ACTIVE,
-                _ => StatusConstant.INACTIVE
-            };
-
             try
             {
+                var category = await _categoryRepository.GetByIdAsync(id, true);
+
+                if (category == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Category Not Found!");
+
+                category.Status = updateStatus.Status switch
+                {
+                    CategoryStatus.ACTIVE => StatusConstant.ACTIVE,
+                    _ => StatusConstant.INACTIVE
+                };
+
                 await _categoryRepository.UpdateAsync(category);
 
                 return new VoidResponse(
@@ -230,23 +253,24 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Update Status Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
 
         //Delete Category
         public async Task<VoidResponse> DeleteCategoryAsync(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-
-            if (category == null)
-                return new VoidResponse(
-                    (int)HttpStatusCode.NotFound,
-                    "Category Not Found!");
-
             try
             {
+                var category = await _categoryRepository.GetByIdAsync(id);
+
+                if (category == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Category Not Found!");
+
                 await _categoryRepository.DeleteAsync(id);
 
                 return new VoidResponse(
@@ -256,8 +280,9 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
-                    (int)HttpStatusCode.BadRequest,
-                    "Delete Category Fail!, Error Message:\n\n" + ex);
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
             }
         }
     }

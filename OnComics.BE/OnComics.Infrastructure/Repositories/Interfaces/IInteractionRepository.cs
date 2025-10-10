@@ -5,7 +5,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IInteractionRepository : IGenericRepository<Interaction>
     {
-        Task<(IEnumerable<Interaction>?, Dictionary<int, string>, Dictionary<int, string>)> GetInteractionsAsync(
+        Task<(IEnumerable<Interaction>?, IDictionary<int, string>, IDictionary<int, string>)> GetInteractionsAsync(
             Expression<Func<Interaction, bool>>? filter = null,
             Func<IQueryable<Interaction>, IOrderedQueryable<Interaction>>? orderBy = null,
             int? pageNumber = null,

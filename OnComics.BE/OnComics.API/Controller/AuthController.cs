@@ -65,7 +65,7 @@ namespace OnComics.API.Controller
         }
 
         //Request Confirm Email
-        [Authorize(Policy = "User")]
+        [Authorize]
         [HttpPost("{id}/request-confirm-email")]
         public async Task<IActionResult> RequestConfirmEmailAsync([FromRoute] int id)
         {

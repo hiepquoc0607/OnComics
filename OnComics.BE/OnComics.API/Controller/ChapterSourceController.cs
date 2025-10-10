@@ -4,6 +4,7 @@ using OnComics.Application.Services.Interfaces;
 
 namespace OnComics.API.Controller
 {
+    [Route("api/chapter-sources")]
     [ApiController]
     public class ChapterSourceController : ControllerBase
     {
@@ -16,8 +17,7 @@ namespace OnComics.API.Controller
 
         //Get All Chapter Sources
         [HttpGet]
-        [Route("api/chapter-sources")]
-        public async Task<IActionResult> GetChapterSourcesAsync([FromQuery] GetChapterSourceReq getChapterSourceReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetChapterSourceReq getChapterSourceReq)
         {
             var result = await _chapterSourceService.GetChapterSourcesAsync(getChapterSourceReq);
 
@@ -26,8 +26,7 @@ namespace OnComics.API.Controller
 
         //Create Chapter Source
         [HttpPost]
-        [Route("api/chapter-sources")]
-        public async Task<IActionResult> CreateChapterSourceAsync([FromBody] CreateChapterSourceReq createChapterSourceReq)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateChapterSourceReq createChapterSourceReq)
         {
             var result = await _chapterSourceService.CreateChapterSourceAsync(createChapterSourceReq);
 
@@ -35,19 +34,17 @@ namespace OnComics.API.Controller
         }
 
         //Bulk (Range) Create Chapter Sources
-        [HttpPost]
-        [Route("api/chapter-sources/bulk")]
-        public async Task<IActionResult> CreateChapterSourcesAsync([FromBody] List<CreateChapterSourceReq> sources)
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkCreateAsync([FromBody] List<CreateChapterSourceReq> sources)
         {
-            var result = await _chapterSourceService.CreateChapterSourcesAsync(sources);
+            var result = await _chapterSourceService.CreateRangeChapterSourcesAsync(sources);
 
             return StatusCode(result.StatusCode, result);
         }
 
         //Update Chapter Source
-        [HttpPut]
-        [Route("api/chapter-sources/{id}")]
-        public async Task<IActionResult> UpdateChapterSourceAsync([FromRoute] int id, [FromBody] UpdateChapterSourceReq updateChapterSourceReq)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateChapterSourceReq updateChapterSourceReq)
         {
             var result = await _chapterSourceService.UpdateChapterSourceAsync(id, updateChapterSourceReq);
 
@@ -55,9 +52,8 @@ namespace OnComics.API.Controller
         }
 
         //Delete Chapter Source
-        [HttpDelete]
-        [Route("api/chapter-sources/{id}")]
-        public async Task<IActionResult> DeleteChapterSourceAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var result = await _chapterSourceService.DeleteChapterSourceAsync(id);
 
@@ -65,11 +61,10 @@ namespace OnComics.API.Controller
         }
 
         //Bulk (Range) Chapter Sources
-        [HttpDelete]
-        [Route("api/chapter-sources/{chapterId}/bulk")]
-        public async Task<IActionResult> DeleteChapterSourcesAsync([FromRoute] int chapterId)
+        [HttpDelete("{chapterId}/bulk")]
+        public async Task<IActionResult> BulkDeleteAsync([FromRoute] int chapterId)
         {
-            var result = await _chapterSourceService.DeleteChapterSourcesAsync(chapterId);
+            var result = await _chapterSourceService.DeleteRangeChapterSourcesAsync(chapterId);
 
             return StatusCode(result.StatusCode, result);
         }

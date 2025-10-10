@@ -63,22 +63,22 @@ namespace OnComics.Infrastructure.Repositories.Implements
                         .FirstOrDefaultAsync();
         }
 
-        //Count Rating Record By Account Id
-        public async Task<int> CountRatingByAccountIdAsync(int id)
+        //Count Rating Record
+        public async Task<int> CountRatingAsync(int id, bool isComicId = false)
         {
-            return await _context.Comicratings
-                .AsNoTracking()
-                .Where(r => r.AccountId == id)
-                .CountAsync();
-        }
-
-        //Count Rating Record By Comic Id
-        public async Task<int> CountRatingByComicIdAsync(int id)
-        {
-            return await _context.Comicratings
-                .AsNoTracking()
-                .Where(r => r.ComicId == id)
-                .CountAsync();
+            switch (isComicId)
+            {
+                case true:
+                    return await _context.Comicratings
+                        .AsNoTracking()
+                        .Where(r => r.ComicId == id)
+                        .CountAsync();
+                default:
+                    return await _context.Comicratings
+                        .AsNoTracking()
+                        .Where(r => r.AccountId == id)
+                        .CountAsync();
+            }
         }
     }
 }
