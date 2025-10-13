@@ -83,8 +83,9 @@ CREATE TABLE Chapter (
 CREATE TABLE ChapterSource (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     ChapterId INT NOT NULL,
+    FileId TEXT NOT NULL,
     SrcUrl TEXT NOT NULL,
-    ViewUrl TEXT NOT NULL,
+    ViewUrl TEXT NULL,
     Arrangement INT NOT NULL,
     IsImage BOOL CHECK(IsImage IN (0,1)) NOT NULL,
     FOREIGN KEY (ChapterId)
