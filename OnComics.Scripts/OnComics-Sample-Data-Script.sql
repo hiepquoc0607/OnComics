@@ -69,18 +69,18 @@ VALUES
 (6, 1, 'First Beat', 1200, '2019-08-12 16:00:00', 'ACTIVE');
 
 -- Sample Data For ChapterSource Table (updated to match table definition)
-INSERT INTO ChapterSource (ChapterId, SrcUrl, ViewUrl, Arrangement, IsImage) 
+INSERT INTO ChapterSource (ChapterId, FileId, SrcUrl, ViewUrl, Arrangement, IsImage) 
 VALUES
-(1, 'https://example.com/comic1/source1', 'https://example.com/comic1/view1', 1, 1),
-(1, 'https://example.com/comic1/source2', 'https://example.com/comic1/view2', 2, 0),
-(2, 'https://example.com/comic2/source1', 'https://example.com/comic2/view1', 1, 1),
-(3, 'https://example.com/comic3/source1', 'https://example.com/comic3/view1', 1, 0),
-(3, 'https://example.com/comic3/source2', 'https://example.com/comic3/view2', 2, 1),
-(4, 'https://example.com/comic4/source1', 'https://example.com/comic4/view1', 1, 1),
-(5, 'https://example.com/comic5/source1', 'https://example.com/comic5/view1', 1, 0),
-(6, 'https://example.com/comic6/source1', 'https://example.com/comic6/view1', 1, 1),
-(6, 'https://example.com/comic6/source2', 'https://example.com/comic6/view2', 2, 0),
-(6, 'https://example.com/comic6/source3', 'https://example.com/comic6/view3', 3, 1);
+(1, 'file1', 'https://example.com/comic1/source1', 'https://example.com/comic1/view1', 1, 1),
+(1, 'file2', 'https://example.com/comic1/source2', 'https://example.com/comic1/view2', 2, 0),
+(2, 'file3', 'https://example.com/comic2/source1', 'https://example.com/comic2/view1', 1, 1),
+(3, 'file4', 'https://example.com/comic3/source1', 'https://example.com/comic3/view1', 1, 0),
+(3, 'file5', 'https://example.com/comic3/source2', 'https://example.com/comic3/view2', 2, 1),
+(4, 'file6', 'https://example.com/comic4/source1', 'https://example.com/comic4/view1', 1, 1),
+(5, 'file7', 'https://example.com/comic5/source1', 'https://example.com/comic5/view1', 1, 0),
+(6, 'file8', 'https://example.com/comic6/source1', 'https://example.com/comic6/view1', 1, 1),
+(6, 'file9', 'https://example.com/comic6/source2', 'https://example.com/comic6/view2', 2, 0),
+(6, 'file10', 'https://example.com/comic6/source3', 'https://example.com/comic6/view3', 3, 1);
 
 #Sample Data For ComicCategory Table
 INSERT INTO ComicCategory (ComicId, CategoryId) 
