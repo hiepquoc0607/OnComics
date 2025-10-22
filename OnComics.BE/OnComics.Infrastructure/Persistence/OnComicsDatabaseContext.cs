@@ -114,6 +114,7 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasIndex(e => e.ChapterId, "ChapterId");
 
+            entity.Property(e => e.FileId).HasColumnType("text");
             entity.Property(e => e.SrcUrl).HasColumnType("text");
             entity.Property(e => e.ViewUrl).HasColumnType("text");
 

@@ -9,6 +9,8 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<AuthRes?>> LoginAsync(LoginReq loginReq);
 
+        Task<ObjectResponse<AuthRes?>> GoogleCallbackAsync(string code, HttpClient httpClient);
+
         Task<ObjectResponse<Account>> RegisterAsync(RegisterReq registerReq);
 
         Task<ObjectResponse<AuthRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq);
