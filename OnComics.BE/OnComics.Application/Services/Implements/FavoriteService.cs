@@ -1,10 +1,7 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using OnComics.Application.Enums.Comment;
 using OnComics.Application.Enums.Favorite;
-using OnComics.Application.Models.Request.Comment;
 using OnComics.Application.Models.Request.Favorite;
-using OnComics.Application.Models.Response.Comment;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Models.Response.Favorite;
 using OnComics.Application.Services.Interfaces;
@@ -154,7 +151,7 @@ namespace OnComics.Application.Services.Implements
             {
                 return new ObjectResponse<FavoriteRes?>(
                     (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!, 
+                    ex.GetType().FullName!,
                     ex.Message);
             }
         }

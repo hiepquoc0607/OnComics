@@ -13,13 +13,13 @@ namespace OnComics.Application.Mappers
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Account, AccountRes>()
-                .Map(dest => dest.Dob, src => DateOnly.FromDateTime(src.Dob));
+                .Map(dest => dest.Dob, src => DateOnly.FromDateTime(src.Dob!.Value));
 
             config.NewConfig<UpdateAccountReq, Account>()
                 .Map(dest => dest.Dob, src => src.Dob.ToDateTime(TimeOnly.MinValue));
 
             config.NewConfig<Account, AuthRes>()
-                .Map(dest => dest.Dob, src => DateOnly.FromDateTime(src.Dob));
+            .Map(dest => dest.Dob, src => DateOnly.FromDateTime(src.Dob!.Value));
 
             config.NewConfig<RegisterReq, Account>()
                 .Map(dest => dest.PasswordHash, src => src.Password)

@@ -6,9 +6,11 @@ public partial class Chaptersource
 
     public int ChapterId { get; set; }
 
+    public string FileId { get; set; } = null!;
+
     public string SrcUrl { get; set; } = null!;
 
-    public string ViewUrl { get; set; } = null!;
+    public string? ViewUrl { get; set; }
 
     public int Arrangement { get; set; }
 

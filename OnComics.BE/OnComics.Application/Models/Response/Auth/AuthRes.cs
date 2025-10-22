@@ -10,7 +10,7 @@ namespace OnComics.Application.Models.Response.Auth
 
         public string Email { get; set; } = null!;
 
-        public DateOnly Dob { get; set; }
+        public DateOnly? Dob { get; set; }
 
         public string Gender { get; set; } = null!;
 
