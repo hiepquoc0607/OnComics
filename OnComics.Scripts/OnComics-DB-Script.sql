@@ -131,6 +131,15 @@ CREATE TABLE Comment (
         REFERENCES Comic (Id)
 );
 
+CREATE TABLE Attachment (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    ComicId INT NOT NULL,
+    FileId TEXT NOT NULL,
+    StrorageUrl TEXT NOT NULL,
+    FOREIGN KEY (ComicId)
+        REFERENCES Comment (Id)
+);
+
 CREATE TABLE Favorite (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     AccountId INT NOT NULL,
