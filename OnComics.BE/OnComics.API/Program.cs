@@ -1,3 +1,5 @@
+using Appwrite;
+using Appwrite.Services;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -5,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OnComics.Application.Constants;
+using OnComics.Application.Helpers;
 using OnComics.Application.Services.Implements;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
@@ -152,6 +155,31 @@ config.Scan(AppDomain.CurrentDomain.GetAssemblies());
 //Register Mapster Service 
 builder.Services.AddSingleton(config);
 builder.Services.AddScoped<IMapper, ServiceMapper>();
+#endregion
+
+#region Inject SMTP
+builder.Services
+    .Configure<MailHelper>(builder.Configuration.GetSection("EmailSettings"));
+#endregion
+
+#region Inject Google
+builder.Services
+    .Configure<GoogleHelper>(builder.Configuration.GetSection("Authentication:Google"));
+#endregion
+
+#region Inject Appwrite
+//Configure Appwrite
+var appwriteClient = new Client()
+    .SetEndpoint(builder.Configuration["Appwrite:Endpoint"]!)
+    .SetProject(builder.Configuration["Appwrite:ProjectId"]!)
+    .SetKey(builder.Configuration["Appwrite:ApiKey"]!)
+    .SetSession(string.Empty);
+
+//Register Appwrite Service 
+builder.Services.AddSingleton(appwriteClient);
+builder.Services.AddSingleton(sp => new Storage(appwriteClient));
+builder.Services
+    .Configure<AppwriteHelper>(builder.Configuration.GetSection("Appwrite"));
 #endregion
 
 #region Logger

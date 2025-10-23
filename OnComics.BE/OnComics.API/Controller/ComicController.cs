@@ -49,7 +49,9 @@ namespace OnComics.API.Controller
         //Update Comic
         [Authorize(Policy = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateComicReq updateComicReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateComicReq updateComicReq)
         {
             var result = await _comicService.UpdateComicAsync(id, updateComicReq);
 
@@ -59,7 +61,9 @@ namespace OnComics.API.Controller
         //Update Comic Status
         [Authorize(Policy = "Admin")]
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<ComicStatus> updateStatusReq)
+        public async Task<IActionResult> UpdateStatusAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateStatusReq<ComicStatus> updateStatusReq)
         {
             var result = await _comicService.UpdateStatusAsync(id, updateStatusReq);
 

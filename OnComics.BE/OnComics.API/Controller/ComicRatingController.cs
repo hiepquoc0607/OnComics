@@ -20,7 +20,11 @@ namespace OnComics.API.Controller
             _comicRatingService = comicRatingService;
         }
 
-        private bool CheckAuthentication(int id, string? idClaim, string? roleClaim, RatingIdType idType)
+        private bool CheckAuthentication(
+            int id,
+            string? idClaim,
+            string? roleClaim,
+            RatingIdType idType)
         {
             if (idType.Equals(CmtIdType.ACCOUNT) &&
                 !string.IsNullOrEmpty(roleClaim) &&
@@ -69,7 +73,9 @@ namespace OnComics.API.Controller
         //Update Rating
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] CreateComicRatingReq createComicRatingReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] CreateComicRatingReq createComicRatingReq)
         {
             var result = await _comicRatingService.CreateRatingAsync(id, createComicRatingReq);
 

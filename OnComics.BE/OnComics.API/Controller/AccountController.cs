@@ -40,7 +40,8 @@ namespace OnComics.API.Controller
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (userIdClaim == null || userRoleClaim == null ||
-                (!userIdClaim.Equals(id.ToString()) && !userRoleClaim.Equals(RoleConstant.ADMIN)))
+                (!userIdClaim.Equals(id.ToString()) &&
+                !userRoleClaim.Equals(RoleConstant.ADMIN)))
                 return Forbid();
 
             var result = await _accountService.GetAccountByIdAsync(id);
@@ -51,11 +52,14 @@ namespace OnComics.API.Controller
         //Update Account
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateAccountReq updateAccReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateAccountReq updateAccReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userIdClaim == null || !userIdClaim.Equals(id.ToString())) return Forbid();
+            if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
+                return Forbid();
 
             var result = await _accountService.UpdateAccountAsync(id, updateAccReq);
 
@@ -65,11 +69,14 @@ namespace OnComics.API.Controller
         //Update Password
         [Authorize]
         [HttpPatch("{id}/password")]
-        public async Task<IActionResult> UpdatePasswordAsync([FromRoute] int id, [FromBody] UpdatePasswordReq updatePasswordReq)
+        public async Task<IActionResult> UpdatePasswordAsync(
+            [FromRoute] int id,
+            [FromBody] UpdatePasswordReq updatePasswordReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userIdClaim == null || !userIdClaim.Equals(id.ToString())) return Forbid();
+            if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
+                return Forbid();
 
             var result = await _accountService.UpdatePasswordAsync(id, updatePasswordReq);
 
@@ -79,7 +86,9 @@ namespace OnComics.API.Controller
         //Update Account Status
         [Authorize(Policy = "Admin")]
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromQuery] UpdateStatusReq<AccountStatus> updateStatusReq)
+        public async Task<IActionResult> UpdateStatusAsync(
+            [FromRoute] int id,
+            [FromQuery] UpdateStatusReq<AccountStatus> updateStatusReq)
         {
 
             var result = await _accountService.UpdateStatusAsync(id, updateStatusReq);
@@ -92,6 +101,14 @@ namespace OnComics.API.Controller
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
+            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userIdClaim == null || userRoleClaim == null ||
+                (!userIdClaim.Equals(id.ToString()) &&
+                !userRoleClaim.Equals(RoleConstant.ADMIN)))
+                return Forbid();
+
             var result = await _accountService.DeleteAccountAsync(id);
 
             return StatusCode(result.StatusCode, result);

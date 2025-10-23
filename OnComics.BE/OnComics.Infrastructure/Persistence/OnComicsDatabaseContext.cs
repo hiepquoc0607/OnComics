@@ -17,6 +17,8 @@ public partial class OnComicsDatabaseContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
+    public virtual DbSet<Attachment> Attachments { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Chapter> Chapters { get; set; }
@@ -73,6 +75,23 @@ public partial class OnComicsDatabaseContext : DbContext
             entity.Property(e => e.RefreshToken).HasColumnType("text");
             entity.Property(e => e.Role).HasMaxLength(10);
             entity.Property(e => e.Status).HasMaxLength(10);
+        });
+
+        modelBuilder.Entity<Attachment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("attachment");
+
+            entity.HasIndex(e => e.ComicId, "ComicId");
+
+            entity.Property(e => e.FileId).HasColumnType("text");
+            entity.Property(e => e.StrorageUrl).HasColumnType("text");
+
+            entity.HasOne(d => d.Comic).WithMany(p => p.Attachments)
+                .HasForeignKey(d => d.ComicId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("attachment_ibfk_1");
         });
 
         modelBuilder.Entity<Category>(entity =>

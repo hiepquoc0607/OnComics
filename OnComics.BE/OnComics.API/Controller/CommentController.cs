@@ -19,7 +19,11 @@ namespace OnComics.API.Controller
             _commentService = commentService;
         }
 
-        private bool CheckAuthentication(int? id, string? idClaim, string? roleClaim, CmtIdType? idType)
+        private bool CheckAuthentication(
+            int? id,
+            string? idClaim,
+            string? roleClaim,
+            CmtIdType? idType)
         {
             if (id.HasValue &&
                 !string.IsNullOrEmpty(roleClaim) &&
@@ -82,7 +86,9 @@ namespace OnComics.API.Controller
         //Reply Comment
         [Authorize]
         [HttpPost("{id}/reply-comments")]
-        public async Task<IActionResult> ReplyCommentAsync([FromRoute] int id, CreateCommentReq createCommentReq)
+        public async Task<IActionResult> ReplyCommentAsync(
+            [FromRoute] int id,
+            [FromBody] CreateCommentReq createCommentReq)
         {
             var result = await _commentService.ReplyCommentAsync(id, createCommentReq);
 
@@ -92,7 +98,9 @@ namespace OnComics.API.Controller
         //Update Comment
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, UpdateCommentReq updateCommentReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateCommentReq updateCommentReq)
         {
             var result = await _commentService.UpdateCommentAsync(id, updateCommentReq);
 

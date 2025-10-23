@@ -10,6 +10,7 @@ using OnComics.Application.Enums.Account;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Models.Response.Auth;
 using OnComics.Application.Models.Response.Common;
+using OnComics.Application.Models.Response.Google;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
 using OnComics.Infrastructure.Entities;
@@ -25,6 +26,7 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IMailService _mailService;
+        private readonly IGoogleService _googleService;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly Util _util;
@@ -33,16 +35,19 @@ namespace OnComics.Application.Services.Implements
         public AuthService(
             IAccountRepository accountRepository,
             IMailService mailService,
+            IGoogleService googleService,
             IConfiguration configuration,
-            IMapper mapper,
-            Util util)
+            IMapper mapper, Util util)
         {
             _accountRepository = accountRepository;
             _mailService = mailService;
+            _googleService = googleService;
             _configuration = configuration;
             _mapper = mapper;
             _util = util;
         }
+
+
 
         //Generate JWT Token
         private string GenerateToken(Account account)
@@ -136,65 +141,11 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(code))
-                    return new ObjectResponse<AuthRes?>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Missing 'code' In Query String!");
+                var googleProfile = await _googleService.GetGoogleProfileAsync(code, httpClient);
 
-                var clientId = _configuration["Authentication:Google:ClientId"];
-                var clientSecret = _configuration["Authentication:Google:ClientSecret"];
-                var redirectUri = _configuration["Authentication:Google:ReturnUrl"];
-
-                if (string.IsNullOrEmpty(clientId) ||
-                string.IsNullOrEmpty(clientSecret) ||
-                string.IsNullOrEmpty(redirectUri))
-                    return new ObjectResponse<AuthRes?>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Google Configuration Missing!");
-
-                var tokenResponse = await httpClient.PostAsync(
-                "https://oauth2.googleapis.com/token",
-                new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    ["code"] = code,
-                    ["client_id"] = clientId,
-                    ["client_secret"] = clientSecret,
-                    ["redirect_uri"] = redirectUri,
-                    ["grant_type"] = "authorization_code"
-                }));
-
-                var tokenResponseJson = await tokenResponse.Content.ReadAsStringAsync();
-                var tokenData = JObject.Parse(tokenResponseJson);
-                var accessToken = tokenData.Value<string>("access_token");
-
-                if (string.IsNullOrEmpty(accessToken))
-                    return new ObjectResponse<AuthRes?>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Failed To Obtain Access Token From Google!");
-
-                var credential = GoogleCredential.FromAccessToken(accessToken);
-
-                var peopleService = new PeopleServiceService(
-                    new BaseClientService.Initializer
-                    {
-                        HttpClientInitializer = credential,
-                        ApplicationName = "MyAppName"
-                    });
-
-                var request = peopleService.People.Get("people/me");
-                request.PersonFields = "names,emailAddresses,photos";
-
-                var person = await request.ExecuteAsync();
-
-                string? fullname = person.Names?.FirstOrDefault()?.DisplayName;
-                string? email = person.EmailAddresses?
-                        .Select(e => e.Value)
-                        .Where(e => !string.IsNullOrEmpty(e))
-                        .FirstOrDefault();
-                string? imgUrl = person.Photos?
-                        .Select(p => p.Url)
-                        .Where(p => !string.IsNullOrEmpty(p))
-                        .FirstOrDefault();
+                string? fullname = googleProfile.Fullname;
+                string? email = googleProfile.Email;
+                string? imgUrl = googleProfile.PictureUrl;
 
                 if (string.IsNullOrEmpty(fullname) || string.IsNullOrEmpty(email))
                     return new ObjectResponse<AuthRes?>(
@@ -205,16 +156,10 @@ namespace OnComics.Application.Services.Implements
 
                 if (account == null)
                 {
-                    var newAccount = new Account();
-                    newAccount.Email = email;
-                    newAccount.Fullname = fullname;
-                    newAccount.ImgUrl = imgUrl;
-                    newAccount.IsGoogle = true;
-                    newAccount.IsVerified = true;
+                    var newAccount = _mapper.Map<Account>(googleProfile);
+                    newAccount.Dob = null;
                     newAccount.RefreshToken = GenerateRefreshToken();
                     newAccount.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
-                    newAccount.Role = RoleConstant.USER;
-                    newAccount.Status = StatusConstant.ACTIVE;
 
                     await _accountRepository.InsertAsync(newAccount);
 

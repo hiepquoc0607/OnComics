@@ -19,7 +19,8 @@ namespace OnComics.API.Controller
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] GetChapterSourceReq getChapterSourceReq)
         {
-            var result = await _chapterSourceService.GetChapterSourcesAsync(getChapterSourceReq);
+            var result = await _chapterSourceService
+                .GetChapterSourcesAsync(getChapterSourceReq);
 
             return StatusCode(result.StatusCode, result);
         }
@@ -28,7 +29,8 @@ namespace OnComics.API.Controller
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateChapterSourceReq createChapterSourceReq)
         {
-            var result = await _chapterSourceService.CreateChapterSourceAsync(createChapterSourceReq);
+            var result = await _chapterSourceService
+                .CreateChapterSourceAsync(createChapterSourceReq);
 
             return StatusCode(result.StatusCode, result);
         }
@@ -37,16 +39,20 @@ namespace OnComics.API.Controller
         [HttpPost("bulk")]
         public async Task<IActionResult> BulkCreateAsync([FromBody] List<CreateChapterSourceReq> sources)
         {
-            var result = await _chapterSourceService.CreateRangeChapterSourcesAsync(sources);
+            var result = await _chapterSourceService
+                .CreateRangeChapterSourcesAsync(sources);
 
             return StatusCode(result.StatusCode, result);
         }
 
         //Update Chapter Source
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateChapterSourceReq updateChapterSourceReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateChapterSourceReq updateChapterSourceReq)
         {
-            var result = await _chapterSourceService.UpdateChapterSourceAsync(id, updateChapterSourceReq);
+            var result = await _chapterSourceService
+                .UpdateChapterSourceAsync(id, updateChapterSourceReq);
 
             return StatusCode(result.StatusCode, result);
         }
@@ -64,7 +70,8 @@ namespace OnComics.API.Controller
         [HttpDelete("{chapterId}/bulk")]
         public async Task<IActionResult> BulkDeleteAsync([FromRoute] int chapterId)
         {
-            var result = await _chapterSourceService.DeleteRangeChapterSourcesAsync(chapterId);
+            var result = await _chapterSourceService
+                .DeleteRangeChapterSourcesAsync(chapterId);
 
             return StatusCode(result.StatusCode, result);
         }

@@ -4,6 +4,7 @@ using OnComics.Application.Models.Request.Account;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Models.Response.Account;
 using OnComics.Application.Models.Response.Auth;
+using OnComics.Application.Models.Response.Google;
 using OnComics.Infrastructure.Entities;
 
 namespace OnComics.Application.Mappers
@@ -29,6 +30,16 @@ namespace OnComics.Application.Mappers
                 .Map(dest => dest.IsVerified, otp => false)
                 .Map(dest => dest.RefreshToken, otp => string.Empty)
                 .Map(dest => dest.RefreshExpireTime, otp => DateTime.UtcNow)
+                .Map(dest => dest.Fcmtoken, otp => string.Empty)
+                .Map(dest => dest.Role, otp => RoleConstant.USER)
+                .Map(dest => dest.Status, otp => StatusConstant.ACTIVE);
+
+            config.NewConfig<GoogleProfileRes, Account>()
+                .Map(dest => dest.PasswordHash, otp => string.Empty)
+                .Map(dest => dest.Gender, otp => string.Empty)
+                .Map(dest => dest.ImgUrl, src => src.PictureUrl)
+                .Map(dest => dest.IsGoogle, otp => true)
+                .Map(dest => dest.IsVerified, otp => true)
                 .Map(dest => dest.Fcmtoken, otp => string.Empty)
                 .Map(dest => dest.Role, otp => RoleConstant.USER)
                 .Map(dest => dest.Status, otp => StatusConstant.ACTIVE);
