@@ -172,7 +172,7 @@ namespace OnComics.Application.Services.Implements
                 if (existedNames.Length > 0)
                     return new ObjectResponse<IEnumerable<Category>>(
                         (int)HttpStatusCode.BadRequest,
-                        "Categories Are Existed!, Name: " + string.Join(", ", names));
+                        "Categories Are Existed!, Fullname: " + string.Join(", ", names));
 
                 var newCategories = categories.Adapt<IEnumerable<Category>>();
 

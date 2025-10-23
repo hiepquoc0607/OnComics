@@ -22,6 +22,8 @@ public partial class Comment
 
     public virtual Account Account { get; set; } = null!;
 
+    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
     public virtual Comic Comic { get; set; } = null!;
 
     public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();

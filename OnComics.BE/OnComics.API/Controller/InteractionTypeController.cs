@@ -46,7 +46,9 @@ namespace OnComics.API.Controller
 
         //Update Interaction Type
         [HttpPost("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateItrTypeReq updateItrTypeReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateItrTypeReq updateItrTypeReq)
         {
             var result = await _interactionService.UpdateItrTypeAsync(id, updateItrTypeReq);
 
@@ -55,7 +57,9 @@ namespace OnComics.API.Controller
 
         //Update Interaction Type Status
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
+        public async Task<IActionResult> UpdateStatusAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
         {
             var result = await _interactionService.UpdateItrTypeStatusAsync(id, updateStatusReq);
 

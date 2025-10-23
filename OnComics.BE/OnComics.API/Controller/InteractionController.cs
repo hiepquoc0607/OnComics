@@ -65,7 +65,9 @@ namespace OnComics.API.Controller
         //Update Interaction
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, UpdateInteractionReq updateInteractionReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateInteractionReq updateInteractionReq)
         {
             var result = await _interactionService.UpdateInteractionAsync(id, updateInteractionReq);
 

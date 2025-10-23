@@ -20,7 +20,11 @@ namespace OnComics.API.Controller
             _historyService = historyService;
         }
 
-        private bool CheckAuthentication(int? id, string? idClaim, string? roleClaim, HistoryIdType? idType)
+        private bool CheckAuthentication(
+            int? id,
+            string? idClaim,
+            string? roleClaim,
+            HistoryIdType? idType)
         {
             if (id.HasValue &&
                 !string.IsNullOrEmpty(roleClaim) &&
@@ -77,7 +81,9 @@ namespace OnComics.API.Controller
         //Updaate History
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, UpdateHistoryReq updateHistoryReq)
+        public async Task<IActionResult> UpdateAsync(
+            [FromRoute] int id,
+            [FromBody] UpdateHistoryReq updateHistoryReq)
         {
             var result = await _historyService.UpdateHistroyAsync(id, updateHistoryReq);
 
@@ -102,7 +108,7 @@ namespace OnComics.API.Controller
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userIdClaim != null &&
-                accId != int.Parse(userIdClaim))
+                !userIdClaim.Equals(accId.ToString()))
                 return Forbid();
 
             var result = await _historyService.DeleteRangeHistoriesAsync(accId);
