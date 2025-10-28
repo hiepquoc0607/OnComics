@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.PeopleService.v1;
 using Google.Apis.Services;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using OnComics.Application.Helpers;
 using OnComics.Application.Models.Response.Google;
@@ -12,9 +13,9 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly GoogleHelper _googleHelper;
 
-        public GoogleService(GoogleHelper googleHelper)
+        public GoogleService(IOptions<GoogleHelper> googleHelper)
         {
-            _googleHelper = googleHelper;
+            _googleHelper = googleHelper.Value;
         }
 
         public string CreateLoginLinkAsync()

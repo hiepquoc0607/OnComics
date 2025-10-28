@@ -10,14 +10,14 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<AccountRes>?>> GetAccountsAsync(GetAccountReq getAccReq);
 
-        Task<ObjectResponse<AccountRes?>> GetAccountByIdAsync(int id);
+        Task<ObjectResponse<AccountRes?>> GetAccountByIdAsync(Guid id);
 
-        Task<VoidResponse> UpdateAccountAsync(int id, UpdateAccountReq updateAccReq);
+        Task<VoidResponse> UpdateAccountAsync(Guid id, UpdateAccountReq updateAccReq);
 
-        Task<VoidResponse> UpdatePasswordAsync(int id, UpdatePasswordReq updatePasswordReq);
+        Task<VoidResponse> UpdatePasswordAsync(Guid id, UpdatePasswordReq updatePasswordReq);
 
-        Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<AccountStatus> updateStatusReq);
+        Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<AccountStatus> updateStatusReq);
 
-        Task<VoidResponse> DeleteAccountAsync(int id);
+        Task<VoidResponse> DeleteAccountAsync(Guid id);
     }
 }

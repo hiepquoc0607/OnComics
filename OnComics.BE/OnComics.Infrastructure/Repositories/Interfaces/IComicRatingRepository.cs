@@ -5,14 +5,14 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IComicRatingRepository : IGenericRepository<Comicrating>
     {
-        Task<(IEnumerable<Comicrating>, IDictionary<int, string>, IDictionary<int, string>)> GetRatingsAsync(
+        Task<(IEnumerable<Comicrating>, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetRatingsAsync(
             Expression<Func<Comicrating, bool>>? filter = null,
             Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? orderBy = null,
             int? pageNumber = null,
             int? pageSize = null);
 
-        Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(int accId, int comicId);
+        Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(Guid accId, Guid comicId);
 
-        Task<int> CountRatingAsync(int id, bool isComicId = false);
+        Task<int> CountRatingAsync(Guid id, bool isComicId = false);
     }
 }

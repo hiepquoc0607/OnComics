@@ -48,7 +48,7 @@ namespace OnComics.API.Controller
         //Update Chapter Source
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateChapterSourceReq updateChapterSourceReq)
         {
             var result = await _chapterSourceService
@@ -59,7 +59,7 @@ namespace OnComics.API.Controller
 
         //Delete Chapter Source
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _chapterSourceService.DeleteChapterSourceAsync(id);
 
@@ -68,7 +68,7 @@ namespace OnComics.API.Controller
 
         //Bulk (Range) Chapter Sources
         [HttpDelete("{chapterId}/bulk")]
-        public async Task<IActionResult> BulkDeleteAsync([FromRoute] int chapterId)
+        public async Task<IActionResult> BulkDeleteAsync([FromRoute] Guid chapterId)
         {
             var result = await _chapterSourceService
                 .DeleteRangeChapterSourcesAsync(chapterId);

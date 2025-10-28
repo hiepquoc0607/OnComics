@@ -37,7 +37,7 @@ namespace OnComics.Application.Services.Implements
 
                 bool isDecending = getInteractionReq.IsDescending;
 
-                int? searchId = getInteractionReq.AccountId;
+                Guid? searchId = getInteractionReq.AccountId;
 
                 Expression<Func<Interaction, bool>>? search = null;
 
@@ -111,7 +111,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Interaction By Id
-        public async Task<ObjectResponse<InteractionRes?>> GetInteractionByIdAsync(int id)
+        public async Task<ObjectResponse<InteractionRes?>> GetInteractionByIdAsync(Guid id)
         {
             try
             {
@@ -142,7 +142,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Create Interaction
-        public async Task<ObjectResponse<Interaction>> CreateInteractionAsync(int accId, CreateInteractionReq createInteractionReq)
+        public async Task<ObjectResponse<Interaction>> CreateInteractionAsync(Guid accId, CreateInteractionReq createInteractionReq)
         {
             try
             {
@@ -173,7 +173,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Interaction
-        public async Task<VoidResponse> UpdateInteractionAsync(int id, UpdateInteractionReq updateInteractionReq)
+        public async Task<VoidResponse> UpdateInteractionAsync(Guid id, UpdateInteractionReq updateInteractionReq)
         {
             try
             {
@@ -202,7 +202,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Interaction
-        public async Task<VoidResponse> DeleteInteractionAsync(int id)
+        public async Task<VoidResponse> DeleteInteractionAsync(Guid id)
         {
             try
             {

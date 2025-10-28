@@ -2,11 +2,9 @@
 
 public partial class Chaptersource
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int ChapterId { get; set; }
-
-    public string FileId { get; set; } = null!;
+    public Guid ChapterId { get; set; }
 
     public string SrcUrl { get; set; } = null!;
 

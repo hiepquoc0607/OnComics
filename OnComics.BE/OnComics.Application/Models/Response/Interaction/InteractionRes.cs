@@ -2,17 +2,17 @@
 {
     public class InteractionRes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public int AccountId { get; set; }
+        public Guid AccountId { get; set; }
 
         public string Fullname { get; set; } = null!;
 
-        public int CommentId { get; set; }
+        public Guid CommentId { get; set; }
 
         public string CommentAuthor { get; set; } = null!;
 
-        public int TypeId { get; set; }
+        public Guid TypeId { get; set; }
 
         public DateTime ReactTime { get; set; }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using OnComics.Infrastructure.Entities;
 
@@ -54,14 +55,28 @@ public partial class OnComicsDatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var guidToBytesConverter = new ValueConverter<Guid, byte[]>(
+                v => v.ToByteArray(),
+                v => new Guid(v)
+            );
+
         modelBuilder.Entity<Account>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
 
             entity.ToTable("account");
 
             entity.HasIndex(e => e.Email, "Email").IsUnique();
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.Dob).HasColumnType("date");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Fcmtoken)
@@ -81,11 +96,22 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("attachment");
 
             entity.HasIndex(e => e.ComicId, "ComicId");
 
-            entity.Property(e => e.FileId).HasColumnType("text");
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ComicId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.StrorageUrl).HasColumnType("text");
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Attachments)
@@ -98,10 +124,19 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("category");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(10);
@@ -111,10 +146,22 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("chapter");
 
-            entity.HasIndex(e => e.ComicId, "ComicId");
+            entity.HasIndex(e => new { e.ComicId, e.ChapNo }, "ComicId").IsUnique();
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ComicId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.ReleaseTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(10);
@@ -129,11 +176,22 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("chaptersource");
 
             entity.HasIndex(e => e.ChapterId, "ChapterId");
 
-            entity.Property(e => e.FileId).HasColumnType("text");
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ChapterId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.SrcUrl).HasColumnType("text");
             entity.Property(e => e.ViewUrl).HasColumnType("text");
 
@@ -147,8 +205,17 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("comic");
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.Author).HasMaxLength(100);
             entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(100);
@@ -163,11 +230,27 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("comiccategory");
 
             entity.HasIndex(e => e.CategoryId, "CategoryId");
 
             entity.HasIndex(e => new { e.ComicId, e.CategoryId }, "ComicId").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.CategoryId)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ComicId)
+                .HasMaxLength(16)
+                .IsFixedLength();
 
             entity.HasOne(d => d.Category).WithMany(p => p.Comiccategories)
                 .HasForeignKey(d => d.CategoryId)
@@ -184,12 +267,27 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("comicrating");
 
             entity.HasIndex(e => new { e.AccountId, e.ComicId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.ComicId, "ComicId");
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.AccountId)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ComicId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.Rating).HasPrecision(2, 1);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Comicratings)
@@ -207,14 +305,32 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("comment");
 
             entity.HasIndex(e => e.AccountId, "AccountId");
 
             entity.HasIndex(e => e.ComicId, "ComicId");
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.AccountId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.CmtTime).HasColumnType("datetime");
+            entity.Property(e => e.ComicId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.Content).HasColumnType("text");
+            entity.Property(e => e.MainCmtId)
+                .HasMaxLength(16)
+                .IsFixedLength();
 
             entity.HasOne(d => d.Account).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.AccountId)
@@ -231,11 +347,27 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("favorite");
 
             entity.HasIndex(e => new { e.AccountId, e.ComicId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.ComicId, "ComicId");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.AccountId)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ComicId)
+                .HasMaxLength(16)
+                .IsFixedLength();
 
             entity.HasOne(d => d.Account).WithMany(p => p.Favorites)
                 .HasForeignKey(d => d.AccountId)
@@ -252,12 +384,27 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("history");
 
             entity.HasIndex(e => new { e.AccountId, e.ChapterId }, "AccountId").IsUnique();
 
             entity.HasIndex(e => e.ChapterId, "ChapterId");
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.AccountId)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.ChapterId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.ReadTime).HasColumnType("datetime");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Histories)
@@ -275,6 +422,12 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("interaction");
 
             entity.HasIndex(e => new { e.AccountId, e.CommentId }, "AccountId").IsUnique();
@@ -283,7 +436,19 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasIndex(e => e.TypeId, "TypeId");
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.AccountId)
+                .HasMaxLength(16)
+                .IsFixedLength();
+            entity.Property(e => e.CommentId)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.ReactTime).HasColumnType("datetime");
+            entity.Property(e => e.TypeId)
+                .HasMaxLength(16)
+                .IsFixedLength();
 
             entity.HasOne(d => d.Account).WithMany(p => p.Interactions)
                 .HasForeignKey(d => d.AccountId)
@@ -305,10 +470,19 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
+            entity.Property(e => e.Id)
+                .HasColumnType("binary(16)")
+                .HasConversion(guidToBytesConverter)
+                .IsRequired()
+                .ValueGeneratedNever();
+
             entity.ToTable("interactiontype");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
+            entity.Property(e => e.Id)
+                .HasMaxLength(16)
+                .IsFixedLength();
             entity.Property(e => e.ImgUrl).HasColumnType("text");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(10);

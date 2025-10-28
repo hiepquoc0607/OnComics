@@ -4,16 +4,16 @@ namespace OnComics.Application.Models.Response.Comment
 {
     public class CommentRes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? AccountId { get; set; } = null;
+        public Guid? AccountId { get; set; } = null;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Fullname { get; set; } = null;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? ComicId { get; set; } = null;
+        public Guid? ComicId { get; set; } = null;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? ComicName { get; set; } = null;
@@ -23,7 +23,7 @@ namespace OnComics.Application.Models.Response.Comment
         public bool IsMainCmt { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? MainCmtId { get; set; } = null;
+        public Guid? MainCmtId { get; set; } = null;
 
         public DateTime CmtTime { get; set; }
 

@@ -7,7 +7,7 @@ namespace OnComics.Application.Models.Request.Interaction
     public class GetInteractionReq : GetReq
     {
         [DefaultValue(null)]
-        public int? AccountId { get; set; }
+        public Guid? AccountId { get; set; }
 
         [DefaultValue(null)]
         public InteractionSortOption? SortBy { get; set; }

@@ -82,18 +82,19 @@ namespace OnComics.Application.Utils
         }
         #endregion
 
-        #region Number Ultils
-        //Compare 2 Int Array And Get Differ
-        public int[] CompareIntArray(int[] a, int[] b)
+        #region Guid Ultils
+        //Compare 2 Guid Array And Get Differ
+        public Guid[] CompareGuidArray(Guid[] a, Guid[] b)
         {
-            HashSet<int> setB = new HashSet<int>(b);
+            HashSet<Guid> setB = new HashSet<Guid>(b);
 
             return a.Where(x => !setB.Contains(x)).ToArray();
         }
 
-        public Dictionary<int, int> CompareIntDictionary(Dictionary<int, int> a, Dictionary<int, int> b)
+        //Compare 2 Guid Dictionary And Get Same
+        public Dictionary<Guid, int> CompareGuidDictionary(Dictionary<Guid, int> a, Dictionary<Guid, int> b)
         {
-            var dictionary = new Dictionary<int, int>();
+            var dictionary = new Dictionary<Guid, int>();
 
             foreach (var kv in a)
             {

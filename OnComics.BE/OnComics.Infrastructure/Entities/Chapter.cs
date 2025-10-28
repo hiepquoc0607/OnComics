@@ -2,9 +2,9 @@
 
 public partial class Chapter
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int ComicId { get; set; }
+    public Guid ComicId { get; set; }
 
     public int ChapNo { get; set; }
 

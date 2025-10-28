@@ -33,7 +33,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                int searchId = getChapterSourceReq.ChapterId;
+                Guid searchId = getChapterSourceReq.ChapterId;
 
                 int pageIndex = getChapterSourceReq.PageIndex;
                 int pageNum = getChapterSourceReq.PageNum;
@@ -116,7 +116,7 @@ namespace OnComics.Application.Services.Implements
 
                 var srcs = sources.ToDictionary(s => s.ChapterId, s => s.Arrangement);
                 var dataSrcs = await _chapterSourceRepository.GetChapterSourcesAsync();
-                var existedSrcs = _utils.CompareIntDictionary(dataSrcs, srcs);
+                var existedSrcs = _utils.CompareGuidDictionary(dataSrcs, srcs);
 
                 if (existedSrcs != null)
                     return new ObjectResponse<IEnumerable<Chaptersource>>(
@@ -142,7 +142,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Chapter Source
-        public async Task<VoidResponse> UpdateChapterSourceAsync(int id, UpdateChapterSourceReq updateChapterSourceReq)
+        public async Task<VoidResponse> UpdateChapterSourceAsync(Guid id, UpdateChapterSourceReq updateChapterSourceReq)
         {
             try
             {
@@ -171,7 +171,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Chapter Source
-        public async Task<VoidResponse> DeleteChapterSourceAsync(int id)
+        public async Task<VoidResponse> DeleteChapterSourceAsync(Guid id)
         {
             try
             {
@@ -198,7 +198,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Bulk Delete Range Chapter Sources
-        public async Task<VoidResponse> DeleteRangeChapterSourcesAsync(int chapterId)
+        public async Task<VoidResponse> DeleteRangeChapterSourcesAsync(Guid chapterId)
         {
             try
             {

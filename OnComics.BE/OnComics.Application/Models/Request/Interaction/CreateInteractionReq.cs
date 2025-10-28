@@ -5,9 +5,9 @@ namespace OnComics.Application.Models.Request.Interaction
     public class CreateInteractionReq
     {
         [Required]
-        public int CommentId { get; set; }
+        public Guid CommentId { get; set; }
 
         [Required]
-        public int TypeId { get; set; }
+        public Guid TypeId { get; set; }
     }
 }

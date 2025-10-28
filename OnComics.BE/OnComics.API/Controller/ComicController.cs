@@ -29,7 +29,7 @@ namespace OnComics.API.Controller
 
         //Get Comic By Id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _comicService.GetComicByIdAsync(id);
 
@@ -50,7 +50,7 @@ namespace OnComics.API.Controller
         [Authorize(Policy = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateComicReq updateComicReq)
         {
             var result = await _comicService.UpdateComicAsync(id, updateComicReq);
@@ -62,7 +62,7 @@ namespace OnComics.API.Controller
         [Authorize(Policy = "Admin")]
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateStatusReq<ComicStatus> updateStatusReq)
         {
             var result = await _comicService.UpdateStatusAsync(id, updateStatusReq);
@@ -73,7 +73,7 @@ namespace OnComics.API.Controller
         //Delete Comic
         [Authorize(Policy = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _comicService.DeleteComicAsync(id);
 

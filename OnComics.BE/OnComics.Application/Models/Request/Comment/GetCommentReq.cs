@@ -8,7 +8,7 @@ namespace OnComics.Application.Models.Request.Comment
     public class GetCommentReq : GetReq
     {
         [DefaultValue(null)]
-        public int? Id { get; set; }
+        public Guid? Id { get; set; }
 
         [DefaultValue(null)]
         public CmtIdType? IdType { get; set; }

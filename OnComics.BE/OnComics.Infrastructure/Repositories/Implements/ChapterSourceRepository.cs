@@ -12,7 +12,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Chapter Source By Chapter Id
-        public async Task<IEnumerable<Chaptersource>?> GetSourcesByChapterIdAsync(int chapterId)
+        public async Task<IEnumerable<Chaptersource>?> GetSourcesByChapterIdAsync(Guid chapterId)
         {
             return await _context.Chaptersources
                 .AsNoTracking()
@@ -21,7 +21,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Chapter Source To Dictionary
-        public async Task<Dictionary<int, int>> GetChapterSourcesAsync()
+        public async Task<Dictionary<Guid, int>> GetChapterSourcesAsync()
         {
             return await _context.Chaptersources
                 .AsNoTracking()
@@ -31,7 +31,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Check If Chapter Source is Existed
-        public async Task<bool> CheckChapterSourceAsync(int chapterId, int arrangement)
+        public async Task<bool> CheckChapterSourceAsync(Guid chapterId, int arrangement)
         {
             return await _context.Chaptersources
                 .AsNoTracking()
@@ -41,7 +41,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Chapter Source By Chapter Id
-        public async Task<int> CountSourceByChapterId(int chapterId)
+        public async Task<int> CountSourceByChapterId(Guid chapterId)
         {
             return await _context.Chaptersources
                 .AsNoTracking()

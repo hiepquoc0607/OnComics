@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Favorite
-        public async Task<(IEnumerable<Favorite>?, IDictionary<int, string>, IDictionary<int, string>)> GetFavoritesAsync(
+        public async Task<(IEnumerable<Favorite>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetFavoritesAsync(
             Expression<Func<Favorite, bool>>? filter = null,
             Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? orderBy = null,
             int? pageNumber = null,
@@ -55,7 +55,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
 
         //Get Favorite By Id
-        public async Task<(Favorite?, string, string)> GetFavoriteByIdAsync(int id)
+        public async Task<(Favorite?, string, string)> GetFavoriteByIdAsync(Guid id)
         {
             var projected = await _context.Favorites
                 .AsNoTracking()
@@ -78,7 +78,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Check If Favorite Is Existed
-        public async Task<bool> CheckFavoriteExistedAsync(int accId, int comicId)
+        public async Task<bool> CheckFavoriteExistedAsync(Guid accId, Guid comicId)
         {
             return await _context.Favorites
                 .AsNoTracking()
@@ -88,7 +88,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Favorite Record
-        public async Task<int> CountFavoriteAsync(int id, bool isComic)
+        public async Task<int> CountFavoriteAsync(Guid id, bool isComic)
         {
             if (isComic == true)
             {

@@ -22,7 +22,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Check If Comic Is Existed By Id
-        public async Task<bool> CheckComicIdAsync(int id)
+        public async Task<bool> CheckComicIdAsync(Guid id)
         {
             return await _context.Comics
                 .AsNoTracking()
@@ -30,7 +30,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Comic Ids
-        public async Task<int[]> GetComicIdsAsync()
+        public async Task<Guid[]> GetComicIdsAsync()
         {
             return await _context.Comics
                 .AsNoTracking()

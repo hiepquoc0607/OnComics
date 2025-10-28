@@ -37,7 +37,7 @@ namespace OnComics.Application.Services.Implements
 
                 bool isDecending = getCommentReq.IsDescending;
 
-                int? searchId = getCommentReq.Id;
+                Guid? searchId = getCommentReq.Id;
 
                 bool? isComicId = getCommentReq.IdType switch
                 {
@@ -135,7 +135,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Reply Comments
-        public async Task<ObjectResponse<IEnumerable<CommentRes>?>> GetReplyCommentsAsync(int mainCmtId)
+        public async Task<ObjectResponse<IEnumerable<CommentRes>?>> GetReplyCommentsAsync(Guid mainCmtId)
         {
             try
             {
@@ -207,7 +207,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Reply Comment
-        public async Task<ObjectResponse<Comment>> ReplyCommentAsync(int mainCmtId, CreateCommentReq createCommentReq)
+        public async Task<ObjectResponse<Comment>> ReplyCommentAsync(Guid mainCmtId, CreateCommentReq createCommentReq)
         {
             try
             {
@@ -239,7 +239,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Comment
-        public async Task<VoidResponse> UpdateCommentAsync(int id, UpdateCommentReq updateCommentReq)
+        public async Task<VoidResponse> UpdateCommentAsync(Guid id, UpdateCommentReq updateCommentReq)
         {
             try
             {
@@ -268,7 +268,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Comment
-        public async Task<VoidResponse> DeleteCommentAsync(int id)
+        public async Task<VoidResponse> DeleteCommentAsync(Guid id)
         {
             try
             {

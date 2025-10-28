@@ -96,7 +96,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Category By Id
-        public async Task<ObjectResponse<CategoryRes>> GetCategoryByIdAsync(int id)
+        public async Task<ObjectResponse<CategoryRes>> GetCategoryByIdAsync(Guid id)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Caategory
-        public async Task<VoidResponse> UpdateCategoryAsync(int id, UpdateCategoryReq updateCategoryReq)
+        public async Task<VoidResponse> UpdateCategoryAsync(Guid id, UpdateCategoryReq updateCategoryReq)
         {
             try
             {
@@ -227,7 +227,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Category Status
-        public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<CategoryStatus> updateStatus)
+        public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<CategoryStatus> updateStatus)
         {
             try
             {
@@ -260,7 +260,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Category
-        public async Task<VoidResponse> DeleteCategoryAsync(int id)
+        public async Task<VoidResponse> DeleteCategoryAsync(Guid id)
         {
             try
             {

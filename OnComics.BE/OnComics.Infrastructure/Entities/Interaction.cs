@@ -2,13 +2,13 @@
 
 public partial class Interaction
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
-    public int CommentId { get; set; }
+    public Guid CommentId { get; set; }
 
-    public int TypeId { get; set; }
+    public Guid TypeId { get; set; }
 
     public DateTime ReactTime { get; set; }
 

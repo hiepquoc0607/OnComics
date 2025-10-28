@@ -9,10 +9,10 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<ComicRatingRes>?>> GetRatingsAsync(GetComicRatingReq getComicRatingReq);
 
-        Task<ObjectResponse<Comicrating>> CreateRatingAsync(int accId, CreateComicRatingReq createComicRatingReq);
+        Task<ObjectResponse<Comicrating>> CreateRatingAsync(Guid accId, CreateComicRatingReq createComicRatingReq);
 
-        Task<VoidResponse> UpdateRatingAsync(int id, UpdateComicRatingReq updateRatingReq);
+        Task<VoidResponse> UpdateRatingAsync(Guid id, UpdateComicRatingReq updateRatingReq);
 
-        Task<VoidResponse> DeleteRatingAsync(int id);
+        Task<VoidResponse> DeleteRatingAsync(Guid id);
     }
 }

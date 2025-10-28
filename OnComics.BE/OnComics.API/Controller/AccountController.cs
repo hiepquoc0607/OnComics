@@ -34,7 +34,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpGet("{id}")]
 
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -53,7 +53,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateAccountReq updateAccReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -70,7 +70,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpPatch("{id}/password")]
         public async Task<IActionResult> UpdatePasswordAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdatePasswordReq updatePasswordReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -87,7 +87,7 @@ namespace OnComics.API.Controller
         [Authorize(Policy = "Admin")]
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromQuery] UpdateStatusReq<AccountStatus> updateStatusReq)
         {
 
@@ -99,7 +99,7 @@ namespace OnComics.API.Controller
         //Delete Account
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;

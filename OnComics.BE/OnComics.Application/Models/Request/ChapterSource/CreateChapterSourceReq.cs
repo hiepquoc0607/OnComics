@@ -5,7 +5,7 @@ namespace OnComics.Application.Models.Request.ChapterSource
     public class CreateChapterSourceReq
     {
         [Required]
-        public int ChapterId { get; set; }
+        public Guid ChapterId { get; set; }
 
         [Required]
         public string SrcUrl { get; set; } = null!;

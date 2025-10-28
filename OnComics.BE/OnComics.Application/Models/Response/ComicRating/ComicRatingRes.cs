@@ -4,16 +4,16 @@ namespace OnComics.Application.Models.Response.ComicRating
 {
     public class ComicRatingRes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? AccountId { get; set; } = null;
+        public Guid? AccountId { get; set; } = null;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Fullname { get; set; } = null;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? ComicId { get; set; } = null;
+        public Guid? ComicId { get; set; } = null;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? ComicName { get; set; } = null;

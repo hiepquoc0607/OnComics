@@ -12,7 +12,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Chapter Record By Comic Id
-        public async Task<int> CountChapterByComicIdAsync(int id)
+        public async Task<int> CountChapterByComicIdAsync(Guid id)
         {
             return await _context.Chapters
                 .AsNoTracking()
@@ -21,7 +21,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Max Chapter ChapNo By ComicId
-        public async Task<int> GetMaxChapNoByComicIdAsync(int id)
+        public async Task<int> GetMaxChapNoByComicIdAsync(Guid id)
         {
             return await _context.Chapters
                 .AsNoTracking()
@@ -30,7 +30,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Max Chapter ChapNo For Each ComicIds
-        public async Task<IDictionary<int, int>> GetMaxChapNosByComicIdsAsync(int[] ids)
+        public async Task<IDictionary<Guid, int>> GetMaxChapNosByComicIdsAsync(Guid[] ids)
         {
             return await _context.Chapters
                 .AsNoTracking()

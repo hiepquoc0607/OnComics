@@ -2,11 +2,9 @@
 
 public partial class Attachment
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int ComicId { get; set; }
-
-    public string FileId { get; set; } = null!;
+    public Guid ComicId { get; set; }
 
     public string StrorageUrl { get; set; } = null!;
 

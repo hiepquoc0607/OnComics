@@ -13,10 +13,10 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<ObjectResponse<IEnumerable<Chaptersource>>> CreateRangeChapterSourcesAsync(List<CreateChapterSourceReq> sources);
 
-        Task<VoidResponse> UpdateChapterSourceAsync(int id, UpdateChapterSourceReq updateChapterSourceReq);
+        Task<VoidResponse> UpdateChapterSourceAsync(Guid id, UpdateChapterSourceReq updateChapterSourceReq);
 
-        Task<VoidResponse> DeleteChapterSourceAsync(int id);
+        Task<VoidResponse> DeleteChapterSourceAsync(Guid id);
 
-        Task<VoidResponse> DeleteRangeChapterSourcesAsync(int chapterId);
+        Task<VoidResponse> DeleteRangeChapterSourcesAsync(Guid chapterId);
     }
 }

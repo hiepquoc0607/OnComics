@@ -4,7 +4,7 @@ namespace OnComics.Application.Models.Response.Chapter
 {
     public class ChapterRes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public int ChapNo { get; set; }
 

@@ -127,7 +127,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Comic By Id
-        public async Task<ObjectResponse<ComicRes?>> GetComicByIdAsync(int id)
+        public async Task<ObjectResponse<ComicRes?>> GetComicByIdAsync(Guid id)
         {
             try
             {
@@ -185,7 +185,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Comic
-        public async Task<VoidResponse> UpdateComicAsync(int id, UpdateComicReq updateComicReq)
+        public async Task<VoidResponse> UpdateComicAsync(Guid id, UpdateComicReq updateComicReq)
         {
             try
             {
@@ -215,7 +215,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Comic Status
-        public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<ComicStatus> updateStatusReq)
+        public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ComicStatus> updateStatusReq)
         {
             try
             {
@@ -249,7 +249,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Comic
-        public async Task<VoidResponse> DeleteComicAsync(int id)
+        public async Task<VoidResponse> DeleteComicAsync(Guid id)
         {
             try
             {

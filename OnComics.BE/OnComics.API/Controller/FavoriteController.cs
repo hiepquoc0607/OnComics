@@ -27,7 +27,7 @@ namespace OnComics.API.Controller
 
         //Get Favorite By Id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _favoriteService.GetFavoriteByIdAsync(id);
 
@@ -40,7 +40,7 @@ namespace OnComics.API.Controller
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var accId = int.Parse(userIdClaim!);
+            Guid accId = Guid.Parse(userIdClaim!);
 
             var result = await _favoriteService.CreateFavoriteAsync(accId, createFavoriteReq);
 
@@ -49,7 +49,7 @@ namespace OnComics.API.Controller
 
         //Delete Favorite
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _favoriteService.DeleteFavoriteAsync(id);
 

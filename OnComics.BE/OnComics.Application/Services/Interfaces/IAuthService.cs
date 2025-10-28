@@ -19,7 +19,7 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<VoidResponse> ResetPasswordAsync(InfoQuery infoQuery, ResetPassReq resetPassReq);
 
-        Task<VoidResponse> RequestConfirmEmailAsync(int id);
+        Task<VoidResponse> RequestConfirmEmailAsync(Guid id);
 
         Task<VoidResponse> ConfirmEmailAsync(InfoQuery infoQuery);
     }

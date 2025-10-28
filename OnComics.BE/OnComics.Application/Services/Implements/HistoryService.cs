@@ -37,7 +37,7 @@ namespace OnComics.Application.Services.Implements
 
                 bool isDecending = getHistoryReq.IsDescending;
 
-                int? searchId = getHistoryReq.Id;
+                Guid? searchId = getHistoryReq.Id;
 
                 bool? isComicId = getHistoryReq.IdType switch
                 {
@@ -133,7 +133,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Create History
-        public async Task<ObjectResponse<History>> CreateHistroyAsync(int accId, CreateHistoryReq createHistoryReq)
+        public async Task<ObjectResponse<History>> CreateHistroyAsync(Guid accId, CreateHistoryReq createHistoryReq)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update History
-        public async Task<VoidResponse> UpdateHistroyAsync(int id, UpdateHistoryReq updateHistoryReq)
+        public async Task<VoidResponse> UpdateHistroyAsync(Guid id, UpdateHistoryReq updateHistoryReq)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete History
-        public async Task<VoidResponse> DeleteHistoryAsync(int id)
+        public async Task<VoidResponse> DeleteHistoryAsync(Guid id)
         {
             try
             {
@@ -220,7 +220,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Bulk Delete Range Histories By Account Id
-        public async Task<VoidResponse> DeleteRangeHistoriesAsync(int accId)
+        public async Task<VoidResponse> DeleteRangeHistoriesAsync(Guid accId)
         {
             try
             {

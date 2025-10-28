@@ -37,7 +37,7 @@ namespace OnComics.Application.Services.Implements
 
                 bool isDecending = getComicRatingReq.IsDescending;
 
-                int searchId = getComicRatingReq.Id;
+                Guid searchId = getComicRatingReq.Id;
 
                 bool isComicId = getComicRatingReq.IdType switch
                 {
@@ -121,7 +121,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Create Rating
-        public async Task<ObjectResponse<Comicrating>> CreateRatingAsync(int accId, CreateComicRatingReq createComicRatingReq)
+        public async Task<ObjectResponse<Comicrating>> CreateRatingAsync(Guid accId, CreateComicRatingReq createComicRatingReq)
         {
             try
             {
@@ -153,7 +153,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Rating
-        public async Task<VoidResponse> UpdateRatingAsync(int id, UpdateComicRatingReq updateRatingReq)
+        public async Task<VoidResponse> UpdateRatingAsync(Guid id, UpdateComicRatingReq updateRatingReq)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Rating
-        public async Task<VoidResponse> DeleteRatingAsync(int id)
+        public async Task<VoidResponse> DeleteRatingAsync(Guid id)
         {
             try
             {

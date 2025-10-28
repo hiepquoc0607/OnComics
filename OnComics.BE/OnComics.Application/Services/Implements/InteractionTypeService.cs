@@ -95,7 +95,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Interaction Type By Id
-        public async Task<ObjectResponse<InteractionTypeRes?>> GetItrTypeByIdAsync(int id)
+        public async Task<ObjectResponse<InteractionTypeRes?>> GetItrTypeByIdAsync(Guid id)
         {
             try
             {
@@ -155,7 +155,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Interaction Type
-        public async Task<VoidResponse> UpdateItrTypeAsync(int id, UpdateItrTypeReq updateItrTypeReq)
+        public async Task<VoidResponse> UpdateItrTypeAsync(Guid id, UpdateItrTypeReq updateItrTypeReq)
         {
             try
             {
@@ -194,7 +194,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Interaction Type Status
-        public async Task<VoidResponse> UpdateItrTypeStatusAsync(int id, UpdateStatusReq<ItrTypeStatus> updateStatusReq)
+        public async Task<VoidResponse> UpdateItrTypeStatusAsync(Guid id, UpdateStatusReq<ItrTypeStatus> updateStatusReq)
         {
             try
             {
@@ -229,7 +229,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Interaction Type
-        public async Task<VoidResponse> DeleteItrTypeAsync(int id)
+        public async Task<VoidResponse> DeleteItrTypeAsync(Guid id)
         {
             try
             {

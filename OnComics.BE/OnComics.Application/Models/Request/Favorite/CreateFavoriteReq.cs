@@ -5,6 +5,6 @@ namespace OnComics.Application.Models.Request.Favorite
     public class CreateFavoriteReq
     {
         [Required]
-        public int ComicId { get; set; }
+        public Guid ComicId { get; set; }
     }
 }
