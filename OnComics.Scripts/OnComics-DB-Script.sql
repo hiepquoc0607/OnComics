@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS Interaction,
                      Account;
 
 CREATE TABLE Account (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Id BINARY(16) PRIMARY KEY,
     Fullname NVARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
     PasswordHash TEXT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE Account (
 );
 
 CREATE TABLE Comic (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,
     Description TEXT NOT NULL,
     Author NVARCHAR(100) NOT NULL,
@@ -55,35 +55,35 @@ CREATE TABLE Comic (
 );
 
 CREATE TABLE Category (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
     Description TEXT NULL,
     Status VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE InteractionType (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
     ImgUrl TEXT NULL,
     Status VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE Chapter (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    ComicId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    ComicId BINARY(16) NOT NULL,
     ChapNo INT NOT NULL,
     Name NVARCHAR(100) NULL,
     ReadNum INT NOT NULL,
     ReleaseTime DATETIME NOT NULL,
     Status VARCHAR(10) NOT NULL,
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id)
+        REFERENCES Comic (Id),
+    UNIQUE (ComicId , ChapNo)
 );
 
 CREATE TABLE ChapterSource (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    ChapterId INT NOT NULL,
-    FileId TEXT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    ChapterId BINARY(16) NOT NULL,
     SrcUrl TEXT NOT NULL,
     ViewUrl TEXT NULL,
     Arrangement INT NOT NULL,
@@ -93,9 +93,9 @@ CREATE TABLE ChapterSource (
 );
 
 CREATE TABLE ComicCategory (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    ComicId INT NOT NULL,
-    CategoryId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    ComicId BINARY(16) NOT NULL,
+    CategoryId BINARY(16) NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id),
     FOREIGN KEY (CategoryId)
@@ -104,9 +104,9 @@ CREATE TABLE ComicCategory (
 );
 
 CREATE TABLE ComicRating (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    AccountId INT NOT NULL,
-    ComicId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    AccountId BINARY(16) NOT NULL,
+    ComicId BINARY(16) NOT NULL,
     Rating DECIMAL(2,1) NOT NULL CHECK (Rating >= 0.0 AND Rating <= 5.0),
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
@@ -116,13 +116,13 @@ CREATE TABLE ComicRating (
 );
 
 CREATE TABLE Comment (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    AccountId INT NOT NULL,
-    ComicId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    AccountId BINARY(16) NOT NULL,
+    ComicId BINARY(16) NOT NULL,
     Content TEXT NOT NULL,
     IsEdited BOOL CHECK(IsEdited IN (0,1)) NOT NULL,
     IsMainCmt BOOL CHECK(IsMainCmt IN (0,1)) NOT NULL,
-    MainCmtId INT NULL,
+    MainCmtId BINARY(16) NULL,
     CmtTime DATETIME NOT NULL,
     InteractionNum INT NOT NULL,
     FOREIGN KEY (AccountId)
@@ -132,18 +132,17 @@ CREATE TABLE Comment (
 );
 
 CREATE TABLE Attachment (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    ComicId INT NOT NULL,
-    FileId TEXT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    ComicId BINARY(16) NOT NULL,
     StrorageUrl TEXT NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comment (Id)
 );
 
 CREATE TABLE Favorite (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    AccountId INT NOT NULL,
-    ComicId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    AccountId BINARY(16) NOT NULL,
+    ComicId BINARY(16) NOT NULL,
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ComicId)
@@ -152,9 +151,9 @@ CREATE TABLE Favorite (
 );
 
 CREATE TABLE History (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    AccountId INT NOT NULL,
-    ChapterId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    AccountId BINARY(16) NOT NULL,
+    ChapterId BINARY(16) NOT NULL,
     ReadTime DATETIME NOT NULL,
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
@@ -164,10 +163,10 @@ CREATE TABLE History (
 );
 
 CREATE TABLE Interaction (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    AccountId INT NOT NULL,
-    CommentId INT NOT NULL,
-    TypeId INT NOT NULL,
+    Id BINARY(16) PRIMARY KEY,
+    AccountId BINARY(16) NOT NULL,
+    CommentId BINARY(16) NOT NULL,
+    TypeId BINARY(16) NOT NULL,
     ReactTime DATETIME NOT NULL,
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
