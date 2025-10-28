@@ -5,16 +5,16 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IFavoriteRepository : IGenericRepository<Favorite>
     {
-        Task<(IEnumerable<Favorite>?, IDictionary<int, string>, IDictionary<int, string>)> GetFavoritesAsync(
+        Task<(IEnumerable<Favorite>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetFavoritesAsync(
             Expression<Func<Favorite, bool>>? filter = null,
             Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? orderBy = null,
             int? pageNumber = null,
             int? pageSize = null);
 
-        Task<(Favorite?, string, string)> GetFavoriteByIdAsync(int id);
+        Task<(Favorite?, string, string)> GetFavoriteByIdAsync(Guid id);
 
-        Task<bool> CheckFavoriteExistedAsync(int accId, int comicId);
+        Task<bool> CheckFavoriteExistedAsync(Guid accId, Guid comicId);
 
-        Task<int> CountFavoriteAsync(int id, bool isComic);
+        Task<int> CountFavoriteAsync(Guid id, bool isComic);
     }
 }

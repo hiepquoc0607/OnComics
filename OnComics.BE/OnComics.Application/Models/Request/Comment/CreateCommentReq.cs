@@ -5,10 +5,10 @@ namespace OnComics.Application.Models.Request.Comment
     public class CreateCommentReq
     {
         [Required]
-        public int AccountId { get; set; }
+        public Guid AccountId { get; set; }
 
         [Required]
-        public int ComicId { get; set; }
+        public Guid ComicId { get; set; }
 
         [Required]
         public string Content { get; set; } = string.Empty;

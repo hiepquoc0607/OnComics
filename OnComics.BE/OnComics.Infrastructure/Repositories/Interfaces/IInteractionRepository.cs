@@ -5,16 +5,16 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IInteractionRepository : IGenericRepository<Interaction>
     {
-        Task<(IEnumerable<Interaction>?, IDictionary<int, string>, IDictionary<int, string>)> GetInteractionsAsync(
+        Task<(IEnumerable<Interaction>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetInteractionsAsync(
             Expression<Func<Interaction, bool>>? filter = null,
             Func<IQueryable<Interaction>, IOrderedQueryable<Interaction>>? orderBy = null,
             int? pageNumber = null,
             int? pageSize = null);
 
-        Task<(Interaction?, string, string)> GetInteractionById(int id);
+        Task<(Interaction?, string, string)> GetInteractionById(Guid id);
 
-        Task<bool> CheckInteractionExistedAsync(int accId, int cmtId);
+        Task<bool> CheckInteractionExistedAsync(Guid accId, Guid cmtId);
 
-        Task<int> CountInteractionAsync(int? id = null);
+        Task<int> CountInteractionAsync(Guid? id = null);
     }
 }

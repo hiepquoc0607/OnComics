@@ -9,12 +9,12 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<InteractionRes>?>> GetInteractionsAsync(GetInteractionReq getInteractionReq);
 
-        Task<ObjectResponse<InteractionRes?>> GetInteractionByIdAsync(int id);
+        Task<ObjectResponse<InteractionRes?>> GetInteractionByIdAsync(Guid id);
 
-        Task<ObjectResponse<Interaction>> CreateInteractionAsync(int accId, CreateInteractionReq createInteractionReq);
+        Task<ObjectResponse<Interaction>> CreateInteractionAsync(Guid accId, CreateInteractionReq createInteractionReq);
 
-        Task<VoidResponse> UpdateInteractionAsync(int id, UpdateInteractionReq updateInteractionReq);
+        Task<VoidResponse> UpdateInteractionAsync(Guid id, UpdateInteractionReq updateInteractionReq);
 
-        Task<VoidResponse> DeleteInteractionAsync(int id);
+        Task<VoidResponse> DeleteInteractionAsync(Guid id);
     }
 }

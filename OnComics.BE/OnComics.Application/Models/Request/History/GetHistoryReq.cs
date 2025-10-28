@@ -7,7 +7,7 @@ namespace OnComics.Application.Models.Request.History
     public class GetHistoryReq : GetReq
     {
         [DefaultValue(null)]
-        public int? Id { get; set; }
+        public Guid? Id { get; set; }
 
         [DefaultValue(null)]
         public HistoryIdType? IdType { get; set; }

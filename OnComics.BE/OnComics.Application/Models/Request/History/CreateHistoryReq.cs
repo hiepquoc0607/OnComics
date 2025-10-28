@@ -5,6 +5,6 @@ namespace OnComics.Application.Models.Request.History
     public class CreateHistoryReq
     {
         [Required]
-        public int ChapterId { get; set; }
+        public Guid ChapterId { get; set; }
     }
 }

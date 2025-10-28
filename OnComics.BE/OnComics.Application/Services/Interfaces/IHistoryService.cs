@@ -9,12 +9,12 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<HistoryRes>?>> GetHistoriesAsync(GetHistoryReq getHistoryReq);
 
-        Task<ObjectResponse<History>> CreateHistroyAsync(int accId, CreateHistoryReq createHistoryReq);
+        Task<ObjectResponse<History>> CreateHistroyAsync(Guid accId, CreateHistoryReq createHistoryReq);
 
-        Task<VoidResponse> UpdateHistroyAsync(int id, UpdateHistoryReq updateHistoryReq);
+        Task<VoidResponse> UpdateHistroyAsync(Guid id, UpdateHistoryReq updateHistoryReq);
 
-        Task<VoidResponse> DeleteHistoryAsync(int id);
+        Task<VoidResponse> DeleteHistoryAsync(Guid id);
 
-        Task<VoidResponse> DeleteRangeHistoriesAsync(int accId);
+        Task<VoidResponse> DeleteRangeHistoriesAsync(Guid accId);
     }
 }

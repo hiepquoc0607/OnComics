@@ -2,11 +2,11 @@
 
 public partial class Comicrating
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
-    public int ComicId { get; set; }
+    public Guid ComicId { get; set; }
 
     public decimal Rating { get; set; }
 

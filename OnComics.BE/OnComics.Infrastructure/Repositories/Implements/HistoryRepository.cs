@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Histories
-        public async Task<(IEnumerable<History>?, IDictionary<int, string>, IDictionary<int, string>)> GetHistoriesAsync(
+        public async Task<(IEnumerable<History>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetHistoriesAsync(
             Expression<Func<History, bool>>? filter = null,
             Func<IQueryable<History>, IOrderedQueryable<History>>? orderBy = null,
             int? pageNumber = null,
@@ -54,7 +54,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Histories By Account Id
-        public async Task<IEnumerable<History>?> GetHistoriesByAccountIdAsync(int id)
+        public async Task<IEnumerable<History>?> GetHistoriesByAccountIdAsync(Guid id)
         {
             return await _context.Histories
                 .Where(r => r.AccountId == id)
@@ -62,7 +62,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Check If
-        public async Task<bool> CheckHistoryExistedAsync(int accId, int chapterId)
+        public async Task<bool> CheckHistoryExistedAsync(Guid accId, Guid chapterId)
         {
             return await _context.Histories
                 .AsNoTracking()
@@ -73,7 +73,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count History Record
-        public async Task<int> CountHistoryAsync(int id, bool isComicId)
+        public async Task<int> CountHistoryAsync(Guid id, bool isComicId)
         {
             switch (isComicId)
             {

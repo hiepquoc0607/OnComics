@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Interactions
-        public async Task<(IEnumerable<Interaction>?, IDictionary<int, string>, IDictionary<int, string>)> GetInteractionsAsync(
+        public async Task<(IEnumerable<Interaction>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetInteractionsAsync(
             Expression<Func<Interaction, bool>>? filter = null,
             Func<IQueryable<Interaction>, IOrderedQueryable<Interaction>>? orderBy = null,
             int? pageNumber = null,
@@ -54,7 +54,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Interaction By Id
-        public async Task<(Interaction?, string, string)> GetInteractionById(int id)
+        public async Task<(Interaction?, string, string)> GetInteractionById(Guid id)
         {
             var interaction = await _context.Interactions
                 .AsNoTracking()
@@ -68,7 +68,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Check If Interaction Is Existed
-        public async Task<bool> CheckInteractionExistedAsync(int accId, int cmtId)
+        public async Task<bool> CheckInteractionExistedAsync(Guid accId, Guid cmtId)
         {
             return await _context.Interactions
                 .AsNoTracking()
@@ -76,7 +76,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
                     i.CommentId == cmtId);
         }
 
-        public async Task<int> CountInteractionAsync(int? id = null)
+        public async Task<int> CountInteractionAsync(Guid? id = null)
         {
             if (id.HasValue)
             {

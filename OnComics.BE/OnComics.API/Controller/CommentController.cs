@@ -20,7 +20,7 @@ namespace OnComics.API.Controller
         }
 
         private bool CheckAuthentication(
-            int? id,
+            Guid? id,
             string? idClaim,
             string? roleClaim,
             CmtIdType? idType)
@@ -34,7 +34,7 @@ namespace OnComics.API.Controller
                 idType.Equals(CmtIdType.ACCOUNT) &&
                 !string.IsNullOrEmpty(roleClaim) &&
                 roleClaim.Equals(RoleConstant.USER) &&
-                id != int.Parse(idClaim!))
+                id != Guid.Parse(idClaim!))
             {
                 return false;
             }
@@ -66,7 +66,7 @@ namespace OnComics.API.Controller
         //Get All Reply Comments
         [Authorize]
         [HttpGet("{id}/reply-comments")]
-        public async Task<IActionResult> GetReplyCommentsAsync([FromRoute] int id)
+        public async Task<IActionResult> GetReplyCommentsAsync([FromRoute] Guid id)
         {
             var result = await _commentService.GetReplyCommentsAsync(id);
 
@@ -87,7 +87,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpPost("{id}/reply-comments")]
         public async Task<IActionResult> ReplyCommentAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] CreateCommentReq createCommentReq)
         {
             var result = await _commentService.ReplyCommentAsync(id, createCommentReq);
@@ -99,7 +99,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateCommentReq updateCommentReq)
         {
             var result = await _commentService.UpdateCommentAsync(id, updateCommentReq);
@@ -110,7 +110,7 @@ namespace OnComics.API.Controller
         //Delete Comment
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _commentService.DeleteCommentAsync(id);
 

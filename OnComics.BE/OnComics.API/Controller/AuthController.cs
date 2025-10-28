@@ -101,7 +101,7 @@ namespace OnComics.API.Controller
         //Request Confirm Email
         [Authorize]
         [HttpPost("{id}/request-confirm-email")]
-        public async Task<IActionResult> RequestConfirmEmailAsync([FromRoute] int id)
+        public async Task<IActionResult> RequestConfirmEmailAsync([FromRoute] Guid id)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

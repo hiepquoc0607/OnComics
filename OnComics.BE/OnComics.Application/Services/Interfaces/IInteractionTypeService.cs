@@ -11,14 +11,14 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<InteractionTypeRes>?>> GetItrTypesAsync(GetItrTypeReq getItrTypeReq);
 
-        Task<ObjectResponse<InteractionTypeRes?>> GetItrTypeByIdAsync(int id);
+        Task<ObjectResponse<InteractionTypeRes?>> GetItrTypeByIdAsync(Guid id);
 
         Task<ObjectResponse<Interactiontype>> CreateItrTypeAsync(CreateItrTypeReq createItrTypeReq);
 
-        Task<VoidResponse> UpdateItrTypeAsync(int id, UpdateItrTypeReq updateItrTypeReq);
+        Task<VoidResponse> UpdateItrTypeAsync(Guid id, UpdateItrTypeReq updateItrTypeReq);
 
-        Task<VoidResponse> UpdateItrTypeStatusAsync(int id, UpdateStatusReq<ItrTypeStatus> updateStatusReq);
+        Task<VoidResponse> UpdateItrTypeStatusAsync(Guid id, UpdateStatusReq<ItrTypeStatus> updateStatusReq);
 
-        Task<VoidResponse> DeleteItrTypeAsync(int id);
+        Task<VoidResponse> DeleteItrTypeAsync(Guid id);
     }
 }

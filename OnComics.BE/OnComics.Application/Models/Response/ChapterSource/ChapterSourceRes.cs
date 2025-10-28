@@ -2,9 +2,9 @@
 {
     public class ChapterSourceRes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public int ChapterId { get; set; }
+        public Guid ChapterId { get; set; }
 
         public string SrcUrl { get; set; } = null!;
 

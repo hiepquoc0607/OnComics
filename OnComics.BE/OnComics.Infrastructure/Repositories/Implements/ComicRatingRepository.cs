@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Ratings
-        public async Task<(IEnumerable<Comicrating>, IDictionary<int, string>, IDictionary<int, string>)> GetRatingsAsync(
+        public async Task<(IEnumerable<Comicrating>, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetRatingsAsync(
             Expression<Func<Comicrating, bool>>? filter = null,
             Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? orderBy = null,
             int? pageNumber = null,
@@ -54,7 +54,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Rating By Account Id And Comic Id
-        public async Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(int accId, int comicId)
+        public async Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(Guid accId, Guid comicId)
         {
             return await _context.Comicratings
                         .AsNoTracking()
@@ -64,7 +64,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Rating Record
-        public async Task<int> CountRatingAsync(int id, bool isComicId = false)
+        public async Task<int> CountRatingAsync(Guid id, bool isComicId = false)
         {
             switch (isComicId)
             {

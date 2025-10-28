@@ -5,7 +5,7 @@ namespace OnComics.Application.Models.Request.Chapter
     public class UpdateChapterReq
     {
         [Required]
-        public int ComicId { get; set; }
+        public Guid ComicId { get; set; }
 
         [Required]
         public int ChapNo { get; set; }

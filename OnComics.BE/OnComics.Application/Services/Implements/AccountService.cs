@@ -101,7 +101,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Account By Id
-        public async Task<ObjectResponse<AccountRes?>> GetAccountByIdAsync(int id)
+        public async Task<ObjectResponse<AccountRes?>> GetAccountByIdAsync(Guid id)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Account
-        public async Task<VoidResponse> UpdateAccountAsync(int id, UpdateAccountReq updateAccReq)
+        public async Task<VoidResponse> UpdateAccountAsync(Guid id, UpdateAccountReq updateAccReq)
         {
             try
             {
@@ -161,7 +161,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Password
-        public async Task<VoidResponse> UpdatePasswordAsync(int id, UpdatePasswordReq updatePasswordReq)
+        public async Task<VoidResponse> UpdatePasswordAsync(Guid id, UpdatePasswordReq updatePasswordReq)
         {
             try
             {
@@ -194,7 +194,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Status
-        public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<AccountStatus> updateStatusReq)
+        public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<AccountStatus> updateStatusReq)
         {
             try
             {
@@ -227,7 +227,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Account
-        public async Task<VoidResponse> DeleteAccountAsync(int id)
+        public async Task<VoidResponse> DeleteAccountAsync(Guid id)
         {
             try
             {

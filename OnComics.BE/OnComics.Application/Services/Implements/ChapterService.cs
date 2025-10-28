@@ -99,7 +99,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Chapter By Id
-        public async Task<ObjectResponse<ChapterRes?>> GetChapterByIdAsync(int id)
+        public async Task<ObjectResponse<ChapterRes?>> GetChapterByIdAsync(Guid id)
         {
             try
             {
@@ -171,9 +171,9 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         "Only Create Max 10 Record At Once!");
 
-                int[] ids = chapters.Select(c => c.ComicId).ToArray();
-                int[] dataIds = await _comicRepository.GetComicIdsAsync();
-                int[] nonIds = _util.CompareIntArray(ids, dataIds);
+                Guid[] ids = chapters.Select(c => c.ComicId).ToArray();
+                Guid[] dataIds = await _comicRepository.GetComicIdsAsync();
+                Guid[] nonIds = _util.CompareGuidArray(ids, dataIds);
 
                 if (nonIds.Length > 0)
                     return new ObjectResponse<IEnumerable<Chapter>>(
@@ -209,7 +209,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Chapter
-        public async Task<VoidResponse> UpdateChapterAsync(int id, UpdateChapterReq updateChapterReq)
+        public async Task<VoidResponse> UpdateChapterAsync(Guid id, UpdateChapterReq updateChapterReq)
         {
             try
             {
@@ -241,7 +241,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Chapter Status
-        public async Task<VoidResponse> UpdateStatusAsync(int id, UpdateStatusReq<ChapterStatus> updateStatusReq)
+        public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ChapterStatus> updateStatusReq)
         {
             try
             {
@@ -275,7 +275,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Chapter
-        public async Task<VoidResponse> DeleteChapterAsync(int id)
+        public async Task<VoidResponse> DeleteChapterAsync(Guid id)
         {
             try
             {

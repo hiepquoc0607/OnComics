@@ -29,7 +29,7 @@ namespace OnComics.API.Controller
 
         //Get Category By Id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _categoryService.GetCategoryByIdAsync(id);
 
@@ -60,7 +60,7 @@ namespace OnComics.API.Controller
         [Authorize(Policy = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateCategoryReq updateCategoryReq)
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryReq);
@@ -72,7 +72,7 @@ namespace OnComics.API.Controller
         [Authorize(Policy = "Admin")]
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateStatusReq<CategoryStatus> updateStatusReq)
         {
             var result = await _categoryService.UpdateStatusAsync(id, updateStatusReq);
@@ -83,7 +83,7 @@ namespace OnComics.API.Controller
         //Delete Category
         [Authorize(Policy = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
 

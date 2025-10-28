@@ -4,7 +4,7 @@ namespace OnComics.Application.Models.Response.Account
 {
     public class AccountRes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Fullname { get; set; } = null!;
 

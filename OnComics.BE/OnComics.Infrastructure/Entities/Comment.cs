@@ -2,11 +2,11 @@
 
 public partial class Comment
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
-    public int ComicId { get; set; }
+    public Guid ComicId { get; set; }
 
     public string Content { get; set; } = null!;
 
@@ -14,7 +14,7 @@ public partial class Comment
 
     public bool IsMainCmt { get; set; }
 
-    public int? MainCmtId { get; set; }
+    public Guid? MainCmtId { get; set; }
 
     public DateTime CmtTime { get; set; }
 

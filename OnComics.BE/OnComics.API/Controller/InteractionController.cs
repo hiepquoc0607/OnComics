@@ -41,7 +41,7 @@ namespace OnComics.API.Controller
         //Get Interaction By Id
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _interactionService.GetInteractionByIdAsync(id);
 
@@ -55,7 +55,7 @@ namespace OnComics.API.Controller
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            int accId = int.Parse(userIdClaim!);
+            Guid accId = Guid.Parse(userIdClaim!);
 
             var result = await _interactionService.CreateInteractionAsync(accId, createInteractionReq);
 
@@ -66,7 +66,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateInteractionReq updateInteractionReq)
         {
             var result = await _interactionService.UpdateInteractionAsync(id, updateInteractionReq);
@@ -77,7 +77,7 @@ namespace OnComics.API.Controller
         //Delete Interaction
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _interactionService.DeleteInteractionAsync(id);
 

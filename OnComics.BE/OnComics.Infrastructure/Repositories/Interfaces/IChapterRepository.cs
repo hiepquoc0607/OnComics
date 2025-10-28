@@ -4,10 +4,10 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IChapterRepository : IGenericRepository<Chapter>
     {
-        Task<int> CountChapterByComicIdAsync(int id);
+        Task<int> CountChapterByComicIdAsync(Guid id);
 
-        Task<int> GetMaxChapNoByComicIdAsync(int id);
+        Task<int> GetMaxChapNoByComicIdAsync(Guid id);
 
-        Task<IDictionary<int, int>> GetMaxChapNosByComicIdsAsync(int[] ids);
+        Task<IDictionary<Guid, int>> GetMaxChapNosByComicIdsAsync(Guid[] ids);
     }
 }

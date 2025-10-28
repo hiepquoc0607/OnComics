@@ -2,11 +2,11 @@
 
 public partial class Comiccategory
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int ComicId { get; set; }
+    public Guid ComicId { get; set; }
 
-    public int CategoryId { get; set; }
+    public Guid CategoryId { get; set; }
 
     public virtual Category Category { get; set; } = null!;
 

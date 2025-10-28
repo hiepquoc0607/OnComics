@@ -21,7 +21,7 @@ namespace OnComics.API.Controller
         }
 
         private bool CheckAuthentication(
-            int id,
+            Guid id,
             string? idClaim,
             string? roleClaim,
             RatingIdType idType)
@@ -29,7 +29,7 @@ namespace OnComics.API.Controller
             if (idType.Equals(CmtIdType.ACCOUNT) &&
                 !string.IsNullOrEmpty(roleClaim) &&
                 roleClaim.Equals(RoleConstant.USER) &&
-                id != int.Parse(idClaim!))
+                !id.ToString().Equals(idClaim))
             {
                 return false;
             }
@@ -63,7 +63,7 @@ namespace OnComics.API.Controller
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            int accId = int.Parse(userIdClaim!);
+            Guid accId = Guid.Parse(userIdClaim!);
 
             var result = await _comicRatingService.CreateRatingAsync(accId, createComicRatingReq);
 
@@ -74,7 +74,7 @@ namespace OnComics.API.Controller
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] CreateComicRatingReq createComicRatingReq)
         {
             var result = await _comicRatingService.CreateRatingAsync(id, createComicRatingReq);
@@ -85,7 +85,7 @@ namespace OnComics.API.Controller
         //Delete Rating
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _comicRatingService.DeleteRatingAsync(id);
 

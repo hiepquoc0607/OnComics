@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Comments
-        public async Task<(IEnumerable<Comment>?, IDictionary<int, string>, IDictionary<int, string>)> GetCommentsAsync(
+        public async Task<(IEnumerable<Comment>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetCommentsAsync(
             Expression<Func<Comment, bool>>? filter = null,
             Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? orderBy = null,
             int? pageNumber = null,
@@ -54,7 +54,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Reply Comment By Main Comment Id
-        public async Task<(IEnumerable<Comment>?, IDictionary<int, string>)> GetReplyCommentsAsync(int id)
+        public async Task<(IEnumerable<Comment>?, IDictionary<Guid, string>)> GetReplyCommentsAsync(Guid id)
         {
             var projected = await _context.Comments
                 .AsNoTracking()
@@ -75,7 +75,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Check If Comment Is Existed
-        public async Task<bool> CheckCommentExistedAsync(int accId, int comicId)
+        public async Task<bool> CheckCommentExistedAsync(Guid accId, Guid comicId)
         {
             return await _context.Comments
                 .AsNoTracking()
@@ -85,7 +85,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Comment Data By Account Id
-        public async Task<int> CountCommentAsync(int id, bool isComicId = false)
+        public async Task<int> CountCommentAsync(Guid id, bool isComicId = false)
         {
             switch (isComicId)
             {

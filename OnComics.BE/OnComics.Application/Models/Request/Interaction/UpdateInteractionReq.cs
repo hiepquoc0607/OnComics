@@ -5,6 +5,6 @@ namespace OnComics.Application.Models.Request.Interaction
     public class UpdateInteractionReq
     {
         [Required]
-        public int TypeId { get; set; }
+        public Guid TypeId { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace OnComics.API.Controller
 
         //Get Interaction Type By Id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _interactionService.GetItrTypeByIdAsync(id);
 
@@ -47,7 +47,7 @@ namespace OnComics.API.Controller
         //Update Interaction Type
         [HttpPost("{id}")]
         public async Task<IActionResult> UpdateAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateItrTypeReq updateItrTypeReq)
         {
             var result = await _interactionService.UpdateItrTypeAsync(id, updateItrTypeReq);
@@ -58,7 +58,7 @@ namespace OnComics.API.Controller
         //Update Interaction Type Status
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] int id,
+            [FromRoute] Guid id,
             [FromBody] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
         {
             var result = await _interactionService.UpdateItrTypeStatusAsync(id, updateStatusReq);
@@ -68,7 +68,7 @@ namespace OnComics.API.Controller
 
         //Delete Interaction Type
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _interactionService.DeleteItrTypeAsync(id);
 

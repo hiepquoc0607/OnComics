@@ -9,14 +9,14 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<CommentRes>?>> GetCommentsAsync(GetCommentReq getCommentReq);
 
-        Task<ObjectResponse<IEnumerable<CommentRes>?>> GetReplyCommentsAsync(int mainCmtId);
+        Task<ObjectResponse<IEnumerable<CommentRes>?>> GetReplyCommentsAsync(Guid mainCmtId);
 
         Task<ObjectResponse<Comment>> CreateCommentAsync(CreateCommentReq createCommentReq);
 
-        Task<ObjectResponse<Comment>> ReplyCommentAsync(int mainCmtId, CreateCommentReq createCommentReq);
+        Task<ObjectResponse<Comment>> ReplyCommentAsync(Guid mainCmtId, CreateCommentReq createCommentReq);
 
-        Task<VoidResponse> UpdateCommentAsync(int id, UpdateCommentReq updateCommentReq);
+        Task<VoidResponse> UpdateCommentAsync(Guid id, UpdateCommentReq updateCommentReq);
 
-        Task<VoidResponse> DeleteCommentAsync(int id);
+        Task<VoidResponse> DeleteCommentAsync(Guid id);
     }
 }

@@ -7,7 +7,7 @@ namespace OnComics.Application.Models.Request.Chapter
     public class GetChapterReq
     {
         [Required]
-        public int ComicId { get; set; }
+        public Guid ComicId { get; set; }
 
         [DefaultValue(null)]
         public ChapterStatus? Status { get; set; }

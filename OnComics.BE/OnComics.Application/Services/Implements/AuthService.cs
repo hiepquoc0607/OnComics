@@ -1,16 +1,10 @@
-﻿using Google.Apis.Auth.OAuth2;
-using Google.Apis.PeopleService.v1;
-using Google.Apis.Services;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
-using OnComics.Application.Constants;
 using OnComics.Application.Enums.Account;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Models.Response.Auth;
 using OnComics.Application.Models.Response.Common;
-using OnComics.Application.Models.Response.Google;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
 using OnComics.Infrastructure.Entities;
@@ -46,8 +40,6 @@ namespace OnComics.Application.Services.Implements
             _mapper = mapper;
             _util = util;
         }
-
-
 
         //Generate JWT Token
         private string GenerateToken(Account account)
@@ -400,7 +392,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Send Confirm Email Request
-        public async Task<VoidResponse> RequestConfirmEmailAsync(int id)
+        public async Task<VoidResponse> RequestConfirmEmailAsync(Guid id)
         {
             try
             {

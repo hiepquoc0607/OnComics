@@ -6,8 +6,8 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
     {
         Task<bool> CheckComicExistedAsync(string name, string author);
 
-        Task<bool> CheckComicIdAsync(int id);
+        Task<bool> CheckComicIdAsync(Guid id);
 
-        Task<int[]> GetComicIdsAsync();
+        Task<Guid[]> GetComicIdsAsync();
     }
 }

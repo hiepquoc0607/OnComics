@@ -8,7 +8,7 @@ namespace OnComics.Application.Models.Request.Favorite
     public class GetFavoriteReq : GetReq
     {
         [DefaultValue(null)]
-        public int? Id { get; set; }
+        public Guid? Id { get; set; }
 
         [DefaultValue(null)]
         public FavoriteIdType? IdType { get; set; }

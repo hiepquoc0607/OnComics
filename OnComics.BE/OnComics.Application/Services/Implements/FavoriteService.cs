@@ -37,7 +37,7 @@ namespace OnComics.Application.Services.Implements
 
                 bool isDecending = getFavoriteReq.IsDescending;
 
-                int? searchId = getFavoriteReq.Id;
+                Guid? searchId = getFavoriteReq.Id;
 
                 bool? isComicId = getFavoriteReq.IdType switch
                 {
@@ -127,7 +127,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Favorite By Id
-        public async Task<ObjectResponse<FavoriteRes?>> GetFavoriteByIdAsync(int id)
+        public async Task<ObjectResponse<FavoriteRes?>> GetFavoriteByIdAsync(Guid id)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Create Favorite
-        public async Task<ObjectResponse<Favorite>> CreateFavoriteAsync(int accId, CreateFavoriteReq createFavoriteReq)
+        public async Task<ObjectResponse<Favorite>> CreateFavoriteAsync(Guid accId, CreateFavoriteReq createFavoriteReq)
         {
             try
             {
@@ -189,7 +189,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Delete Favorite
-        public async Task<VoidResponse> DeleteFavoriteAsync(int id)
+        public async Task<VoidResponse> DeleteFavoriteAsync(Guid id)
         {
             try
             {

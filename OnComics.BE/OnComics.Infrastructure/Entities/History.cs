@@ -2,11 +2,11 @@
 
 public partial class History
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
-    public int ChapterId { get; set; }
+    public Guid ChapterId { get; set; }
 
     public DateTime ReadTime { get; set; }
 
