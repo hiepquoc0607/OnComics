@@ -18,6 +18,7 @@ namespace OnComics.Application.Services.Implements
             _googleHelper = googleHelper.Value;
         }
 
+        //Create Login Link
         public string CreateLoginLinkAsync()
         {
             try
@@ -47,7 +48,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
-
+        //Get Google Profile Information
         public async Task<GoogleProfileRes> GetGoogleProfileAsync(string code, HttpClient httpClient)
         {
             try
