@@ -170,17 +170,17 @@ builder.Services
 
 #region Inject Appwrite
 //Configure Appwrite
-//var appwriteClient = new Client()
-//    .SetEndpoint(builder.Configuration["Appwrite:Endpoint"]!)
-//    .SetProject(builder.Configuration["Appwrite:ProjectId"]!)
-//    .SetKey(builder.Configuration["Appwrite:ApiKey"]!)
-//    .SetSession(string.Empty);
+var appwriteClient = new Client()
+    .SetEndpoint(builder.Configuration["Appwrite:Endpoint"]!)
+    .SetProject(builder.Configuration["Appwrite:ProjectId"]!)
+    .SetKey(builder.Configuration["Appwrite:ApiKey"]!)
+    .SetSession(string.Empty);
 
 //Register Appwrite Service 
-//builder.Services.AddSingleton(appwriteClient);
-//builder.Services.AddSingleton(sp => new Storage(appwriteClient));
-//builder.Services
-//    .Configure<AppwriteHelper>(builder.Configuration.GetSection("Appwrite"));
+builder.Services.AddSingleton(appwriteClient);
+builder.Services.AddSingleton(sp => new Storage(appwriteClient));
+builder.Services
+    .Configure<AppwriteHelper>(builder.Configuration.GetSection("Appwrite"));
 #endregion
 
 #region Logger

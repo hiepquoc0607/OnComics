@@ -7,5 +7,7 @@
         public string ProjectId { get; set; } = null!;
 
         public string ApiKey { get; set; } = null!;
+
+        public string BucketId { get; set; } = null!;
     }
 }
