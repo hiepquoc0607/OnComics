@@ -27,4 +27,8 @@ public partial class Comment
     public virtual Comic Comic { get; set; } = null!;
 
     public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
+
+    public virtual ICollection<Comment> InverseMainCmt { get; set; } = new List<Comment>();
+
+    public virtual Comment? MainCmt { get; set; }
 }
