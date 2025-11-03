@@ -33,9 +33,12 @@ namespace OnComics.Application.Services.Implements
 
                 var encodedRedirect = Uri.EscapeDataString(redirectUrl!);
                 var encodedScope = Uri.EscapeDataString(scope);
-                var url = $"https://accounts.google.com/o/oauth2/v2/auth?" +
-                          $"client_id={clientId}&redirect_uri={encodedRedirect}" +
-                          $"&response_type=code&scope={encodedScope}&access_type=online";
+                var url = "https://accounts.google.com/o/oauth2/v2/auth?" +
+                          "client_id={clientId}&redirect_uri={redirect}" +
+                          "&response_type=code&scope={scope}&access_type=online"
+                              .Replace("{clientId}", clientId)
+                              .Replace("{redirect}", encodedRedirect)
+                              .Replace("{scope}", encodedScope);
 
                 if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? link))
                     throw new Exception("Invalid Login Url!");

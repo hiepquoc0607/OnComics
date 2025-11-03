@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using OnComics.Application.Enums.Common;
 using OnComics.Application.Models.Response.Appwrite;
 
 namespace OnComics.Application.Services.Interfaces
@@ -9,9 +10,9 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<byte[]> GetFileDownloadAsync(string id);
 
-        Task<FileRes> CreateFileAsync(IFormFile file, string fileName);
+        Task<FileRes> CreateFileAsync(IFormFile file, string fileName, ImageType imageType);
 
-        Task UpdateFileAsync(string id, IFormFile file, string fileName);
+        Task UpdateFileAsync(string id, IFormFile file, string fileName, ImageType imageType);
 
         Task DeleteFileAsync(string id);
     }

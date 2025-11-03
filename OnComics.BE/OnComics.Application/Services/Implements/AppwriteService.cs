@@ -4,9 +4,11 @@ using Appwrite.Services;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using OnComics.Application.Enums.Common;
 using OnComics.Application.Helpers;
 using OnComics.Application.Models.Response.Appwrite;
 using OnComics.Application.Services.Interfaces;
+using OnComics.Application.Utils;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -14,16 +16,22 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly Storage _storage;
         private readonly AppwriteHelper _appwriteHelper;
+        private readonly IFileService _fileService;
         private readonly IMapper _mapper;
+        private readonly Util _util;
 
         public AppwriteService(
             Storage storage,
             IOptions<AppwriteHelper> appwriteHelper,
-            IMapper mapper)
+            IFileService fileService,
+            IMapper mapper,
+            Util util)
         {
             _storage = storage;
             _appwriteHelper = appwriteHelper.Value;
+            _fileService = fileService;
             _mapper = mapper;
+            _util = util;
         }
 
         //Get File By Id
@@ -66,28 +74,51 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Upload File
-        public async Task<FileRes> CreateFileAsync(IFormFile file, string fileName)
+        public async Task<FileRes> CreateFileAsync(IFormFile file, string fileName, ImageType imageType)
         {
             try
             {
                 if (file == null || file.Length == 0)
-                    throw new ArgumentNullException(nameof(file));
+                    throw new ArgumentNullException("No File Uploaded!");
 
-                using var ms = new MemoryStream();
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                var isImage = _util.CheckStringContain(ext);
+
+                int type = CheckFileType(isImage, imageType);
+
+                var ms = new MemoryStream();
+
+                switch (type)
+                {
+                    case 0: //Is Profile Picture
+                        ms = await _fileService.ResizeProfileAsync(ms);
+                        break;
+                    case 1: //Is React Picture (Emote Content Source)
+                        ms = await _fileService.ResizeReactAsync(ms);
+                        break;
+                    case 2: //Is Chapter Source Picture
+                        ms = await _fileService.ConvertWebPAsync(ms);
+                        break;
+                    case 3: //Is Not Picture
+                        ms = await _fileService.ConvertMarkdownAsync(ms, ext);
+                        break;
+                }
+
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                        .FromBytes(bytes, fileName, file.ContentType);
 
                 List<string> permissions = new List<string>();
                 permissions.Add(Permission.Read(Role.Any()));
                 permissions.Add(Permission.Write(Role.Any()));
                 permissions.Add(Permission.Delete(Role.Any()));
 
-                var inputFile = InputFile
-                    .FromBytes(bytes, fileName, file.ContentType);
-
                 var data = await _storage.CreateFile(
                     _appwriteHelper.BucketId,
-                    ID.Unique(),
+                    fileName,
                     inputFile,
                     permissions);
 
@@ -109,26 +140,49 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update File
-        public async Task UpdateFileAsync(string id, IFormFile file, string fileName)
+        public async Task UpdateFileAsync(string id, IFormFile file, string fileName, ImageType imageType)
         {
             try
             {
                 if (file == null || file.Length == 0)
                     throw new ArgumentNullException(nameof(file));
 
-                using var ms = new MemoryStream();
+                await _storage.DeleteFile(_appwriteHelper.BucketId, id);
+
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                var isImage = _util.CheckStringContain(ext);
+
+                int type = CheckFileType(isImage, imageType);
+
+                var ms = new MemoryStream();
+
+                switch (type)
+                {
+                    case 0: //Is Profile Picture
+                        ms = await _fileService.ResizeProfileAsync(ms);
+                        break;
+                    case 1: //Is React Picture (Emote Content Source)
+                        ms = await _fileService.ResizeReactAsync(ms);
+                        break;
+                    case 2: //Is Chapter Source Picture
+                        ms = await _fileService.ConvertWebPAsync(ms);
+                        break;
+                    case 3: //Is Not Picture
+                        ms = await _fileService.ConvertMarkdownAsync(ms, ext);
+                        break;
+                }
+
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                    .FromBytes(bytes, fileName, file.ContentType);
 
                 List<string>? permissions = new List<string>();
                 permissions.Add(Permission.Read(Role.Any()));
                 permissions.Add(Permission.Write(Role.Any()));
                 permissions.Add(Permission.Delete(Role.Any()));
-
-                var inputFile = InputFile
-                    .FromBytes(bytes, fileName, file.ContentType);
-
-                await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
                 var data = await _storage.CreateFile(
                     _appwriteHelper.BucketId,
@@ -161,6 +215,26 @@ namespace OnComics.Application.Services.Implements
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        private int CheckFileType(bool isImage, ImageType imageType)
+        {
+            if (isImage && imageType.Equals(ImageType.PROFILE))
+            {
+                return 0;
+            }
+            else if (isImage && imageType.Equals(ImageType.REACT))
+            {
+                return 1;
+            }
+            else if (isImage && imageType.Equals(ImageType.SOURCE))
+            {
+                return 2;
+            }
+            else
+            {
+                return 3;
             }
         }
     }

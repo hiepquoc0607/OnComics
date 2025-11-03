@@ -37,6 +37,33 @@ namespace OnComics.Application.Utils
 
             return a.Where(x => setB.Contains(x)).ToArray();
         }
+
+        //Check If String Is Cotain In String Array
+        public bool CheckStringContain(string input)
+        {
+            string[] image = new string[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif",
+                ".bmp",
+                ".tiff",
+                ".tif",
+                ".webp",
+                ".heic",
+                ".heif",
+                ".avif",
+                ".ico",
+                ".dds",
+                ".jxl"
+            };
+
+            if (image.Contains(input))
+                return true;
+
+            return false;
+        }
         #endregion
 
         #region Password Utils
