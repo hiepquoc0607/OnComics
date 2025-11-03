@@ -6,7 +6,7 @@ USE OnComics_Database;
 
 DROP TABLE IF EXISTS Interaction,
                      History,
-                     Favortite, 
+                     Favorite, 
                      Comment, 
                      ComicRating,
                      ComicCategory,
@@ -128,14 +128,16 @@ CREATE TABLE Comment (
     FOREIGN KEY (AccountId)
         REFERENCES Account (Id),
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id)
+        REFERENCES Comic (Id),
+	FOREIGN KEY (MainCmtId)
+        REFERENCES Comment (Id)
 );
 
 CREATE TABLE Attachment (
     Id BINARY(16) PRIMARY KEY,
-    ComicId BINARY(16) NOT NULL,
-    StrorageUrl TEXT NOT NULL,
-    FOREIGN KEY (ComicId)
+    CommentId BINARY(16) NOT NULL,
+    StorageUrl TEXT NOT NULL,
+    FOREIGN KEY (CommentId)
         REFERENCES Comment (Id)
 );
 
