@@ -77,7 +77,7 @@ namespace OnComics.Application.Services.Implements
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
-                List<string>? permissions = new List<string>();
+                List<string> permissions = new List<string>();
                 permissions.Add(Permission.Read(Role.Any()));
                 permissions.Add(Permission.Write(Role.Any()));
                 permissions.Add(Permission.Delete(Role.Any()));
