@@ -105,7 +105,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var account = await _accountRepository.GetByIdAsync(id);
+                var account = await _accountRepository.GetByIdAsync(id, false);
 
                 if (account == null)
                     return new ObjectResponse<AccountRes?>(
@@ -231,14 +231,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var account = await _accountRepository.GetByIdAsync(id);
+                var account = await _accountRepository.GetByIdAsync(id, true);
 
                 if (account == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Account Not Found!");
 
-                await _accountRepository.DeleteAsync(id);
+                await _accountRepository.DeleteAsync(account);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

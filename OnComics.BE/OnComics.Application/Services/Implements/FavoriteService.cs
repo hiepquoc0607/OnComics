@@ -193,14 +193,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var fav = await _favoriteRepository.GetByIdAsync(id);
+                var fav = await _favoriteRepository.GetByIdAsync(id, true);
 
                 if (fav == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Favorite Not Found!");
 
-                await _favoriteRepository.DeleteAsync(id);
+                await _favoriteRepository.DeleteAsync(fav);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

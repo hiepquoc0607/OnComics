@@ -41,17 +41,22 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get By Id
-        public async Task<T?> GetByIdAsync(object id, bool isTracking = false)
+        public async Task<T?> GetByIdAsync(object id, bool isTracking)
         {
             switch (isTracking)
             {
                 case true:
-                    return await _dbSet.FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+                    return await _dbSet
+                        .FirstOrDefaultAsync(e => EF
+                            .Property<object>(e, "Id")
+                            .Equals(id));
 
-                default:
+                case false:
                     return await _dbSet
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+                        .FirstOrDefaultAsync(e => EF
+                            .Property<object>(e, "Id")
+                            .Equals(id));
             }
         }
 

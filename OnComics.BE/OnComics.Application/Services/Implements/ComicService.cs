@@ -131,7 +131,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var comic = await _comicRepository.GetByIdAsync(id);
+                var comic = await _comicRepository.GetByIdAsync(id, false);
 
                 if (comic == null)
                     return new ObjectResponse<ComicRes?>(
@@ -253,14 +253,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var comic = await _comicRepository.GetByIdAsync(id);
+                var comic = await _comicRepository.GetByIdAsync(id, true);
 
                 if (comic == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Comic Not Found!");
 
-                await _comicRepository.DeleteAsync(id);
+                await _comicRepository.DeleteAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

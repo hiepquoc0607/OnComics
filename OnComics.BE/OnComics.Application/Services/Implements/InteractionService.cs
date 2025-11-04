@@ -206,14 +206,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var interaction = await _interactionRepository.GetByIdAsync(id);
+                var interaction = await _interactionRepository.GetByIdAsync(id, true);
 
                 if (interaction == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Interaction Not Found!");
 
-                await _interactionRepository.DeleteAsync(id);
+                await _interactionRepository.DeleteAsync(interaction);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

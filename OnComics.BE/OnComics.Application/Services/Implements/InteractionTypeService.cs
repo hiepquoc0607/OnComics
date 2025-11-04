@@ -99,7 +99,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var type = await _interactionTypeRepository.GetByIdAsync(id);
+                var type = await _interactionTypeRepository.GetByIdAsync(id, false);
 
                 if (type == null)
                     return new ObjectResponse<InteractionTypeRes?>(
@@ -233,14 +233,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var type = await _interactionTypeRepository.GetByIdAsync(id);
+                var type = await _interactionTypeRepository.GetByIdAsync(id, true);
 
                 if (type == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Interaction Type Not Found!");
 
-                await _interactionTypeRepository.DeleteAsync(id);
+                await _interactionTypeRepository.DeleteAsync(type);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

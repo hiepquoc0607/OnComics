@@ -15,6 +15,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<bool> CheckCommentExistedAsync(Guid accId, Guid comicId);
 
-        Task<int> CountCommentAsync(Guid id, bool isComicId = false);
+        Task<int> CountCommentAsync(Guid id, bool isComicId);
     }
 }

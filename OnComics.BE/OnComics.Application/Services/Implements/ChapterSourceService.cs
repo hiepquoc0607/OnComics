@@ -175,14 +175,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var src = await _chapterSourceRepository.GetByIdAsync(id);
+                var src = await _chapterSourceRepository.GetByIdAsync(id, true);
 
                 if (src == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Chapter Source Not Found!");
 
-                await _chapterSourceRepository.DeleteAsync(id);
+                await _chapterSourceRepository.DeleteAsync(src);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

@@ -57,7 +57,7 @@ namespace OnComics.Application.Services.Implements
                         EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
                         c.AccountId == searchId;
 
-                    totalData = await _commentRepository.CountCommentAsync(searchId.Value);
+                    totalData = await _commentRepository.CountCommentAsync(searchId.Value, false);
                 }
                 else if (searchId.HasValue && isComicId == true)
                 {
@@ -211,7 +211,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var mainCmt = await _commentRepository.GetByIdAsync(mainCmtId);
+                var mainCmt = await _commentRepository.GetByIdAsync(mainCmtId, false);
 
                 if (mainCmt == null)
                     return new ObjectResponse<Comment>(
@@ -272,14 +272,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var cmt = await _commentRepository.GetByIdAsync(id);
+                var cmt = await _commentRepository.GetByIdAsync(id, true);
 
                 if (cmt == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Comment Not Found!");
 
-                await _commentRepository.DeleteAsync(id);
+                await _commentRepository.DeleteAsync(cmt);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

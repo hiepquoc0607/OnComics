@@ -396,7 +396,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var account = await _accountRepository.GetByIdAsync(id);
+                var account = await _accountRepository.GetByIdAsync(id, false);
 
                 if (account == null)
                     return new VoidResponse(

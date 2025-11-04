@@ -103,7 +103,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var chapter = await _chapterRepository.GetByIdAsync(id);
+                var chapter = await _chapterRepository.GetByIdAsync(id, false);
 
                 if (chapter == null)
                     return new ObjectResponse<ChapterRes?>(
@@ -279,13 +279,13 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var chapter = await _chapterRepository.GetByIdAsync(id);
+                var chapter = await _chapterRepository.GetByIdAsync(id, true);
 
                 if (chapter == null) return new VoidResponse(
                     (int)HttpStatusCode.NotFound,
                     "Chapter Not Found!");
 
-                await _chapterRepository.DeleteAsync(id);
+                await _chapterRepository.DeleteAsync(chapter);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

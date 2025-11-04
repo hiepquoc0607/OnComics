@@ -67,7 +67,7 @@ namespace OnComics.Application.Services.Implements
                         EF.Functions.Like(r.Comic.Name, $"%{searchKey}%")) &&
                         r.AccountId == searchId;
 
-                    totalData = await _comicRatingRepository.CountRatingAsync(searchId);
+                    totalData = await _comicRatingRepository.CountRatingAsync(searchId, false);
                 }
 
                 Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? order = r => getComicRatingReq.SortBy switch
@@ -186,14 +186,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var rating = await _comicRatingRepository.GetByIdAsync(id);
+                var rating = await _comicRatingRepository.GetByIdAsync(id, true);
 
                 if (rating == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Rating Not Found!");
 
-                await _comicRatingRepository.DeleteAsync(rating.Id);
+                await _comicRatingRepository.DeleteAsync(rating);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

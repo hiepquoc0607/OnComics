@@ -85,7 +85,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Comment Data By Account Id
-        public async Task<int> CountCommentAsync(Guid id, bool isComicId = false)
+        public async Task<int> CountCommentAsync(Guid id, bool isComicId)
         {
             switch (isComicId)
             {
@@ -94,7 +94,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
                         .AsNoTracking()
                         .Where(c => c.ComicId == id)
                         .CountAsync();
-                default:
+                case false:
                     return await _context.Comments
                         .AsNoTracking()
                         .Where(c => c.AccountId == id)

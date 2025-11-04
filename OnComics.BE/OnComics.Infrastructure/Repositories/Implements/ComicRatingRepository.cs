@@ -64,7 +64,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Rating Record
-        public async Task<int> CountRatingAsync(Guid id, bool isComicId = false)
+        public async Task<int> CountRatingAsync(Guid id, bool isComicId)
         {
             switch (isComicId)
             {
@@ -73,7 +73,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
                         .AsNoTracking()
                         .Where(r => r.ComicId == id)
                         .CountAsync();
-                default:
+                case false:
                     return await _context.Comicratings
                         .AsNoTracking()
                         .Where(r => r.AccountId == id)

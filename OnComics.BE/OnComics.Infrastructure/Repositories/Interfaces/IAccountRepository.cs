@@ -4,7 +4,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IAccountRepository : IGenericRepository<Account>
     {
-        Task<Account?> GetAccountByEmailAsync(string email, bool isTracking = false);
+        Task<Account?> GetAccountByEmailAsync(string email, bool isTracking);
 
         Task<bool> CheckEmailExistedAsync(string email);
     }

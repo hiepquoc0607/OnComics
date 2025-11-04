@@ -100,7 +100,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var category = await _categoryRepository.GetByIdAsync(id);
+                var category = await _categoryRepository.GetByIdAsync(id, false);
 
                 if (category == null)
                     return new ObjectResponse<CategoryRes>(
@@ -264,14 +264,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var category = await _categoryRepository.GetByIdAsync(id);
+                var category = await _categoryRepository.GetByIdAsync(id, true);
 
                 if (category == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "Category Not Found!");
 
-                await _categoryRepository.DeleteAsync(id);
+                await _categoryRepository.DeleteAsync(category);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

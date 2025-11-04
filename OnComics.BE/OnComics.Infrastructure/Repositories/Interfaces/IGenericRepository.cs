@@ -10,7 +10,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
             int? pageNumber = null,
             int? pageSize = null);
 
-        Task<T?> GetByIdAsync(object id, bool isTracking = false);
+        Task<T?> GetByIdAsync(object id, bool isTracking);
 
         Task InsertAsync(T entity);
 

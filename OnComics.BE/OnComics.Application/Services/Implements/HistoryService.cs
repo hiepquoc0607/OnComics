@@ -197,14 +197,14 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var history = await _historyRepository.GetByIdAsync(id);
+                var history = await _historyRepository.GetByIdAsync(id, true);
 
                 if (history == null)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "History Not Found!");
 
-                await _historyRepository.DeleteAsync(id);
+                await _historyRepository.DeleteAsync(history);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
