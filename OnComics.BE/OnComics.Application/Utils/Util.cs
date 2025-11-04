@@ -38,28 +38,18 @@ namespace OnComics.Application.Utils
             return a.Where(x => setB.Contains(x)).ToArray();
         }
 
-        //Check If String Is Cotain In String Array
-        public bool CheckStringContain(string input)
+        //Check If File Extension Is Word
+        public bool CheckWordExtension(string input)
         {
-            string[] image = new string[]
+            string[] word = new string[]
             {
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".gif",
-                ".bmp",
-                ".tiff",
-                ".tif",
-                ".webp",
-                ".heic",
-                ".heif",
-                ".avif",
-                ".ico",
-                ".dds",
-                ".jxl"
+                ".doc",
+                ".docx",
+                ".rtf",
+                ".txt"
             };
 
-            if (image.Contains(input))
+            if (word.Contains(input))
                 return true;
 
             return false;

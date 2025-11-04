@@ -50,7 +50,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
-        public async Task<MemoryStream> ResizeReactAsync(MemoryStream memoryStream)
+        public async Task<MemoryStream> ResizeEmoteAsync(MemoryStream memoryStream)
         {
             try
             {

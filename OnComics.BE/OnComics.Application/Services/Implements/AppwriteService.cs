@@ -4,7 +4,6 @@ using Appwrite.Services;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using OnComics.Application.Enums.Common;
 using OnComics.Application.Helpers;
 using OnComics.Application.Models.Response.Appwrite;
 using OnComics.Application.Services.Interfaces;
@@ -74,7 +73,7 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Upload File
-        public async Task<FileRes> CreateFileAsync(IFormFile file, string fileName, ImageType imageType)
+        public async Task<FileRes> CreateFileAsync(IFormFile file, string fileName)
         {
             try
             {
@@ -83,26 +82,16 @@ namespace OnComics.Application.Services.Implements
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                var isImage = _util.CheckStringContain(ext);
-
-                int type = CheckFileType(isImage, imageType);
-
                 var ms = new MemoryStream();
 
-                switch (type)
+                if (file.ContentType.Contains("image"))
                 {
-                    case 0: //Is Profile Picture
-                        ms = await _fileService.ResizeProfileAsync(ms);
-                        break;
-                    case 1: //Is React Picture (Emote Content Source)
-                        ms = await _fileService.ResizeReactAsync(ms);
-                        break;
-                    case 2: //Is Chapter Source Picture
-                        ms = await _fileService.ConvertWebPAsync(ms);
-                        break;
-                    case 3: //Is Not Picture
-                        ms = await _fileService.ConvertMarkdownAsync(ms, ext);
-                        break;
+                    ms = await _fileService.ConvertWebPAsync(ms);
+                }
+
+                if (_util.CheckWordExtension(ext))
+                {
+                    ms = await _fileService.ConvertMarkdownAsync(ms, ext);
                 }
 
                 await file.CopyToAsync(ms);
@@ -139,8 +128,102 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Upload Profile Picture File
+        public async Task<FileRes> CreateProfileFileAsync(IFormFile file, string fileName)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    throw new ArgumentNullException("No File Uploaded!");
+
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                var ms = new MemoryStream();
+                ms = await _fileService.ResizeProfileAsync(ms);
+
+                await file.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                        .FromBytes(bytes, fileName, file.ContentType);
+
+                List<string> permissions = new List<string>();
+                permissions.Add(Permission.Read(Role.Any()));
+                permissions.Add(Permission.Write(Role.Any()));
+                permissions.Add(Permission.Delete(Role.Any()));
+
+                var data = await _storage.CreateFile(
+                    _appwriteHelper.BucketId,
+                    fileName,
+                    inputFile,
+                    permissions);
+
+                string path = "{endpoint}/storage/buckets/{bucketId}/files/{fileId}/view?project={projectId}"
+                    .Replace("{endpoint}", _appwriteHelper.Endpoint)
+                    .Replace("{bucketId}", _appwriteHelper.BucketId)
+                    .Replace("{fileId}", data.Id)
+                    .Replace("{projectId}", _appwriteHelper.ProjectId);
+
+                var fileRes = _mapper.Map<FileRes>(data);
+                fileRes.Url = path;
+
+                return fileRes;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Upload Emote File
+        public async Task<FileRes> CreateEmoteFileAsync(IFormFile file, string fileName)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    throw new ArgumentNullException("No File Uploaded!");
+
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                var ms = new MemoryStream();
+                ms = await _fileService.ResizeEmoteAsync(ms);
+
+                await file.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                        .FromBytes(bytes, fileName, file.ContentType);
+
+                List<string> permissions = new List<string>();
+                permissions.Add(Permission.Read(Role.Any()));
+                permissions.Add(Permission.Write(Role.Any()));
+                permissions.Add(Permission.Delete(Role.Any()));
+
+                var data = await _storage.CreateFile(
+                    _appwriteHelper.BucketId,
+                    fileName,
+                    inputFile,
+                    permissions);
+
+                string path = "{endpoint}/storage/buckets/{bucketId}/files/{fileId}/view?project={projectId}"
+                    .Replace("{endpoint}", _appwriteHelper.Endpoint)
+                    .Replace("{bucketId}", _appwriteHelper.BucketId)
+                    .Replace("{fileId}", data.Id)
+                    .Replace("{projectId}", _appwriteHelper.ProjectId);
+
+                var fileRes = _mapper.Map<FileRes>(data);
+                fileRes.Url = path;
+
+                return fileRes;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         //Update File
-        public async Task UpdateFileAsync(string id, IFormFile file, string fileName, ImageType imageType)
+        public async Task UpdateFileAsync(string id, IFormFile file, string fileName)
         {
             try
             {
@@ -151,27 +234,111 @@ namespace OnComics.Application.Services.Implements
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                var isImage = _util.CheckStringContain(ext);
-
-                int type = CheckFileType(isImage, imageType);
-
                 var ms = new MemoryStream();
 
-                switch (type)
+                if (file.ContentType.Contains("image"))
                 {
-                    case 0: //Is Profile Picture
-                        ms = await _fileService.ResizeProfileAsync(ms);
-                        break;
-                    case 1: //Is React Picture (Emote Content Source)
-                        ms = await _fileService.ResizeReactAsync(ms);
-                        break;
-                    case 2: //Is Chapter Source Picture
-                        ms = await _fileService.ConvertWebPAsync(ms);
-                        break;
-                    case 3: //Is Not Picture
-                        ms = await _fileService.ConvertMarkdownAsync(ms, ext);
-                        break;
+                    ms = await _fileService.ConvertWebPAsync(ms);
                 }
+
+                if (_util.CheckWordExtension(ext))
+                {
+                    ms = await _fileService.ConvertMarkdownAsync(ms, ext);
+                }
+
+                await file.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                    .FromBytes(bytes, fileName, file.ContentType);
+
+                List<string>? permissions = new List<string>();
+                permissions.Add(Permission.Read(Role.Any()));
+                permissions.Add(Permission.Write(Role.Any()));
+                permissions.Add(Permission.Delete(Role.Any()));
+
+                var data = await _storage.CreateFile(
+                    _appwriteHelper.BucketId,
+                    id,
+                    inputFile,
+                    permissions);
+
+                string path = "{endpoint}/storage/buckets/{bucketId}/files/{fileId}/view?project={projectId}"
+                    .Replace("{endpoint}", _appwriteHelper.Endpoint)
+                    .Replace("{bucketId}", _appwriteHelper.BucketId)
+                    .Replace("{fileId}", data.Id)
+                    .Replace("{projectId}", _appwriteHelper.ProjectId);
+
+                var fileRes = _mapper.Map<FileRes>(data);
+                fileRes.Url = path;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Update Profile Picture File
+        public async Task UpdateProfileFileAsync(string id, IFormFile file, string fileName)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    throw new ArgumentNullException(nameof(file));
+
+                await _storage.DeleteFile(_appwriteHelper.BucketId, id);
+
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                var ms = new MemoryStream();
+                ms = await _fileService.ResizeProfileAsync(ms);
+
+                await file.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                    .FromBytes(bytes, fileName, file.ContentType);
+
+                List<string>? permissions = new List<string>();
+                permissions.Add(Permission.Read(Role.Any()));
+                permissions.Add(Permission.Write(Role.Any()));
+                permissions.Add(Permission.Delete(Role.Any()));
+
+                var data = await _storage.CreateFile(
+                    _appwriteHelper.BucketId,
+                    id,
+                    inputFile,
+                    permissions);
+
+                string path = "{endpoint}/storage/buckets/{bucketId}/files/{fileId}/view?project={projectId}"
+                    .Replace("{endpoint}", _appwriteHelper.Endpoint)
+                    .Replace("{bucketId}", _appwriteHelper.BucketId)
+                    .Replace("{fileId}", data.Id)
+                    .Replace("{projectId}", _appwriteHelper.ProjectId);
+
+                var fileRes = _mapper.Map<FileRes>(data);
+                fileRes.Url = path;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Update Emote File
+        public async Task UpdateEmoteFileAsync(string id, IFormFile file, string fileName)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    throw new ArgumentNullException(nameof(file));
+
+                await _storage.DeleteFile(_appwriteHelper.BucketId, id);
+
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                var ms = new MemoryStream();
+                ms = await _fileService.ResizeProfileAsync(ms);
 
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
@@ -215,26 +382,6 @@ namespace OnComics.Application.Services.Implements
             catch (Exception)
             {
                 throw;
-            }
-        }
-
-        private int CheckFileType(bool isImage, ImageType imageType)
-        {
-            if (isImage && imageType.Equals(ImageType.PROFILE))
-            {
-                return 0;
-            }
-            else if (isImage && imageType.Equals(ImageType.REACT))
-            {
-                return 1;
-            }
-            else if (isImage && imageType.Equals(ImageType.SOURCE))
-            {
-                return 2;
-            }
-            else
-            {
-                return 3;
             }
         }
     }
