@@ -4,7 +4,7 @@
     {
         Task<MemoryStream> ResizeProfileAsync(MemoryStream memoryStream);
 
-        Task<MemoryStream> ResizeReactAsync(MemoryStream memoryStream);
+        Task<MemoryStream> ResizeEmoteAsync(MemoryStream memoryStream);
 
         Task<MemoryStream> ConvertWebPAsync(MemoryStream memoryStream);
 
