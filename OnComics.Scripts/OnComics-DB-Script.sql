@@ -32,7 +32,7 @@ CREATE TABLE Account (
     FCMToken TEXT NULL,
     Role VARCHAR(10) NOT NULL,
     Status VARCHAR(10) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Comic (
     Id BINARY(16) PRIMARY KEY,
@@ -52,21 +52,21 @@ CREATE TABLE Comic (
     TotalReadNum INT NOT NULL,
     IsNovel BOOL CHECK(IsNovel IN (0,1)) NOT NULL,
     Status VARCHAR(10) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Category (
     Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
     Description TEXT NULL,
     Status VARCHAR(10) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE InteractionType (
     Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
     ImgUrl TEXT NULL,
     Status VARCHAR(10) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Chapter (
     Id BINARY(16) PRIMARY KEY,
@@ -77,9 +77,12 @@ CREATE TABLE Chapter (
     ReleaseTime DATETIME NOT NULL,
     Status VARCHAR(10) NOT NULL,
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id),
-    UNIQUE (ComicId , ChapNo)
-);
+        REFERENCES Comic (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    UNIQUE (ComicId , ChapNo),
+    INDEX(ComicId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ChapterSource (
     Id BINARY(16) PRIMARY KEY,
@@ -90,18 +93,27 @@ CREATE TABLE ChapterSource (
     IsImage BOOL CHECK(IsImage IN (0,1)) NOT NULL,
     FOREIGN KEY (ChapterId)
         REFERENCES Chapter (Id)
-);
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	INDEX(ChapterId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ComicCategory (
     Id BINARY(16) PRIMARY KEY,
     ComicId BINARY(16) NOT NULL,
     CategoryId BINARY(16) NOT NULL,
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id),
+        REFERENCES Comic (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (CategoryId)
-        REFERENCES Category (Id),
-	UNIQUE (ComicId, CategoryId)
-);
+        REFERENCES Category (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	UNIQUE (ComicId, CategoryId),
+    INDEX (ComicId),
+    INDEX (CategoryId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ComicRating (
     Id BINARY(16) PRIMARY KEY,
@@ -109,11 +121,17 @@ CREATE TABLE ComicRating (
     ComicId BINARY(16) NOT NULL,
     Rating DECIMAL(2,1) NOT NULL CHECK (Rating >= 0.0 AND Rating <= 5.0),
     FOREIGN KEY (AccountId)
-        REFERENCES Account (Id),
+        REFERENCES Account (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id),
-	UNIQUE (AccountId, ComicId)
-);
+        REFERENCES Comic (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	UNIQUE (AccountId, ComicId),
+    INDEX (AccountId),
+    INDEX (ComicId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Comment (
     Id BINARY(16) PRIMARY KEY,
@@ -126,12 +144,21 @@ CREATE TABLE Comment (
     CmtTime DATETIME NOT NULL,
     InteractionNum INT NOT NULL,
     FOREIGN KEY (AccountId)
-        REFERENCES Account (Id),
+        REFERENCES Account (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id),
+        REFERENCES Comic (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
 	FOREIGN KEY (MainCmtId)
         REFERENCES Comment (Id)
-);
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	INDEX (AccountId),
+    INDEX (ComicId),
+    INDEX (MainCmtId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Attachment (
     Id BINARY(16) PRIMARY KEY,
@@ -139,18 +166,27 @@ CREATE TABLE Attachment (
     StorageUrl TEXT NOT NULL,
     FOREIGN KEY (CommentId)
         REFERENCES Comment (Id)
-);
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	INDEX (CommentId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Favorite (
     Id BINARY(16) PRIMARY KEY,
     AccountId BINARY(16) NOT NULL,
     ComicId BINARY(16) NOT NULL,
     FOREIGN KEY (AccountId)
-        REFERENCES Account (Id),
+        REFERENCES Account (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (ComicId)
-        REFERENCES Comic (Id),
-	UNIQUE (AccountId, ComicId)
-);
+        REFERENCES Comic (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	UNIQUE (AccountId, ComicId),
+    INDEX (AccountId),
+    INDEX (ComicId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE History (
     Id BINARY(16) PRIMARY KEY,
@@ -158,11 +194,17 @@ CREATE TABLE History (
     ChapterId BINARY(16) NOT NULL,
     ReadTime DATETIME NOT NULL,
     FOREIGN KEY (AccountId)
-        REFERENCES Account (Id),
+        REFERENCES Account (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (ChapterId)
-        REFERENCES Chapter (Id),
-	UNIQUE (AccountId, ChapterId)
-);
+        REFERENCES Chapter (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	UNIQUE (AccountId, ChapterId),
+    INDEX (AccountId),
+    INDEX (ChapterId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Interaction (
     Id BINARY(16) PRIMARY KEY,
@@ -171,10 +213,19 @@ CREATE TABLE Interaction (
     TypeId BINARY(16) NOT NULL,
     ReactTime DATETIME NOT NULL,
     FOREIGN KEY (AccountId)
-        REFERENCES Account (Id),
+        REFERENCES Account (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (CommentId)
-        REFERENCES Comment (Id),
+        REFERENCES Comment (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (TypeId)
-        REFERENCES InteractionType (Id),
-	UNIQUE (AccountId, CommentId)
-);
+        REFERENCES InteractionType (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	UNIQUE (AccountId, CommentId),
+    INDEX (AccountId),
+    INDEX (CommentId),
+    INDEX (TypeId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
