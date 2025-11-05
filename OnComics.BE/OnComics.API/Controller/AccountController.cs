@@ -32,12 +32,14 @@ namespace OnComics.API.Controller
 
         //Get Account By Id
         [Authorize]
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
 
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? userIdClaim = HttpContext.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userRoleClaim = HttpContext.User
+                .FindFirst(ClaimTypes.Role)?.Value;
 
             if (userIdClaim == null || userRoleClaim == null ||
                 (!userIdClaim.Equals(id.ToString()) &&
@@ -51,12 +53,13 @@ namespace OnComics.API.Controller
 
         //Update Account
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateAsync(
             [FromRoute] Guid id,
             [FromBody] UpdateAccountReq updateAccReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
                 return Forbid();
@@ -66,14 +69,34 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Update Profile Picture
+        [Authorize]
+        [RequestSizeLimit(2 * 1024 * 1024)] //Limit File To Max 2 MB
+        [HttpPatch("{id:guid}/profile-picture")]
+        public async Task<IActionResult> UpdateProfileImageAsync(
+            [FromRoute] Guid id,
+            IFormFile file)
+        {
+            string? userIdClaim = HttpContext.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
+                return Forbid();
+
+            var result = await _accountService.UpdateProfileImageAsync(id, file);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
         //Update Password
         [Authorize]
-        [HttpPatch("{id}/password")]
+        [HttpPatch("{id:guid}/password")]
         public async Task<IActionResult> UpdatePasswordAsync(
             [FromRoute] Guid id,
             [FromBody] UpdatePasswordReq updatePasswordReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
                 return Forbid();
@@ -85,7 +108,7 @@ namespace OnComics.API.Controller
 
         //Update Account Status
         [Authorize(Policy = "Admin")]
-        [HttpPatch("{id}/status")]
+        [HttpPatch("{id:guid}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
             [FromRoute] Guid id,
             [FromQuery] UpdateStatusReq<AccountStatus> updateStatusReq)
@@ -98,11 +121,13 @@ namespace OnComics.API.Controller
 
         //Delete Account
         [Authorize]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            string? userIdClaim = HttpContext.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userRoleClaim = HttpContext.User
+                .FindFirst(ClaimTypes.Role)?.Value;
 
             if (userIdClaim == null || userRoleClaim == null ||
                 (!userIdClaim.Equals(id.ToString()) &&

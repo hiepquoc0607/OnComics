@@ -124,5 +124,24 @@ namespace OnComics.Application.Utils
             return dictionary;
         }
         #endregion
+
+        #region Date Ultils
+        //Compare 2 Guid Array And Get Differ
+        public bool CheckDob(DateOnly date)
+        {
+            int requireDay = date.Day;
+            int requireMonth = date.Month;
+            int requireYear = DateOnly.FromDateTime(DateTime.UtcNow).Year - 13;
+
+            DateOnly requireDate = new DateOnly(requireYear, requireMonth, requireDay);
+
+            if (date >= requireDate)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        #endregion
     }
 }

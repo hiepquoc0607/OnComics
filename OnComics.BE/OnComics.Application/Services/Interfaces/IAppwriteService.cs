@@ -15,11 +15,11 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<FileRes> CreateEmoteFileAsync(IFormFile file, string fileName);
 
-        Task UpdateFileAsync(string id, IFormFile file, string fileName);
+        Task<FileRes> UpdateFileAsync(string id, IFormFile file, string fileName);
 
-        Task UpdateProfileFileAsync(string id, IFormFile file, string fileName);
+        Task<FileRes> UpdateProfileFileAsync(string id, IFormFile file, string fileName);
 
-        Task UpdateEmoteFileAsync(string id, IFormFile file, string fileName);
+        Task<FileRes> UpdateEmoteFileAsync(string id, IFormFile file, string fileName);
 
         Task DeleteFileAsync(string id);
     }

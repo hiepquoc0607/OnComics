@@ -77,9 +77,6 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                if (file == null || file.Length == 0)
-                    throw new ArgumentNullException("No File Uploaded!");
-
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
                 var ms = new MemoryStream();
@@ -133,9 +130,6 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                if (file == null || file.Length == 0)
-                    throw new ArgumentNullException("No File Uploaded!");
-
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
                 var ms = new MemoryStream();
@@ -180,9 +174,6 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                if (file == null || file.Length == 0)
-                    throw new ArgumentNullException("No File Uploaded!");
-
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
                 var ms = new MemoryStream();
@@ -223,13 +214,10 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update File
-        public async Task UpdateFileAsync(string id, IFormFile file, string fileName)
+        public async Task<FileRes> UpdateFileAsync(string id, IFormFile file, string fileName)
         {
             try
             {
-                if (file == null || file.Length == 0)
-                    throw new ArgumentNullException(nameof(file));
-
                 await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -271,6 +259,8 @@ namespace OnComics.Application.Services.Implements
 
                 var fileRes = _mapper.Map<FileRes>(data);
                 fileRes.Url = path;
+
+                return fileRes;
             }
             catch (Exception)
             {
@@ -279,13 +269,10 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Profile Picture File
-        public async Task UpdateProfileFileAsync(string id, IFormFile file, string fileName)
+        public async Task<FileRes> UpdateProfileFileAsync(string id, IFormFile file, string fileName)
         {
             try
             {
-                if (file == null || file.Length == 0)
-                    throw new ArgumentNullException(nameof(file));
-
                 await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -318,6 +305,8 @@ namespace OnComics.Application.Services.Implements
 
                 var fileRes = _mapper.Map<FileRes>(data);
                 fileRes.Url = path;
+
+                return fileRes;
             }
             catch (Exception)
             {
@@ -326,13 +315,10 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Update Emote File
-        public async Task UpdateEmoteFileAsync(string id, IFormFile file, string fileName)
+        public async Task<FileRes> UpdateEmoteFileAsync(string id, IFormFile file, string fileName)
         {
             try
             {
-                if (file == null || file.Length == 0)
-                    throw new ArgumentNullException(nameof(file));
-
                 await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -365,6 +351,8 @@ namespace OnComics.Application.Services.Implements
 
                 var fileRes = _mapper.Map<FileRes>(data);
                 fileRes.Url = path;
+
+                return fileRes;
             }
             catch (Exception)
             {

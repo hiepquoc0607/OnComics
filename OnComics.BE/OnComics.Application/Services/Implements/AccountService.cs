@@ -1,11 +1,14 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Account;
 using OnComics.Application.Models.Request.Account;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Response.Account;
+using OnComics.Application.Models.Response.Appwrite;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
@@ -19,16 +22,22 @@ namespace OnComics.Application.Services.Implements
     public class AccountService : IAccountService
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IAppwriteService _appwriteService;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
         private readonly Util _util;
 
         public AccountService(
             IAccountRepository accountRepository,
+            IAppwriteService appwriteService,
             IMapper mapper,
+            IConfiguration configuration,
             Util util)
         {
             _accountRepository = accountRepository;
+            _appwriteService = appwriteService;
             _mapper = mapper;
+            _configuration = configuration;
             _util = util;
         }
 
@@ -50,7 +59,6 @@ namespace OnComics.Application.Services.Implements
 
                 int pageNum = getAccReq.PageNum;
                 int pageIndex = getAccReq.PageIndex;
-
 
                 Expression<Func<Account, bool>>? search = a =>
                     (string.IsNullOrEmpty(searchKey) || (EF.Functions.Like(a.Email, $"%{searchKey}%") ||
@@ -80,7 +88,7 @@ namespace OnComics.Application.Services.Implements
 
                 var data = accounts.Adapt<IEnumerable<AccountRes>>();
 
-                var totalData = await _accountRepository.CountRecordAsync();
+                var totalData = accounts.Count();
                 int totalPage = (int)Math.Ceiling((decimal)totalData / getAccReq.PageIndex);
                 var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
@@ -134,6 +142,13 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
+                bool validDob = _util.CheckDob(updateAccReq.Dob);
+
+                if (!validDob)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Date Of Birth Must Be At Least 13 Year Old!");
+
                 var oldAccount = await _accountRepository.GetByIdAsync(id, true);
 
                 if (oldAccount == null)
@@ -144,12 +159,65 @@ namespace OnComics.Application.Services.Implements
                 var newAccount = _mapper.Map(updateAccReq, oldAccount);
                 newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
 
-
                 await _accountRepository.UpdateAsync(newAccount);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Account Successfully!");
+            }
+            catch (Exception ex)
+            {
+                return new VoidResponse(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
+        }
+
+        //Update Profile Picture
+        public async Task<VoidResponse> UpdateProfileImageAsync(Guid id, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "No File Uploaded!");
+
+                if (!file.ContentType.Contains("image"))
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Invalid Picture File Format!");
+
+                var oldAccount = await _accountRepository.GetByIdAsync(id, true);
+
+                if (oldAccount == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Account Not Found!");
+
+                string? imgUrl = oldAccount.ImgUrl;
+                string fileName = oldAccount.Id.ToString();
+
+                var fileRes = new FileRes();
+
+                if (string.IsNullOrEmpty(imgUrl) ||
+                    imgUrl.Equals(_configuration["AppReturnUrl:DefaultProfileUrl"]))
+                {
+                    fileRes = await _appwriteService
+                        .CreateProfileFileAsync(file, fileName);
+                }
+
+                fileRes = await _appwriteService
+                    .UpdateProfileFileAsync(oldAccount.Id.ToString(), file, fileName);
+
+                oldAccount.ImgUrl = fileRes.Url;
+
+                await _accountRepository.UpdateAsync(oldAccount);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Profile Picture Successfully!");
             }
             catch (Exception ex)
             {

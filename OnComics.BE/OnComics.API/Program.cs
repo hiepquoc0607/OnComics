@@ -145,6 +145,7 @@ builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IChapterSourceService, ChapterSourceService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IAppwriteService, AppwriteService>();
+builder.Services.AddScoped<IFileService, FileService>();
 #endregion
 
 #region Inject Utils

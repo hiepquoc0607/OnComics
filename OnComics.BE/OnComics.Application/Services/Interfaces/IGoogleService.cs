@@ -1,5 +1,4 @@
-﻿using OnComics.Application.Models.Response.Common;
-using OnComics.Application.Models.Response.Google;
+﻿using OnComics.Application.Models.Response.Google;
 
 namespace OnComics.Application.Services.Interfaces
 {

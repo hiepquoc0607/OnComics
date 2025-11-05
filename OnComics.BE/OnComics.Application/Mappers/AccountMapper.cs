@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.Extensions.Configuration;
 using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.Account;
 using OnComics.Application.Models.Request.Auth;
@@ -11,6 +12,19 @@ namespace OnComics.Application.Mappers
 {
     public class AccountMapper : IRegister
     {
+        private string GetDefaultImageUrl()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfiguration configuration = builder.Build();
+
+            return configuration
+                .GetSection("AppReturnUrl:DefaultProfileUrl")
+                .ToString() ?? string.Empty;
+        }
+
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Account, AccountRes>()
@@ -25,7 +39,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<RegisterReq, Account>()
                 .Map(dest => dest.PasswordHash, src => src.Password)
                 .Map(dest => dest.Dob, src => src.Dob.ToDateTime(TimeOnly.MinValue))
-                .Map(dest => dest.ImgUrl, otp => string.Empty)
+                .Map(dest => dest.ImgUrl, otp => GetDefaultImageUrl())
                 .Map(dest => dest.IsGoogle, otp => false)
                 .Map(dest => dest.IsVerified, otp => false)
                 .Map(dest => dest.RefreshToken, otp => string.Empty)
