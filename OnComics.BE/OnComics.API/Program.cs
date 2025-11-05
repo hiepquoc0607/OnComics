@@ -3,9 +3,12 @@ using Appwrite.Services;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OnComics.API.Middleware;
 using OnComics.Application.Constants;
 using OnComics.Application.Helpers;
 using OnComics.Application.Services.Implements;
@@ -17,6 +20,7 @@ using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -196,6 +200,47 @@ builder.Services.AddLogging(logging =>
 });
 #endregion
 
+#region Model State Error Response
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(apiBehaviorOptions =>
+    {
+        apiBehaviorOptions.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            var response = new
+            {
+                status = "error",
+                statusCode = "400",
+                message = "Input Validation Erorr!",
+                errors = errors
+            };
+
+            var result = new ContentResult
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                ContentType = "application/json",
+                Content = JsonSerializer.Serialize(response)
+            };
+
+            return result;
+        };
+    });
+#endregion
+
+#region Rate Limiting
+builder.Services.AddRateLimiter(options => options.AddFixedWindowLimiter(policyName: "BasePolicy", options =>
+{
+    options.PermitLimit = 10;
+    options.Window = TimeSpan.FromSeconds(30);
+    options.QueueLimit = 5;
+    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+}));
+#endregion
+
 #region HttpClientFactory
 builder.Services.AddHttpClient();
 #endregion
@@ -217,9 +262,13 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "OnComics");
 });
 
+app.UseMiddleware<ResponseMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 
