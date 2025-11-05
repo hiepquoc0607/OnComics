@@ -6,6 +6,7 @@ namespace OnComics.Application.Models.Request.Auth
     {
         [Required]
         [EmailAddress]
+        [MaxLength(100)]
         public string Email { get; set; } = string.Empty;
     }
 }

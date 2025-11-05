@@ -8,6 +8,6 @@ namespace OnComics.Application.Models.Request.Auth
         public Guid AccountId { get; set; }
 
         [Required]
-        public string Token { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
     }
 }

@@ -84,7 +84,7 @@ namespace OnComics.Application.Services.Implements
                 var accessToken = tokenData.Value<string>("access_token");
 
                 if (string.IsNullOrEmpty(accessToken))
-                    throw new ArgumentNullException("Failed To Obtain Access Token From Google!");
+                    throw new ArgumentNullException("Failed To Obtain Access RefreshToken From Google!");
 
                 var credential = GoogleCredential.FromAccessToken(accessToken);
 

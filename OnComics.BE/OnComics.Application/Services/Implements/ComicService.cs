@@ -107,7 +107,7 @@ namespace OnComics.Application.Services.Implements
 
                 var data = comics.Adapt<IEnumerable<ComicRes>>();
 
-                var totalData = await _comicRepository.CountRecordAsync();
+                var totalData = await _comicRepository.CountRecordAsync(search);
                 int totalPage = (int)Math.Ceiling((decimal)totalData / getComicReq.PageIndex);
                 var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 

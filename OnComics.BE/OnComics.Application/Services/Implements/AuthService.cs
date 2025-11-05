@@ -12,6 +12,7 @@ using OnComics.Infrastructure.Repositories.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace OnComics.Application.Services.Implements
@@ -70,7 +71,15 @@ namespace OnComics.Application.Services.Implements
         //Generate Refresh Token
         private string GenerateRefreshToken()
         {
-            return Guid.NewGuid().ToString();
+            var randomBytes = new byte[64]; // 512 bits of entropy
+
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+
+            return Convert.ToBase64String(randomBytes)
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .TrimEnd('=');
         }
 
         //Caculate Token Expired Time In Seccond
@@ -93,7 +102,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Email Not Found!");
 
-                if (account.IsGoogle == false)
+                if (account.IsGoogle == true)
                     return new ObjectResponse<AuthRes?>(
                         (int)HttpStatusCode.BadRequest,
                         "Account Authenticate By Google!");
@@ -263,10 +272,11 @@ namespace OnComics.Application.Services.Implements
                         "Account Not Found!");
 
                 if (account.RefreshToken == null ||
+                    !account.RefreshToken.Equals(refreshTokenReq.RefreshToken) ||
                     account.RefreshExpireTime <= DateTime.UtcNow)
                     return new ObjectResponse<AuthRes>(
                         (int)HttpStatusCode.Unauthorized,
-                        "Token Is Expired!");
+                        "Invalid Refresh RefreshToken!");
 
                 var token = GenerateToken(account);
                 var newRefreshToken = GenerateRefreshToken();
@@ -283,7 +293,8 @@ namespace OnComics.Application.Services.Implements
 
                 return new ObjectResponse<AuthRes>(
                     (int)HttpStatusCode.OK,
-                    "Refresh Token Succesfully!", data);
+                    "Refresh RefreshToken Succesfully!",
+                    data);
             }
             catch (Exception ex)
             {
@@ -311,7 +322,7 @@ namespace OnComics.Application.Services.Implements
 
                 //Reset Password API URL
                 string url = _configuration["AppReturnUrl:ResetPassword"]! +
-                    $"AccountId={account.Id}&Token={account.RefreshToken}";
+                    $"AccountId={account.Id}&RefreshToken={account.RefreshToken}";
 
                 await _accountRepository.RunTransactionAsync(async () =>
                 {
@@ -346,15 +357,15 @@ namespace OnComics.Application.Services.Implements
                         "Email Not Found!");
 
                 if (!string.IsNullOrEmpty(account.RefreshToken) &&
-                    !account.RefreshToken.Equals(infoQuery.Token))
+                    !account.RefreshToken.Equals(infoQuery.RefreshToken))
                     return new VoidResponse(
                         (int)HttpStatusCode.Unauthorized,
-                        "Incorect Token!");
+                        "Incorect RefreshToken!");
 
                 if (account.RefreshExpireTime <= DateTime.UtcNow)
                     return new VoidResponse(
                         (int)HttpStatusCode.Unauthorized,
-                        "Token Is Expried!");
+                        "RefreshToken Is Expried!");
 
                 var passError = _util.CheckPasswordErrorType(resetPassReq.NewPassword);
 
@@ -405,7 +416,7 @@ namespace OnComics.Application.Services.Implements
 
                 //Confirm Email API URL
                 string url = _configuration["AppReturnUrl:ComfirmEmail"]! +
-                    $"AccountId={account.Id}&Token={account.RefreshToken}";
+                    $"AccountId={account.Id}&RefreshToken={account.RefreshToken}";
 
                 await _mailService.SendEmailAsync(
                     account.Email,
@@ -437,10 +448,10 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Account Not Found!");
 
-                if (account.RefreshToken != infoQuery.Token)
+                if (account.RefreshToken != infoQuery.RefreshToken)
                     return new VoidResponse(
                         (int)HttpStatusCode.Unauthorized,
-                        "Invalid Request Token!");
+                        "Invalid Request RefreshToken!");
 
                 if (account.IsVerified)
                     return new VoidResponse(

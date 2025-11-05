@@ -78,7 +78,7 @@ namespace OnComics.Application.Services.Implements
                         EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
                         h.Chapter.Comic.Id == searchId;
 
-                    totalData = await _historyRepository.CountRecordAsync();
+                    totalData = await _historyRepository.CountRecordAsync(search);
                 }
 
                 Func<IQueryable<History>, IOrderedQueryable<History>>? order = h => getHistoryReq.SortBy switch

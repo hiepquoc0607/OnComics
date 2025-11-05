@@ -147,9 +147,14 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Total Record Of An Entity
-        public async Task<int> CountRecordAsync()
+        public async Task<int> CountRecordAsync(Expression<Func<T, bool>>? filter)
         {
-            return await _dbSet.AsNoTracking().CountAsync();
+            IQueryable<T> query = _dbSet.AsNoTracking();
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            return await query.CountAsync();
         }
     }
 }

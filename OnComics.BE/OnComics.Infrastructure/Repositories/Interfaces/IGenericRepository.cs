@@ -28,6 +28,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task RunTransactionAsync(Func<Task> operations);
 
-        Task<int> CountRecordAsync();
+        Task<int> CountRecordAsync(Expression<Func<T, bool>>? filter);
     }
 }

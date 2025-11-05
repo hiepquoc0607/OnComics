@@ -46,13 +46,13 @@ namespace OnComics.Application.Services.Implements
                     _ => null
                 };
 
-                Expression<Func<Favorite, bool>>? seacrh = null;
+                Expression<Func<Favorite, bool>>? search = null;
 
                 int totalData = 0;
 
                 if (searchId.HasValue && isComicId == true)
                 {
-                    seacrh = f =>
+                    search = f =>
                         (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
                         EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%") &&
@@ -62,7 +62,7 @@ namespace OnComics.Application.Services.Implements
                 }
                 else if (searchId.HasValue && isComicId == false)
                 {
-                    seacrh = f =>
+                    search = f =>
                         (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
                         EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%") &&
@@ -72,12 +72,12 @@ namespace OnComics.Application.Services.Implements
                 }
                 else
                 {
-                    seacrh = f =>
+                    search = f =>
                         (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(f.Comic.Name, $"%{searchKey}%") ||
                         EF.Functions.Like(f.Account.Fullname, $"%{searchKey}%"));
 
-                    totalData = await _favoriteRepository.CountRecordAsync();
+                    totalData = await _favoriteRepository.CountRecordAsync(search);
                 }
 
                 Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? order = f => getFavoriteReq.SortBy switch
@@ -92,7 +92,7 @@ namespace OnComics.Application.Services.Implements
                 };
 
                 var (favorites, accounts, comics) = await _favoriteRepository
-                    .GetFavoritesAsync(seacrh, order, pageNum, pageIndex);
+                    .GetFavoritesAsync(search, order, pageNum, pageIndex);
 
                 if (favorites == null)
                     return new ObjectResponse<IEnumerable<FavoriteRes>?>(

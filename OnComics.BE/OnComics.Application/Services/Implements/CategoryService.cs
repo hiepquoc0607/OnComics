@@ -74,7 +74,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Category Data Is Empty!");
 
-                var totalData = await _categoryRepository.CountRecordAsync();
+                var totalData = await _categoryRepository.CountRecordAsync(search);
                 int totalPage = (int)Math.Ceiling((decimal)totalData / getCategoryReq.PageIndex);
                 var data = categories.Adapt<IEnumerable<CategoryRes>>();
 

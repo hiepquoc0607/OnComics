@@ -75,7 +75,7 @@ namespace OnComics.Application.Services.Implements
 
                 var data = types.Adapt<IEnumerable<InteractionTypeRes>>();
 
-                var totalData = await _interactionTypeRepository.CountRecordAsync();
+                var totalData = await _interactionTypeRepository.CountRecordAsync(search);
                 var toatlPage = (int)Math.Ceiling((decimal)totalData / getItrTypeReq.PageIndex);
                 var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
 

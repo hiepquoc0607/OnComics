@@ -196,6 +196,10 @@ builder.Services.AddLogging(logging =>
 });
 #endregion
 
+#region HttpClientFactory
+builder.Services.AddHttpClient();
+#endregion
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -88,7 +88,7 @@ namespace OnComics.Application.Services.Implements
 
                 var data = accounts.Adapt<IEnumerable<AccountRes>>();
 
-                var totalData = accounts.Count();
+                var totalData = await _accountRepository.CountRecordAsync(search);
                 int totalPage = (int)Math.Ceiling((decimal)totalData / getAccReq.PageIndex);
                 var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
