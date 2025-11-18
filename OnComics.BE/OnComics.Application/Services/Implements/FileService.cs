@@ -10,6 +10,7 @@ namespace OnComics.Application.Services.Implements
 {
     public class FileService : IFileService
     {
+        //Resize Profile Picture To 512x512px
         public async Task<MemoryStream> ResizeProfileAsync(MemoryStream memoryStream)
         {
             try
@@ -50,6 +51,49 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Resize Thumnail Picture To 180x320px
+        public async Task<MemoryStream> ResizeThumbnailAsync(MemoryStream memoryStream)
+        {
+            try
+            {
+                if (memoryStream.CanSeek)
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                using Image image = await Image
+                    .LoadAsync(memoryStream, default)
+                    .ConfigureAwait(false);
+
+                image.Mutate(x =>
+                {
+                    x.AutoOrient();
+                    x.Resize(new ResizeOptions
+                    {
+                        Size = new Size(180, 320),
+                        Mode = ResizeMode.Max,
+                        Sampler = KnownResamplers.Bicubic
+                    });
+                });
+
+                IImageEncoder encoder = new WebpEncoder
+                {
+                    FileFormat = WebpFileFormatType.Lossless,
+                    Quality = default
+                };
+
+                var outputStream = new MemoryStream();
+                await image.SaveAsync(outputStream, encoder);
+                outputStream.Position = 0;
+
+                return outputStream;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        //Resize Emote Picture To 128x128px
         public async Task<MemoryStream> ResizeEmoteAsync(MemoryStream memoryStream)
         {
             try
@@ -89,6 +133,8 @@ namespace OnComics.Application.Services.Implements
                 throw;
             }
         }
+
+        //Convert Picture To WebP
         public async Task<MemoryStream> ConvertWebPAsync(MemoryStream memoryStream)
         {
             try
@@ -117,6 +163,8 @@ namespace OnComics.Application.Services.Implements
                 throw;
             }
         }
+
+        //Convert Text File To Markdown
         public async Task<MemoryStream> ConvertMarkdownAsync(MemoryStream memoryStream, string extension)
         {
             try

@@ -48,7 +48,7 @@ namespace OnComics.Application.Services.Implements
                     attachments.Add(atm);
                 }
 
-                await _attachmentRepsitory.BulkInsertRangeAsync(attachments);
+                await _attachmentRepsitory.BulkInsertAsync(attachments);
 
                 return new ObjectResponse<Attachment>(
                     (int)HttpStatusCode.OK,

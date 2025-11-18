@@ -14,9 +14,9 @@ namespace OnComics.Application.Models.Request.Comic
         public string Author { get; set; } = string.Empty;
 
         [Required]
-        public string ThumbnailUrl { get; set; } = string.Empty;
+        public bool IsNovel { get; set; }
 
         [Required]
-        public bool IsNovel { get; set; }
+        public List<Guid> Categories { get; set; } = new List<Guid>();
     }
 }

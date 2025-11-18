@@ -2,6 +2,7 @@
 using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Interfaces;
+using System.Xml.Linq;
 
 namespace OnComics.Infrastructure.Repositories.Implements
 {
@@ -25,6 +26,15 @@ namespace OnComics.Infrastructure.Repositories.Implements
             return await _context.Categories
                 .AsNoTracking()
                 .Select(c => c.Name)
+                .ToArrayAsync();
+        }
+
+        //Get Category Id Array
+        public async Task<Guid[]> GetCateIdsAsync()
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .Select(c => c.Id)
                 .ToArrayAsync();
         }
     }

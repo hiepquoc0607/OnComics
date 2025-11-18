@@ -13,10 +13,10 @@ namespace OnComics.Application.Models.Response.Comic
 
         public string Author { get; set; } = null!;
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public ICollection<CateNameRes> Category { get; set; } = new List<CateNameRes>();
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<CateNameRes>? Categories { get; set; } = null;
 
-        public DateTime ReleaseDate { get; set; }
+        public DateOnly ReleaseDate { get; set; }
 
         public DateTime UpdateTime { get; set; }
 

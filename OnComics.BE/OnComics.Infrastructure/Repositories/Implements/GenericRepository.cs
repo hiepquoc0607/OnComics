@@ -1,5 +1,4 @@
-﻿using EFCore.BulkExtensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;
@@ -61,70 +60,61 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Insert
-        public async Task InsertAsync(T entity)
+        public async Task InsertAsync(T entity, bool isSaving)
         {
             await _dbSet.AddAsync(entity);
 
-            await _context.SaveChangesAsync();
+            if (isSaving)
+                await _context.SaveChangesAsync();
         }
 
         // Bulk Insert Range
-        public async Task BulkInsertRangeAsync(IEnumerable<T> entities)
+        public async Task BulkInsertAsync(IEnumerable<T> entities)
         {
-            // Default bulk insert of EF:
-            //await _dbSet.AddRangeAsync(entities);
-            //await _context.SaveChangesAsync();
-
-            // For high performance bulk insert (require EF BulkExtensions package):
+            // For high performance bulk insert (require EFBulk Extensions package):
             await _context.BulkInsertAsync(entities);
         }
 
         //Update
-        public async Task UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity, bool isSaving)
         {
             _dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
 
-            await _context.SaveChangesAsync();
+            if (isSaving)
+                await _context.SaveChangesAsync();
         }
 
         //Bulk Update Range
-        public async Task BulkUpdateRangeAsync(IEnumerable<T> entities)
+        public async Task BulkUpdateAsync(IEnumerable<T> entities)
         {
+            // For high performance bulk insert (require EFBulk Extensions package):
             await _context.BulkUpdateAsync(entities);
         }
 
         //Delete Ojbect
-        public async Task DeleteAsync(T entity)
+        public async Task DeleteAsync(T entity, bool isSaving)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
                 _dbSet.Attach(entity);
 
             _dbSet.Remove(entity);
 
-            await _context.SaveChangesAsync();
-        }
-
-        //Delete By Id
-        public async Task DeleteAsync(object id)
-        {
-            var entity = await GetByIdAsync(id, true);
-
-            if (entity != null)
-                _dbSet.Remove(entity);
-
-            await _context.SaveChangesAsync();
+            if (isSaving)
+                await _context.SaveChangesAsync();
         }
 
         //Bulk Delete Range
-        public async Task BulkDeleteRangeAsync(IEnumerable<T> entities)
+        public async Task BulkDeleteAsync(IEnumerable<T> entities)
         {
-            // Default bulk delete of EF:
-            //_dbSet.RemoveRange(entities);
-            //await _context.SaveChangesAsync();
-
-            // For high performance bulk delete (require EF BulkExtensions package):
+            // For high performance bulk delete (require EFBulk Extensions package):
             await _context.BulkDeleteAsync(entities);
+        }
+
+        //Save Change
+        public async Task SaveChangeAsync()
+        {
+            await _context.SaveChangesAsync();
         }
 
         //Run Transaction Operation

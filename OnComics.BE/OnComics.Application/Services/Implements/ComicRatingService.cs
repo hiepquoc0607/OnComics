@@ -136,7 +136,7 @@ namespace OnComics.Application.Services.Implements
                 var newRating = _mapper.Map<Comicrating>(createComicRatingReq);
                 newRating.Id = accId;
 
-                await _comicRatingRepository.InsertAsync(newRating);
+                await _comicRatingRepository.InsertAsync(newRating, true);
 
                 return new ObjectResponse<Comicrating>(
                     (int)HttpStatusCode.OK,
@@ -166,7 +166,7 @@ namespace OnComics.Application.Services.Implements
 
                 rating.Rating = (decimal)updateRatingReq.Rating;
 
-                await _comicRatingRepository.UpdateAsync(rating);
+                await _comicRatingRepository.UpdateAsync(rating, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -193,7 +193,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Rating Not Found!");
 
-                await _comicRatingRepository.DeleteAsync(rating);
+                await _comicRatingRepository.DeleteAsync(rating, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

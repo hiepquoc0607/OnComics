@@ -108,6 +108,20 @@ namespace OnComics.Application.Utils
             return a.Where(x => !setB.Contains(x)).ToArray();
         }
 
+        //Check 2 Guid Array
+        public bool CheckGuidArray(Guid[] a, Guid[] b)
+        {
+            var setB = new HashSet<Guid>(b);
+
+            foreach (var guid in a)
+            {
+                if (!setB.Contains(guid))
+                    return false;
+            }
+
+            return true;
+        }
+
         //Compare 2 Guid Dictionary And Get Same
         public Dictionary<Guid, int> CompareGuidDictionary(Dictionary<Guid, int> a, Dictionary<Guid, int> b)
         {

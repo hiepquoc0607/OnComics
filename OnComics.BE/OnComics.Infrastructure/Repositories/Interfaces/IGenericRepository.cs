@@ -12,19 +12,19 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<T?> GetByIdAsync(object id, bool isTracking);
 
-        Task InsertAsync(T entity);
+        Task InsertAsync(T entity, bool isSaving);
 
-        Task BulkInsertRangeAsync(IEnumerable<T> entities);
+        Task BulkInsertAsync(IEnumerable<T> entities);
 
-        Task UpdateAsync(T entity);
+        Task UpdateAsync(T entity, bool isSaving);
 
-        Task BulkUpdateRangeAsync(IEnumerable<T> entities);
+        Task BulkUpdateAsync(IEnumerable<T> entities);
 
-        Task DeleteAsync(T entity);
+        Task DeleteAsync(T entity, bool isSaving);
 
-        Task DeleteAsync(object id);
+        Task BulkDeleteAsync(IEnumerable<T> entities);
 
-        Task BulkDeleteRangeAsync(IEnumerable<T> entities);
+        Task SaveChangeAsync();
 
         Task RunTransactionAsync(Func<Task> operations);
 

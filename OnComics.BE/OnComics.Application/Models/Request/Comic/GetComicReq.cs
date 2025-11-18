@@ -6,6 +6,8 @@ namespace OnComics.Application.Models.Request.Comic
 {
     public class GetComicReq : GetReq
     {
+        public Guid? CategoryId { get; set; } = null;
+
         [DefaultValue(null)]
         public ComicSortOption? SortBy { get; set; }
 

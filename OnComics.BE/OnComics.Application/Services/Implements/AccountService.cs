@@ -159,7 +159,7 @@ namespace OnComics.Application.Services.Implements
                 var newAccount = _mapper.Map(updateAccReq, oldAccount);
                 newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
 
-                await _accountRepository.UpdateAsync(newAccount);
+                await _accountRepository.UpdateAsync(newAccount, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -213,7 +213,7 @@ namespace OnComics.Application.Services.Implements
 
                 oldAccount.ImgUrl = fileRes.Url;
 
-                await _accountRepository.UpdateAsync(oldAccount);
+                await _accountRepository.UpdateAsync(oldAccount, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -246,7 +246,7 @@ namespace OnComics.Application.Services.Implements
                 account.RefreshToken = string.Empty;
                 account.RefreshExpireTime = null;
 
-                await _accountRepository.UpdateAsync(account);
+                await _accountRepository.UpdateAsync(account, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -279,7 +279,7 @@ namespace OnComics.Application.Services.Implements
                     _ => StatusConstant.ACTIVE
                 };
 
-                await _accountRepository.UpdateAsync(account);
+                await _accountRepository.UpdateAsync(account, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -306,7 +306,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Account Not Found!");
 
-                await _accountRepository.DeleteAsync(account);
+                await _accountRepository.DeleteAsync(account, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

@@ -1,10 +1,14 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Comic;
 using OnComics.Application.Models.Request.Comic;
 using OnComics.Application.Models.Request.General;
+using OnComics.Application.Models.Response.Appwrite;
+using OnComics.Application.Models.Response.Category;
 using OnComics.Application.Models.Response.Comic;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
@@ -19,16 +23,28 @@ namespace OnComics.Application.Services.Implements
     public class ComicService : IComicService
     {
         private readonly IComicRepository _comicRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IComicCategoryRepository _comicCategoryRepository;
+        private readonly IAppwriteService _appwriteService;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
         private readonly Util _util;
 
         public ComicService(
             IComicRepository comicRepository,
+            ICategoryRepository categoryRepository,
+            IComicCategoryRepository comicCategoryRepository,
+            IAppwriteService appwriteService,
             IMapper mapper,
+            IConfiguration configuration,
             Util util)
         {
             _comicRepository = comicRepository;
+            _categoryRepository = categoryRepository;
+            _comicCategoryRepository = comicCategoryRepository;
+            _appwriteService = appwriteService;
             _mapper = mapper;
+            _configuration = configuration;
             _util = util;
         }
 
@@ -38,6 +54,8 @@ namespace OnComics.Application.Services.Implements
             try
             {
                 string? searchKey = getComicReq.SearchKey;
+
+                Guid? categoryId = getComicReq.CategoryId;
 
                 string? status = getComicReq.Status switch
                 {
@@ -98,7 +116,8 @@ namespace OnComics.Application.Services.Implements
                     _ => a.OrderBy(a => a.Id)
                 };
 
-                var comics = await _comicRepository.GetAsync(search, order, pageNum, pageIndex);
+                var comics = await _comicRepository
+                    .GetComicsAsync(categoryId, search, order, pageNum, pageIndex);
 
                 if (comics == null)
                     return new ObjectResponse<IEnumerable<ComicRes>?>(
@@ -106,8 +125,17 @@ namespace OnComics.Application.Services.Implements
                         "Comic Data Empty!");
 
                 var data = comics.Adapt<IEnumerable<ComicRes>>();
+                int totalData = 0;
 
-                var totalData = await _comicRepository.CountRecordAsync(search);
+                if (categoryId.HasValue)
+                {
+                    totalData = await _comicRepository.CountComicsByCateId(categoryId.Value);
+                }
+                else
+                {
+                    totalData = await _comicRepository.CountRecordAsync(search);
+                }
+
                 int totalPage = (int)Math.Ceiling((decimal)totalData / getComicReq.PageIndex);
                 var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
 
@@ -131,14 +159,15 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var comic = await _comicRepository.GetByIdAsync(id, false);
+                var (comic, categories) = await _comicRepository.GetComicByIdAsync(id);
 
                 if (comic == null)
                     return new ObjectResponse<ComicRes?>(
                         (int)HttpStatusCode.NotFound,
                         "Comic Not Found!");
 
-                var data = comic.Adapt<ComicRes>();
+                var data = _mapper.Map<ComicRes>(comic);
+                data.Categories = categories.Adapt<List<CateNameRes>>(); ;
 
                 return new ObjectResponse<ComicRes?>(
                     (int)HttpStatusCode.OK,
@@ -157,18 +186,49 @@ namespace OnComics.Application.Services.Implements
         //Create Comic
         public async Task<ObjectResponse<Comic>> CreateComicAsync(CreateComicReq createComicReq)
         {
+            Guid comicId = Guid.Empty;
+
             try
             {
-                var IsComicExisted = await _comicRepository.CheckComicExistedAsync(createComicReq.Name, createComicReq.Author);
+                var IsComicExisted = await _comicRepository
+                    .CheckComicExistedAsync(createComicReq.Name, createComicReq.Author);
 
                 if (IsComicExisted)
                     return new ObjectResponse<Comic>(
                         (int)HttpStatusCode.BadRequest,
                         "Comic Is Existed!");
 
-                var newComic = _mapper.Map<Comic>(createComicReq);
+                Guid[] cateIds = createComicReq.Categories.ToArray();
+                Guid[] dataIds = await _categoryRepository.GetCateIdsAsync();
+                var isCateExisted = _util.CheckGuidArray(cateIds, dataIds);
 
-                await _comicRepository.InsertAsync(newComic);
+                if (isCateExisted == false)
+                    return new ObjectResponse<Comic>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Invalid Category!");
+
+                var newComic = _mapper.Map<Comic>(createComicReq);
+                newComic.Name = _util.FormatStringName(createComicReq.Name);
+                newComic.Author = _util.FormatStringName(createComicReq.Author);
+
+                var newCates = new List<Comiccategory>();
+                var cates = createComicReq.Categories;
+
+                await _comicRepository.InsertAsync(newComic, true);
+
+                comicId = newComic.Id;
+
+                foreach (var item in cates)
+                {
+                    newCates.Add(new Comiccategory
+                    {
+                        Id = Guid.NewGuid(),
+                        ComicId = comicId,
+                        CategoryId = item
+                    });
+                }
+
+                await _comicCategoryRepository.BulkInsertAsync(newCates);
 
                 return new ObjectResponse<Comic>(
                     (int)HttpStatusCode.Created,
@@ -177,6 +237,11 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
+                var comic = await _comicRepository.GetByIdAsync(comicId, true);
+
+                if (comic != null)
+                    await _comicRepository.DeleteAsync(comic, true);
+
                 return new ObjectResponse<Comic>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
@@ -187,6 +252,8 @@ namespace OnComics.Application.Services.Implements
         //Update Comic
         public async Task<VoidResponse> UpdateComicAsync(Guid id, UpdateComicReq updateComicReq)
         {
+            var tempData = new Comic();
+
             try
             {
                 var oldComic = await _comicRepository.GetByIdAsync(id, true);
@@ -196,14 +263,101 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Comic Not Found!");
 
+                tempData = oldComic;
+
+                Guid[] cateIds = updateComicReq.Categories.ToArray();
+                Guid[] dataIds = await _categoryRepository.GetCateIdsAsync();
+                var isCateExisted = _util.CheckGuidArray(cateIds, dataIds);
+
+                if (isCateExisted == false)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Invalid Category!");
+
                 var newComic = _mapper.Map(updateComicReq, oldComic);
                 newComic.Name = _util.FormatStringName(updateComicReq.Name);
+                newComic.Author = _util.FormatStringName(updateComicReq.Author);
 
-                await _comicRepository.UpdateAsync(newComic);
+                var cates = updateComicReq.Categories;
+                var newCates = new List<Comiccategory>();
+
+                await _comicRepository.UpdateAsync(newComic, true);
+
+                await _comicRepository.RunTransactionAsync(async () =>
+                {
+                    await _comicCategoryRepository.DeleteComicCateoriesAsync(id);
+
+                    foreach (var item in cates)
+                    {
+                        newCates.Add(new Comiccategory
+                        {
+                            ComicId = newComic.Id,
+                            CategoryId = item
+                        });
+                    }
+
+                    await _comicCategoryRepository.BulkInsertAsync(newCates);
+                });
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Comic Successfully!");
+            }
+            catch (Exception ex)
+            {
+                await _comicRepository.UpdateAsync(tempData, true);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
+        }
+
+        //Update Comic Thumnail
+        public async Task<VoidResponse> UpdateThumbnailAsync(Guid id, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "No File Uploaded!");
+
+                if (!file.ContentType.Contains("image"))
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Invalid Picture File Format!");
+
+                var oldComic = await _comicRepository.GetByIdAsync(id, true);
+
+                if (oldComic == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Comic Not Found!");
+
+                string? imgUrl = oldComic.ThumbnailUrl;
+                string fileName = oldComic.Id.ToString();
+
+                var fileRes = new FileRes();
+
+                if (string.IsNullOrEmpty(imgUrl) ||
+                    imgUrl.Equals(_configuration["AppReturnUrl:DefaultProfileUrl"]))
+                {
+                    fileRes = await _appwriteService
+                        .CreateThumbnailFileAsync(file, fileName);
+                }
+
+                fileRes = await _appwriteService
+                    .UpdateThumbnailFileAsync(oldComic.Id.ToString(), file, fileName);
+
+                oldComic.ThumbnailUrl = fileRes.Url;
+
+                await _comicRepository.UpdateAsync(oldComic, true);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Thumnail Picture Successfully!");
             }
             catch (Exception ex)
             {
@@ -213,6 +367,7 @@ namespace OnComics.Application.Services.Implements
                     ex.Message);
             }
         }
+
 
         //Update Comic Status
         public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ComicStatus> updateStatusReq)
@@ -233,7 +388,7 @@ namespace OnComics.Application.Services.Implements
                     _ => StatusConstant.FINISHED
                 };
 
-                await _comicRepository.UpdateAsync(comic);
+                await _comicRepository.UpdateAsync(comic, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -260,7 +415,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Comic Not Found!");
 
-                await _comicRepository.DeleteAsync(comic);
+                await _comicRepository.DeleteAsync(comic, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

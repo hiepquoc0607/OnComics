@@ -1,4 +1,5 @@
-﻿using OnComics.Application.Enums.Comic;
+﻿using Microsoft.AspNetCore.Http;
+using OnComics.Application.Enums.Comic;
 using OnComics.Application.Models.Request.Comic;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Response.Comic;
@@ -16,6 +17,8 @@ namespace OnComics.Application.Services.Interfaces
         Task<ObjectResponse<Comic>> CreateComicAsync(CreateComicReq createComicReq);
 
         Task<VoidResponse> UpdateComicAsync(Guid id, UpdateComicReq updateComicReq);
+
+        Task<VoidResponse> UpdateThumbnailAsync(Guid id, IFormFile file);
 
         Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ComicStatus> updateStatusReq);
 

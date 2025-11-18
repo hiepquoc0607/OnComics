@@ -28,7 +28,7 @@ namespace OnComics.API.Controller
         }
 
         //Get Comic By Id
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _comicService.GetComicByIdAsync(id);
@@ -48,7 +48,7 @@ namespace OnComics.API.Controller
 
         //Update Comic
         [Authorize(Policy = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateAsync(
             [FromRoute] Guid id,
             [FromBody] UpdateComicReq updateComicReq)
@@ -58,12 +58,24 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Update Comic Thumnail
+        [Authorize(Policy = "Admin")]
+        [HttpPatch("{id:guid}/thumnail")]
+        public async Task<IActionResult> UpdateThumbnailAsync(
+            [FromRoute] Guid id,
+            IFormFile file)
+        {
+            var result = await _comicService.UpdateThumbnailAsync(id, file);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
         //Update Comic Status
         [Authorize(Policy = "Admin")]
-        [HttpPatch("{id}/status")]
+        [HttpPatch("{id:guid}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
             [FromRoute] Guid id,
-            [FromBody] UpdateStatusReq<ComicStatus> updateStatusReq)
+            [FromQuery] UpdateStatusReq<ComicStatus> updateStatusReq)
         {
             var result = await _comicService.UpdateStatusAsync(id, updateStatusReq);
 
@@ -72,7 +84,7 @@ namespace OnComics.API.Controller
 
         //Delete Comic
         [Authorize(Policy = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _comicService.DeleteComicAsync(id);

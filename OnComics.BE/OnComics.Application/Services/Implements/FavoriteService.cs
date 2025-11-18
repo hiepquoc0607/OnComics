@@ -172,7 +172,7 @@ namespace OnComics.Application.Services.Implements
                 var newFav = _mapper.Map<Favorite>(createFavoriteReq);
                 newFav.AccountId = accId;
 
-                await _favoriteRepository.InsertAsync(newFav);
+                await _favoriteRepository.InsertAsync(newFav, true);
 
                 return new ObjectResponse<Favorite>(
                     (int)HttpStatusCode.Created,
@@ -200,7 +200,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Favorite Not Found!");
 
-                await _favoriteRepository.DeleteAsync(fav);
+                await _favoriteRepository.DeleteAsync(fav, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

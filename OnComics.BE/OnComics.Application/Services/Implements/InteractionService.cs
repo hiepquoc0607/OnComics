@@ -156,7 +156,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newItr = _mapper.Map<Interaction>(createInteractionReq);
 
-                await _interactionRepository.InsertAsync(newItr);
+                await _interactionRepository.InsertAsync(newItr, true);
 
                 return new ObjectResponse<Interaction>(
                     (int)HttpStatusCode.Created,
@@ -186,7 +186,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newItr = _mapper.Map(updateInteractionReq, oldItr);
 
-                await _interactionRepository.UpdateAsync(newItr);
+                await _interactionRepository.UpdateAsync(newItr, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -213,7 +213,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Interaction Not Found!");
 
-                await _interactionRepository.DeleteAsync(interaction);
+                await _interactionRepository.DeleteAsync(interaction, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

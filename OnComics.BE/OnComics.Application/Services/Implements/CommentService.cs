@@ -190,7 +190,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newCmt = _mapper.Map<Comment>(createCommentReq);
 
-                await _commentRepository.InsertAsync(newCmt);
+                await _commentRepository.InsertAsync(newCmt, true);
 
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.Created,
@@ -222,7 +222,7 @@ namespace OnComics.Application.Services.Implements
                 newCmt.IsMainCmt = false;
                 newCmt.MainCmtId = mainCmtId;
 
-                await _commentRepository.InsertAsync(newCmt);
+                await _commentRepository.InsertAsync(newCmt, true);
 
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.Created,
@@ -252,7 +252,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newCmt = _mapper.Map(updateCommentReq, oldCmt);
 
-                await _commentRepository.UpdateAsync(newCmt);
+                await _commentRepository.UpdateAsync(newCmt, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -279,7 +279,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Comment Not Found!");
 
-                await _commentRepository.DeleteAsync(cmt);
+                await _commentRepository.DeleteAsync(cmt, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

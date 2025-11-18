@@ -26,17 +26,17 @@ namespace OnComics.Application.Mappers
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Account, AccountRes>()
-                .Map(dest => dest.Dob, src => DateOnly.FromDateTime(src.Dob!.Value));
+                .Map(dest => dest.Dob, src => src.Dob);
 
             config.NewConfig<UpdateAccountReq, Account>()
-                .Map(dest => dest.Dob, src => src.Dob.ToDateTime(TimeOnly.MinValue));
+                .Map(dest => dest.Dob, src => src.Dob);
 
             config.NewConfig<Account, AuthRes>()
-            .Map(dest => dest.Dob, src => DateOnly.FromDateTime(src.Dob!.Value));
+            .Map(dest => dest.Dob, src => src.Dob);
 
             config.NewConfig<RegisterReq, Account>()
                 .Map(dest => dest.PasswordHash, src => src.Password)
-                .Map(dest => dest.Dob, src => src.Dob.ToDateTime(TimeOnly.MinValue))
+                .Map(dest => dest.Dob, src => src.Dob)
                 .Map(dest => dest.ImgUrl, otp => GetDefaultImageUrl())
                 .Map(dest => dest.IsGoogle, otp => false)
                 .Map(dest => dest.IsVerified, otp => false)

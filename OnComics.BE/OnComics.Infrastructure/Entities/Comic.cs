@@ -10,7 +10,7 @@ public partial class Comic
 
     public string Author { get; set; } = null!;
 
-    public DateTime ReleaseDate { get; set; }
+    public DateOnly ReleaseDate { get; set; }
 
     public DateTime UpdateTime { get; set; }
 

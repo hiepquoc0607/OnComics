@@ -139,7 +139,7 @@ namespace OnComics.Application.Services.Implements
                 var newCate = _mapper.Map<Category>(createCategoryReq);
                 newCate.Name = name;
 
-                await _categoryRepository.InsertAsync(newCate);
+                await _categoryRepository.InsertAsync(newCate, true);
 
                 return new ObjectResponse<Category>(
                     (int)HttpStatusCode.Created,
@@ -181,7 +181,7 @@ namespace OnComics.Application.Services.Implements
                     items.Name = _util.FormatStringName(items.Name);
                 }
 
-                await _categoryRepository.BulkInsertRangeAsync(newCategories);
+                await _categoryRepository.BulkInsertAsync(newCategories);
 
                 return new ObjectResponse<IEnumerable<Category>>(
                     (int)HttpStatusCode.OK,
@@ -211,7 +211,7 @@ namespace OnComics.Application.Services.Implements
                 var newCate = _mapper.Map(updateCategoryReq, oldCate);
                 newCate.Name = _util.FormatStringName(updateCategoryReq.Name);
 
-                await _categoryRepository.UpdateAsync(newCate);
+                await _categoryRepository.UpdateAsync(newCate, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -244,7 +244,7 @@ namespace OnComics.Application.Services.Implements
                     _ => StatusConstant.INACTIVE
                 };
 
-                await _categoryRepository.UpdateAsync(category);
+                await _categoryRepository.UpdateAsync(category, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -271,7 +271,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Category Not Found!");
 
-                await _categoryRepository.DeleteAsync(category);
+                await _categoryRepository.DeleteAsync(category, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

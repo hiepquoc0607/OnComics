@@ -88,7 +88,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newSrc = _mapper.Map<Chaptersource>(createChapterSourceReq);
 
-                await _chapterSourceRepository.InsertAsync(newSrc);
+                await _chapterSourceRepository.InsertAsync(newSrc, true);
 
                 return new ObjectResponse<Chaptersource>(
                     (int)HttpStatusCode.Created,
@@ -125,7 +125,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newSrcs = sources.Adapt<IEnumerable<Chaptersource>>();
 
-                await _chapterSourceRepository.BulkInsertRangeAsync(newSrcs);
+                await _chapterSourceRepository.BulkInsertAsync(newSrcs);
 
                 return new ObjectResponse<IEnumerable<Chaptersource>>(
                     (int)HttpStatusCode.Created,
@@ -155,7 +155,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newSrc = _mapper.Map(updateChapterSourceReq, src);
 
-                await _chapterSourceRepository.UpdateAsync(newSrc);
+                await _chapterSourceRepository.UpdateAsync(newSrc, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -182,7 +182,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Chapter Source Not Found!");
 
-                await _chapterSourceRepository.DeleteAsync(src);
+                await _chapterSourceRepository.DeleteAsync(src, true);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -210,7 +210,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Chapter Sources Not Found!");
 
-                await _chapterSourceRepository.BulkDeleteRangeAsync(srcs);
+                await _chapterSourceRepository.BulkDeleteAsync(srcs);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

@@ -49,26 +49,38 @@ public partial class OnComicsDatabaseContext : DbContext
 
         IConfiguration configuration = builder.Build();
 
-        optionsBuilder.UseMySQL(configuration.GetConnectionString("DefaultConnection")!);
+        var connection = configuration.GetConnectionString("DefaultConnection")!;
+
+        optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder
+            .UseCollation("utf8mb4_0900_ai_ci")
+            .HasCharSet("utf8mb4");
+
         modelBuilder.Entity<Account>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("account");
+            entity
+                .ToTable("account")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.Email, "Email").IsUnique();
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
-            entity.Property(e => e.Dob).HasColumnType("date");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Fcmtoken)
                 .HasColumnType("text")
                 .HasColumnName("FCMToken");
-            entity.Property(e => e.Fullname).HasMaxLength(100);
+            entity.Property(e => e.Fullname)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.ImgUrl).HasColumnType("text");
             entity.Property(e => e.PasswordHash).HasColumnType("text");
@@ -82,17 +94,20 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("attachment");
+            entity
+                .ToTable("attachment")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.CommentId, "CommentId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.CommentId).HasColumnType("binary(16)");
             entity.Property(e => e.StorageUrl).HasColumnType("text");
 
             entity.HasOne(d => d.Comment).WithMany(p => p.Attachments)
                 .HasForeignKey(d => d.CommentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("attachment_ibfk_1");
         });
 
@@ -100,13 +115,20 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("category");
+            entity
+                .ToTable("category")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Status).HasMaxLength(10);
         });
 
@@ -114,19 +136,27 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("chapter");
+            entity
+                .ToTable("chapter")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => new { e.ComicId, e.ChapNo }, "ComicId").IsUnique();
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.HasIndex(e => e.ComicId, "ComicId_2");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.ComicId).HasColumnType("binary(16)");
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.ReleaseTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(10);
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.ComicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("chapter_ibfk_1");
         });
 
@@ -134,18 +164,21 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("chaptersource");
+            entity
+                .ToTable("chaptersource")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.ChapterId, "ChapterId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.ChapterId).HasColumnType("binary(16)");
             entity.Property(e => e.SrcUrl).HasColumnType("text");
             entity.Property(e => e.ViewUrl).HasColumnType("text");
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.Chaptersources)
                 .HasForeignKey(d => d.ChapterId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("chaptersource_ibfk_1");
         });
 
@@ -153,14 +186,23 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("comic");
+            entity
+                .ToTable("comic")
+                .UseCollation("utf8mb4_unicode_ci");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
-            entity.Property(e => e.Author).HasMaxLength(100);
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
+            entity.Property(e => e.Author)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Rating).HasPrecision(3, 1);
-            entity.Property(e => e.ReleaseDate).HasColumnType("date");
             entity.Property(e => e.Status).HasMaxLength(10);
             entity.Property(e => e.ThumbnailUrl).HasColumnType("text");
             entity.Property(e => e.UpdateTime).HasColumnType("datetime");
@@ -170,24 +212,28 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("comiccategory");
+            entity
+                .ToTable("comiccategory")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.CategoryId, "CategoryId");
 
             entity.HasIndex(e => new { e.ComicId, e.CategoryId }, "ComicId").IsUnique();
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.HasIndex(e => e.ComicId, "ComicId_2");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.CategoryId).HasColumnType("binary(16)");
             entity.Property(e => e.ComicId).HasColumnType("binary(16)");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Comiccategories)
                 .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comiccategory_ibfk_2");
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Comiccategories)
                 .HasForeignKey(d => d.ComicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comiccategory_ibfk_1");
         });
 
@@ -195,25 +241,29 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("comicrating");
+            entity
+                .ToTable("comicrating")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => new { e.AccountId, e.ComicId }, "AccountId").IsUnique();
 
+            entity.HasIndex(e => e.AccountId, "AccountId_2");
+
             entity.HasIndex(e => e.ComicId, "ComicId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.AccountId).HasColumnType("binary(16)");
             entity.Property(e => e.ComicId).HasColumnType("binary(16)");
             entity.Property(e => e.Rating).HasPrecision(2, 1);
 
             entity.HasOne(d => d.Account).WithMany(p => p.Comicratings)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comicrating_ibfk_1");
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Comicratings)
                 .HasForeignKey(d => d.ComicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comicrating_ibfk_2");
         });
 
@@ -221,7 +271,9 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("comment");
+            entity
+                .ToTable("comment")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.AccountId, "AccountId");
 
@@ -229,7 +281,9 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasIndex(e => e.MainCmtId, "MainCmtId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.AccountId).HasColumnType("binary(16)");
             entity.Property(e => e.CmtTime).HasColumnType("datetime");
             entity.Property(e => e.ComicId).HasColumnType("binary(16)");
@@ -238,16 +292,15 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comment_ibfk_1");
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.ComicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comment_ibfk_2");
 
             entity.HasOne(d => d.MainCmt).WithMany(p => p.InverseMainCmt)
                 .HasForeignKey(d => d.MainCmtId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("comment_ibfk_3");
         });
 
@@ -255,24 +308,28 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("favorite");
+            entity
+                .ToTable("favorite")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => new { e.AccountId, e.ComicId }, "AccountId").IsUnique();
 
+            entity.HasIndex(e => e.AccountId, "AccountId_2");
+
             entity.HasIndex(e => e.ComicId, "ComicId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.AccountId).HasColumnType("binary(16)");
             entity.Property(e => e.ComicId).HasColumnType("binary(16)");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Favorites)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("favorite_ibfk_1");
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Favorites)
                 .HasForeignKey(d => d.ComicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("favorite_ibfk_2");
         });
 
@@ -280,25 +337,29 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("history");
+            entity
+                .ToTable("history")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => new { e.AccountId, e.ChapterId }, "AccountId").IsUnique();
 
+            entity.HasIndex(e => e.AccountId, "AccountId_2");
+
             entity.HasIndex(e => e.ChapterId, "ChapterId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.AccountId).HasColumnType("binary(16)");
             entity.Property(e => e.ChapterId).HasColumnType("binary(16)");
             entity.Property(e => e.ReadTime).HasColumnType("datetime");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Histories)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("history_ibfk_1");
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.Histories)
                 .HasForeignKey(d => d.ChapterId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("history_ibfk_2");
         });
 
@@ -306,15 +367,21 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("interaction");
+            entity
+                .ToTable("interaction")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => new { e.AccountId, e.CommentId }, "AccountId").IsUnique();
+
+            entity.HasIndex(e => e.AccountId, "AccountId_2");
 
             entity.HasIndex(e => e.CommentId, "CommentId");
 
             entity.HasIndex(e => e.TypeId, "TypeId");
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.AccountId).HasColumnType("binary(16)");
             entity.Property(e => e.CommentId).HasColumnType("binary(16)");
             entity.Property(e => e.ReactTime).HasColumnType("datetime");
@@ -322,17 +389,14 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Interactions)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("interaction_ibfk_1");
 
             entity.HasOne(d => d.Comment).WithMany(p => p.Interactions)
                 .HasForeignKey(d => d.CommentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("interaction_ibfk_2");
 
             entity.HasOne(d => d.Type).WithMany(p => p.Interactions)
                 .HasForeignKey(d => d.TypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("interaction_ibfk_3");
         });
 
@@ -340,13 +404,20 @@ public partial class OnComicsDatabaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("interactiontype");
+            entity
+                .ToTable("interactiontype")
+                .UseCollation("utf8mb4_unicode_ci");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
-            entity.Property(e => e.Id).HasColumnType("binary(16)");
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
             entity.Property(e => e.ImgUrl).HasColumnType("text");
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Status).HasMaxLength(10);
         });
 

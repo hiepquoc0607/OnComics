@@ -7,5 +7,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
         Task<bool> CheckCategoryIsExistedAsync(string name);
 
         Task<string[]> GetCateNamesAsync();
+
+        Task<Guid[]> GetCateIdsAsync();
     }
 }
