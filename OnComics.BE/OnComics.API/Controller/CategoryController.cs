@@ -73,7 +73,7 @@ namespace OnComics.API.Controller
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
             [FromRoute] Guid id,
-            [FromBody] UpdateStatusReq<CategoryStatus> updateStatusReq)
+            [FromQuery] UpdateStatusReq<CategoryStatus> updateStatusReq)
         {
             var result = await _categoryService.UpdateStatusAsync(id, updateStatusReq);
 

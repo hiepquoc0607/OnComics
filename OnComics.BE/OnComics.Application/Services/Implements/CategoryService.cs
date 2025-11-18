@@ -165,7 +165,9 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         "Only Create Max 10 Record At Once!");
 
-                string[] names = categories.Select(c => c.Name).ToArray();
+                string[] names = categories
+                    .Select(c => _util.FormatStringName(c.Name))
+                    .ToArray();
                 string[] dataNames = await _categoryRepository.GetCateNamesAsync();
                 string[] existedNames = _util.CompareStringArray(names, dataNames);
 
@@ -178,14 +180,16 @@ namespace OnComics.Application.Services.Implements
 
                 foreach (var items in newCategories)
                 {
+                    items.Id = Guid.NewGuid();
                     items.Name = _util.FormatStringName(items.Name);
                 }
 
                 await _categoryRepository.BulkInsertAsync(newCategories);
 
                 return new ObjectResponse<IEnumerable<Category>>(
-                    (int)HttpStatusCode.OK,
-                    "Create Category Successfully!");
+                    (int)HttpStatusCode.Created,
+                    "Create Categories Successfully!",
+                    newCategories);
             }
             catch (Exception ex)
             {
@@ -196,7 +200,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
-        //Update Caategory
+        //Update Category
         public async Task<VoidResponse> UpdateCategoryAsync(Guid id, UpdateCategoryReq updateCategoryReq)
         {
             try
@@ -208,8 +212,17 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Category Not Found!");
 
+                var name = _util.FormatStringName(updateCategoryReq.Name);
+
+                var isExited = await _categoryRepository.CheckCategoryIsExistedAsync(name);
+
+                if (isExited && !name.Equals(oldCate.Name))
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Category Is Existed!");
+
                 var newCate = _mapper.Map(updateCategoryReq, oldCate);
-                newCate.Name = _util.FormatStringName(updateCategoryReq.Name);
+                newCate.Name = name;
 
                 await _categoryRepository.UpdateAsync(newCate, true);
 
