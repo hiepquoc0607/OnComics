@@ -11,7 +11,8 @@ namespace OnComics.Application.Mappers
         {
             config.NewConfig<Comicrating, ComicRatingRes>();
 
-            config.NewConfig<CreateComicRatingReq, Comicrating>();
+            config.NewConfig<CreateComicRatingReq, Comicrating>()
+                .Map(dest => dest.Id, src => Guid.NewGuid());
 
             config.NewConfig<UpdateComicRatingReq, Comicrating>();
         }

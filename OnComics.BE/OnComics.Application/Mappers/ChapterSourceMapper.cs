@@ -11,7 +11,8 @@ namespace OnComics.Application.Mappers
         {
             config.NewConfig<Chaptersource, ChapterSourceRes>();
 
-            config.NewConfig<CreateChapterSourceReq, Chaptersource>();
+            config.NewConfig<CreateChapterSourceReq, Chaptersource>()
+                .Map(dest => dest.Id, src => Guid.NewGuid());
 
             config.NewConfig<UpdateChapterSourceReq, Chaptersource>();
         }

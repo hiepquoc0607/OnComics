@@ -13,6 +13,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Chapter, ChapterRes>();
 
             config.NewConfig<CreateChapterReq, Chapter>()
+                .Map(dest => dest.Id, src => Guid.NewGuid())
                 .Map(dest => dest.ReadNum, src => 0)
                 .Map(dest => dest.ReleaseTime, src => DateTime.UtcNow)
                 .Map(dest => dest.Status, src => StatusConstant.ACTIVE);

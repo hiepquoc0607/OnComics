@@ -12,6 +12,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Interaction, InteractionRes>();
 
             config.NewConfig<CreateInteractionReq, Interaction>()
+                .Map(dest => dest.Id, src => Guid.NewGuid())
                 .Map(dest => dest.ReactTime, src => DateTime.UtcNow);
 
             config.NewConfig<UpdateInteractionReq, Interaction>()

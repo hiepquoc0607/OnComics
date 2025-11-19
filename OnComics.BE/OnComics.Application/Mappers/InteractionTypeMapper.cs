@@ -13,6 +13,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Interactiontype, InteractionTypeRes>();
 
             config.NewConfig<CreateItrTypeReq, Interactiontype>()
+                .Map(dest => dest.Id, src => Guid.NewGuid())
                 .Map(dest => dest.Status, src => StatusConstant.ACTIVE);
 
             config.NewConfig<UpdateItrTypeReq, Interactiontype>();

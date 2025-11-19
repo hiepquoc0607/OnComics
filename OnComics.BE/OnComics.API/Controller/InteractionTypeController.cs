@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnComics.Application.Enums.InteractionType;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Request.InteractionType;
@@ -27,7 +28,7 @@ namespace OnComics.API.Controller
         }
 
         //Get Interaction Type By Id
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             var result = await _interactionService.GetItrTypeByIdAsync(id);
@@ -36,6 +37,7 @@ namespace OnComics.API.Controller
         }
 
         //Create Interaction Type
+        [Authorize(Policy = "Admin")]
         [HttpPut]
         public async Task<IActionResult> CreateAsync([FromBody] CreateItrTypeReq createItrTypeReq)
         {
@@ -45,7 +47,8 @@ namespace OnComics.API.Controller
         }
 
         //Update Interaction Type
-        [HttpPost("{id}")]
+        [Authorize(Policy = "Admin")]
+        [HttpPost("{id:guid}")]
         public async Task<IActionResult> UpdateAsync(
             [FromRoute] Guid id,
             [FromBody] UpdateItrTypeReq updateItrTypeReq)
@@ -56,10 +59,11 @@ namespace OnComics.API.Controller
         }
 
         //Update Interaction Type Status
-        [HttpPatch("{id}/status")]
+        [Authorize(Policy = "Admin")]
+        [HttpPatch("{id:guid}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
             [FromRoute] Guid id,
-            [FromBody] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
+            [FromQuery] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
         {
             var result = await _interactionService.UpdateItrTypeStatusAsync(id, updateStatusReq);
 
@@ -67,7 +71,8 @@ namespace OnComics.API.Controller
         }
 
         //Delete Interaction Type
-        [HttpDelete("{id}")]
+        [Authorize(Policy = "Admin")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _interactionService.DeleteItrTypeAsync(id);

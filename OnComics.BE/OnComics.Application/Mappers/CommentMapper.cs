@@ -12,6 +12,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Comment, CommentRes>();
 
             config.NewConfig<CreateCommentReq, Comment>()
+                .Map(dest => dest.Id, src => Guid.NewGuid())
                 .Map(dest => dest.IsEdited, src => false)
                 .Map(dest => dest.IsMainCmt, src => true)
                 .Map(dest => dest.MainCmtId, src => (int?)null)
