@@ -57,15 +57,13 @@ CREATE TABLE Comic (
 CREATE TABLE Category (
     Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
-    Description TEXT NULL,
-    Status VARCHAR(10) NOT NULL
+    Description TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE InteractionType (
     Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
-    ImgUrl TEXT NULL,
-    Status VARCHAR(10) NOT NULL
+    ImgUrl TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Chapter (
@@ -74,7 +72,7 @@ CREATE TABLE Chapter (
     ChapNo INT NOT NULL,
     Name NVARCHAR(100) NULL,
     ReadNum INT NOT NULL,
-    ReleaseTime DATETIME NOT NULL,
+    ReleaseTime DATE NOT NULL,
     Status VARCHAR(10) NOT NULL,
     FOREIGN KEY (ComicId)
         REFERENCES Comic (Id)
@@ -88,7 +86,6 @@ CREATE TABLE ChapterSource (
     Id BINARY(16) PRIMARY KEY,
     ChapterId BINARY(16) NOT NULL,
     SrcUrl TEXT NOT NULL,
-    ViewUrl TEXT NULL,
     Arrangement INT NOT NULL,
     IsImage BOOL CHECK(IsImage IN (0,1)) NOT NULL,
     FOREIGN KEY (ChapterId)
@@ -163,7 +160,7 @@ CREATE TABLE Comment (
 CREATE TABLE Attachment (
     Id BINARY(16) PRIMARY KEY,
     CommentId BINARY(16) NOT NULL,
-    StorageUrl TEXT NOT NULL,
+    SrcUrl TEXT NOT NULL,
     FOREIGN KEY (CommentId)
         REFERENCES Comment (Id)
         ON DELETE CASCADE

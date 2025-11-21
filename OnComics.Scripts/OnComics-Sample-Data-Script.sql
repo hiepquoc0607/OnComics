@@ -31,56 +31,56 @@ VALUES
 (UUID_TO_BIN('aaaaaaaa-dddd-4ddd-8ddd-aaaaaaaaaaaa'), 'Forgotten Realm', 'A high fantasy novel with kingdoms, wars, and magic.', 'Nguyen Van J', '2012-01-08', '2025-09-08 10:25:00', 'https://example.com/thumbs/realm.jpg', 9.4, 3520, 310, 2120, 800, 5000, 22000, 330000, 1, 'COMPLETED');
 
 #Sample Data For Category Table
-INSERT INTO Category (Id, Name, Description, Status) 
+INSERT INTO Category (Id, Name, Description) 
 VALUES
-(UUID_TO_BIN('c9c586dd-b41e-11f0-8537-2cf05d669344'), 'Action', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58f28-b41e-11f0-8537-2cf05d669344'), 'Comedy', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58aa7-b41e-11f0-8537-2cf05d669344'), 'Romance', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58e99-b41e-11f0-8537-2cf05d669344'), 'Fantasy', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58ca6-b41e-11f0-8537-2cf05d669344'), 'Sci-Fi', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58dfc-b41e-11f0-8537-2cf05d669344'), 'Horror', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58be5-b41e-11f0-8537-2cf05d669344'), 'Drama', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58d56-b41e-11f0-8537-2cf05d669344'), 'Adventure', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c58fba-b41e-11f0-8537-2cf05d669344'), 'Slice of Life', NULL, 'ACTIVE'),
-(UUID_TO_BIN('c9c59054-b41e-11f0-8537-2cf05d669344'), 'Sports', NULL, 'ACTIVE');
+(UUID_TO_BIN('c9c586dd-b41e-11f0-8537-2cf05d669344'), 'Action', NULL),
+(UUID_TO_BIN('c9c58f28-b41e-11f0-8537-2cf05d669344'), 'Comedy', NULL),
+(UUID_TO_BIN('c9c58aa7-b41e-11f0-8537-2cf05d669344'), 'Romance', NULL),
+(UUID_TO_BIN('c9c58e99-b41e-11f0-8537-2cf05d669344'), 'Fantasy', NULL),
+(UUID_TO_BIN('c9c58ca6-b41e-11f0-8537-2cf05d669344'), 'Sci-Fi', NULL),
+(UUID_TO_BIN('c9c58dfc-b41e-11f0-8537-2cf05d669344'), 'Horror', NULL),
+(UUID_TO_BIN('c9c58be5-b41e-11f0-8537-2cf05d669344'), 'Drama', NULL),
+(UUID_TO_BIN('c9c58d56-b41e-11f0-8537-2cf05d669344'), 'Adventure', NULL),
+(UUID_TO_BIN('c9c58fba-b41e-11f0-8537-2cf05d669344'), 'Slice of Life', NULL),
+(UUID_TO_BIN('c9c59054-b41e-11f0-8537-2cf05d669344'), 'Sports', NULL);
 
 #Sample Data For InteractionType Table
-INSERT INTO InteractionType (Id, Name, ImgUrl, Status) 
+INSERT INTO InteractionType (Id, Name, ImgUrl) 
 VALUES
-(UUID_TO_BIN('d1d11111-aaaa-4aaa-8aaa-111111111111'), 'LIKE', NULL, 'ACTIVE'),
-(UUID_TO_BIN('d1d22222-bbbb-4bbb-8bbb-222222222222'), 'DISLIKE', NULL, 'ACTIVE'),
-(UUID_TO_BIN('d1d33333-cccc-4ccc-8ccc-333333333333'), 'LOVE', NULL, 'ACTIVE'),
-(UUID_TO_BIN('d1d44444-dddd-4ddd-8ddd-444444444444'), 'LAUGH', NULL, 'ACTIVE'),
-(UUID_TO_BIN('d1d55555-eeee-4eee-8eee-555555555555'), 'ANGRY', NULL, 'ACTIVE'),
-(UUID_TO_BIN('d1d66666-ffff-4fff-8fff-666666666666'), 'SAD', NULL, 'ACTIVE');
+(UUID_TO_BIN('d1d11111-aaaa-4aaa-8aaa-111111111111'), 'LIKE', NULL),
+(UUID_TO_BIN('d1d22222-bbbb-4bbb-8bbb-222222222222'), 'DISLIKE', NULL),
+(UUID_TO_BIN('d1d33333-cccc-4ccc-8ccc-333333333333'), 'LOVE', NULL),
+(UUID_TO_BIN('d1d44444-dddd-4ddd-8ddd-444444444444'), 'LAUGH', NULL),
+(UUID_TO_BIN('d1d55555-eeee-4eee-8eee-555555555555'), 'ANGRY', NULL),
+(UUID_TO_BIN('d1d66666-ffff-4fff-8fff-666666666666'), 'SAD', NULL);
 
 #Sample Data For Chapter Table
 INSERT INTO Chapter (Id, ComicId, ChapNo, Name, ReadNum, ReleaseTime, Status) 
 VALUES
-(UUID_TO_BIN('10101010-1111-4111-8111-101010101010'), UUID_TO_BIN('11111111-aaaa-4aaa-8aaa-111111111111'), 1, 'The Awakening', 1200, '2015-06-10 10:00:00', 'ACTIVE'),
-(UUID_TO_BIN('20202020-2222-4222-8222-202020202020'), UUID_TO_BIN('11111111-aaaa-4aaa-8aaa-111111111111'), 2, 'Dragon''s Roar', 950, '2015-07-01 10:00:00', 'ACTIVE'),
-(UUID_TO_BIN('30303030-3333-4333-8333-303030303030'), UUID_TO_BIN('22222222-bbbb-4bbb-8bbb-222222222222'), 1, 'First Encounter', 2100, '2018-02-14 09:00:00', 'ACTIVE'),
-(UUID_TO_BIN('40404040-4444-4444-8444-404040404040'), UUID_TO_BIN('22222222-bbbb-4bbb-8bbb-222222222222'), 2, 'Rainy Streets', 1850, '2018-03-01 09:00:00', 'ACTIVE'),
-(UUID_TO_BIN('50505050-5555-4555-8555-505050505050'), UUID_TO_BIN('33333333-cccc-4ccc-8ccc-333333333333'), 1, 'Into the Grid', 870, '2020-11-01 18:00:00', 'ACTIVE'),
-(UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), UUID_TO_BIN('33333333-cccc-4ccc-8ccc-333333333333'), 2, 'Hackers Unite', 650, '2020-11-15 18:00:00', 'ACTIVE'),
-(UUID_TO_BIN('70707070-7777-4777-8777-707070707070'), UUID_TO_BIN('44444444-dddd-4ddd-8ddd-444444444444'), 1, 'Petals of Time', 3100, '2016-04-22 14:00:00', 'ACTIVE'),
-(UUID_TO_BIN('80808080-8888-4888-8888-808080808080'), UUID_TO_BIN('55555555-eeee-4eee-8eee-555555555555'), 1, 'Darkness Falls', 600, '2017-10-30 20:00:00', 'ACTIVE'),
-(UUID_TO_BIN('90909090-9999-4999-8999-909090909090'), UUID_TO_BIN('55555555-eeee-4eee-8eee-555555555555'), 2, 'Hunter''s Oath', 450, '2017-11-15 20:00:00', 'ACTIVE'),
-(UUID_TO_BIN('a0a0a0a0-aaaa-4aaa-8aaa-a0a0a0a0a0a0'), UUID_TO_BIN('66666666-ffff-4fff-8fff-666666666666'), 1, 'First Beat', 1200, '2019-08-12 16:00:00', 'ACTIVE');
+(UUID_TO_BIN('10101010-1111-4111-8111-101010101010'), UUID_TO_BIN('11111111-aaaa-4aaa-8aaa-111111111111'), 1, 'The Awakening', 1200, '2015-06-10', 'ACTIVE'),
+(UUID_TO_BIN('20202020-2222-4222-8222-202020202020'), UUID_TO_BIN('11111111-aaaa-4aaa-8aaa-111111111111'), 2, 'Dragon''s Roar', 950, '2015-07-01', 'ACTIVE'),
+(UUID_TO_BIN('30303030-3333-4333-8333-303030303030'), UUID_TO_BIN('22222222-bbbb-4bbb-8bbb-222222222222'), 1, 'First Encounter', 2100, '2018-02-14', 'ACTIVE'),
+(UUID_TO_BIN('40404040-4444-4444-8444-404040404040'), UUID_TO_BIN('22222222-bbbb-4bbb-8bbb-222222222222'), 2, 'Rainy Streets', 1850, '2018-03-01', 'ACTIVE'),
+(UUID_TO_BIN('50505050-5555-4555-8555-505050505050'), UUID_TO_BIN('33333333-cccc-4ccc-8ccc-333333333333'), 1, 'Into the Grid', 870, '2020-11-01', 'ACTIVE'),
+(UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), UUID_TO_BIN('33333333-cccc-4ccc-8ccc-333333333333'), 2, 'Hackers Unite', 650, '2020-11-15', 'ACTIVE'),
+(UUID_TO_BIN('70707070-7777-4777-8777-707070707070'), UUID_TO_BIN('44444444-dddd-4ddd-8ddd-444444444444'), 1, 'Petals of Time', 3100, '2016-04-22', 'ACTIVE'),
+(UUID_TO_BIN('80808080-8888-4888-8888-808080808080'), UUID_TO_BIN('55555555-eeee-4eee-8eee-555555555555'), 1, 'Darkness Falls', 600, '2017-10-30', 'ACTIVE'),
+(UUID_TO_BIN('90909090-9999-4999-8999-909090909090'), UUID_TO_BIN('55555555-eeee-4eee-8eee-555555555555'), 2, 'Hunter''s Oath', 450, '2017-11-15', 'ACTIVE'),
+(UUID_TO_BIN('a0a0a0a0-aaaa-4aaa-8aaa-a0a0a0a0a0a0'), UUID_TO_BIN('66666666-ffff-4fff-8fff-666666666666'), 1, 'First Beat', 1200, '2019-08-12', 'ACTIVE');
 
 -- Sample Data For ChapterSource Table (updated to match table definition)
-INSERT INTO ChapterSource (Id, ChapterId, SrcUrl, ViewUrl, Arrangement, IsImage) 
+INSERT INTO ChapterSource (Id, ChapterId, SrcUrl, Arrangement, IsImage) 
 VALUES
-(UUID_TO_BIN('d0d01010-1111-4111-8111-d0d010101010'), UUID_TO_BIN('10101010-1111-4111-8111-101010101010'), 'https://example.com/comic1/source1', 'https://example.com/comic1/view1', 1, 1),
-(UUID_TO_BIN('d0d02020-2222-4222-8222-d0d020202020'), UUID_TO_BIN('10101010-1111-4111-8111-101010101010'), 'https://example.com/comic1/source2', 'https://example.com/comic1/view2', 2, 0),
-(UUID_TO_BIN('d0d03030-3333-4333-8333-d0d030303030'), UUID_TO_BIN('20202020-2222-4222-8222-202020202020'), 'https://example.com/comic2/source1', 'https://example.com/comic2/view1', 1, 1),
-(UUID_TO_BIN('d0d04040-4444-4444-8444-d0d040404040'), UUID_TO_BIN('30303030-3333-4333-8333-303030303030'), 'https://example.com/comic3/source1', 'https://example.com/comic3/view1', 1, 0),
-(UUID_TO_BIN('d0d05050-5555-4555-8555-d0d050505050'), UUID_TO_BIN('30303030-3333-4333-8333-303030303030'), 'https://example.com/comic3/source2', 'https://example.com/comic3/view2', 2, 1),
-(UUID_TO_BIN('d0d06060-6666-4666-8666-d0d060606060'), UUID_TO_BIN('40404040-4444-4444-8444-404040404040'), 'https://example.com/comic4/source1', 'https://example.com/comic4/view1', 1, 1),
-(UUID_TO_BIN('d0d07070-7777-4777-8777-d0d070707070'), UUID_TO_BIN('50505050-5555-4555-8555-505050505050'), 'https://example.com/comic5/source1', 'https://example.com/comic5/view1', 1, 0),
-(UUID_TO_BIN('d0d08080-8888-4888-8888-d0d080808080'), UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), 'https://example.com/comic6/source1', 'https://example.com/comic6/view1', 1, 1),
-(UUID_TO_BIN('d0d09090-9999-4999-8999-d0d090909090'), UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), 'https://example.com/comic6/source2', 'https://example.com/comic6/view2', 2, 0),
-(UUID_TO_BIN('d0d0a0a0-aaaa-4aaa-8aaa-d0d0a0a0a0a0'), UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), 'https://example.com/comic6/source3', 'https://example.com/comic6/view3', 3, 1);
+(UUID_TO_BIN('d0d01010-1111-4111-8111-d0d010101010'), UUID_TO_BIN('10101010-1111-4111-8111-101010101010'), 'https://example.com/comic1/source1', 1, 1),
+(UUID_TO_BIN('d0d02020-2222-4222-8222-d0d020202020'), UUID_TO_BIN('10101010-1111-4111-8111-101010101010'), 'https://example.com/comic1/source2', 2, 0),
+(UUID_TO_BIN('d0d03030-3333-4333-8333-d0d030303030'), UUID_TO_BIN('20202020-2222-4222-8222-202020202020'), 'https://example.com/comic2/source1', 1, 1),
+(UUID_TO_BIN('d0d04040-4444-4444-8444-d0d040404040'), UUID_TO_BIN('30303030-3333-4333-8333-303030303030'), 'https://example.com/comic3/source1', 1, 0),
+(UUID_TO_BIN('d0d05050-5555-4555-8555-d0d050505050'), UUID_TO_BIN('30303030-3333-4333-8333-303030303030'), 'https://example.com/comic3/source2', 2, 1),
+(UUID_TO_BIN('d0d06060-6666-4666-8666-d0d060606060'), UUID_TO_BIN('40404040-4444-4444-8444-404040404040'), 'https://example.com/comic4/source1', 1, 1),
+(UUID_TO_BIN('d0d07070-7777-4777-8777-d0d070707070'), UUID_TO_BIN('50505050-5555-4555-8555-505050505050'), 'https://example.com/comic5/source1', 1, 0),
+(UUID_TO_BIN('d0d08080-8888-4888-8888-d0d080808080'), UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), 'https://example.com/comic6/source1', 1, 1),
+(UUID_TO_BIN('d0d09090-9999-4999-8999-d0d090909090'), UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), 'https://example.com/comic6/source2', 2, 0),
+(UUID_TO_BIN('d0d0a0a0-aaaa-4aaa-8aaa-d0d0a0a0a0a0'), UUID_TO_BIN('60606060-6666-4666-8666-606060606060'), 'https://example.com/comic6/source3', 3, 1);
 
 #Sample Data For ComicCategory Table
 INSERT INTO ComicCategory (Id, ComicId, CategoryId) 
