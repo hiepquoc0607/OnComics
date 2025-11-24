@@ -1,5 +1,4 @@
 ﻿using Mapster;
-using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.Category;
 using OnComics.Application.Models.Response.Category;
 using OnComics.Infrastructure.Entities;
@@ -13,8 +12,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Category, CategoryRes>();
 
             config.NewConfig<CreateCategoryReq, Category>()
-                .Map(dest => dest.Id, src => Guid.NewGuid())
-                .Map(dest => dest.Status, src => StatusConstant.ACTIVE);
+                .Map(dest => dest.Id, src => Guid.NewGuid());
 
             config.NewConfig<UpdateCategoryReq, Category>();
         }

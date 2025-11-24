@@ -11,6 +11,42 @@ namespace OnComics.Infrastructure.Repositories.Implements
         {
         }
 
+        //Get Chapter By Id
+        public async Task<(Chapter, IEnumerable<Chaptersource>?)> GetChapterByIdAsync(Guid id)
+        {
+            var projected = await _context.Chapters
+                .AsNoTracking()
+                .Where(c => c.Id == id)
+                .Select(c => new
+                {
+                    Chapter = c,
+                    Source = c.Chaptersources
+                        .Select(cs => new
+                        {
+                            cs.Id,
+                            cs.SrcUrl,
+                            cs.IsImage,
+                            cs.Arrangement
+                        })
+                })
+                .FirstOrDefaultAsync();
+
+            var chapter = projected!.Chapter;
+            var sources = projected.Source
+                .Select(s => new Chaptersource
+                {
+                    Id = s.Id,
+                    SrcUrl = s.SrcUrl,
+                    IsImage = s.IsImage,
+                    Arrangement = s.Arrangement
+                })
+                .OrderBy(s => s.Arrangement)
+                .ToList();
+
+            return (chapter, sources);
+        }
+
+
         //Count Chapter Record By Comic Id
         public async Task<int> CountChapterByComicIdAsync(Guid id)
         {
@@ -27,19 +63,6 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 .AsNoTracking()
                 .Where(c => c.ComicId == id)
                 .MaxAsync(c => c.ChapNo);
-        }
-
-        //Get Max Chapter ChapNo For Each ComicIds
-        public async Task<IDictionary<Guid, int>> GetMaxChapNosByComicIdsAsync(Guid[] ids)
-        {
-            return await _context.Chapters
-                .AsNoTracking()
-                .Where(c => ids.Contains(c.Id))
-                .GroupBy(c => c.ComicId)
-                .ToDictionaryAsync(
-                    c => c.Key,
-                    c => c.Where(ct => ct.Id == c.Key)
-                        .Max(ct => ct.ChapNo));
         }
     }
 }

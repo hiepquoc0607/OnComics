@@ -104,7 +104,7 @@ public partial class OnComicsDatabaseContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnType("binary(16)");
             entity.Property(e => e.CommentId).HasColumnType("binary(16)");
-            entity.Property(e => e.StorageUrl).HasColumnType("text");
+            entity.Property(e => e.SrcUrl).HasColumnType("text");
 
             entity.HasOne(d => d.Comment).WithMany(p => p.Attachments)
                 .HasForeignKey(d => d.CommentId)
@@ -129,7 +129,6 @@ public partial class OnComicsDatabaseContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.Status).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Chapter>(entity =>
@@ -152,7 +151,6 @@ public partial class OnComicsDatabaseContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.ReleaseTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(10);
 
             entity.HasOne(d => d.Comic).WithMany(p => p.Chapters)
@@ -175,7 +173,6 @@ public partial class OnComicsDatabaseContext : DbContext
                 .HasColumnType("binary(16)");
             entity.Property(e => e.ChapterId).HasColumnType("binary(16)");
             entity.Property(e => e.SrcUrl).HasColumnType("text");
-            entity.Property(e => e.ViewUrl).HasColumnType("text");
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.Chaptersources)
                 .HasForeignKey(d => d.ChapterId)
@@ -418,7 +415,6 @@ public partial class OnComicsDatabaseContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.Status).HasMaxLength(10);
         });
 
         OnModelCreatingPartial(modelBuilder);

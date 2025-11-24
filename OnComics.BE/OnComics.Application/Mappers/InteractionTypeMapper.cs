@@ -1,5 +1,4 @@
 ﻿using Mapster;
-using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.InteractionType;
 using OnComics.Application.Models.Response.InteractionType;
 using OnComics.Infrastructure.Entities;
@@ -13,8 +12,7 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Interactiontype, InteractionTypeRes>();
 
             config.NewConfig<CreateItrTypeReq, Interactiontype>()
-                .Map(dest => dest.Id, src => Guid.NewGuid())
-                .Map(dest => dest.Status, src => StatusConstant.ACTIVE);
+                .Map(dest => dest.Id, src => Guid.NewGuid());
 
             config.NewConfig<UpdateItrTypeReq, Interactiontype>();
         }

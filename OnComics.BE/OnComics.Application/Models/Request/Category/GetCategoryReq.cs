@@ -8,8 +8,5 @@ namespace OnComics.Application.Models.Request.Category
     {
         [DefaultValue(null)]
         public CategorySortOption? SortBy { get; set; }
-
-        [DefaultValue(null)]
-        public CategoryStatus? Status { get; set; }
     }
 }

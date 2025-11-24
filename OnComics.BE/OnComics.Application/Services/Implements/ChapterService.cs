@@ -1,10 +1,14 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Chapter;
 using OnComics.Application.Models.Request.Chapter;
 using OnComics.Application.Models.Request.General;
+using OnComics.Application.Models.Response.Appwrite;
 using OnComics.Application.Models.Response.Chapter;
+using OnComics.Application.Models.Response.ChapterSource;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
@@ -18,18 +22,27 @@ namespace OnComics.Application.Services.Implements
     public class ChapterService : IChapterService
     {
         private readonly IChapterRepository _chapterRepository;
+        private readonly IChapterSourceRepository _chapterSourceRepository;
         private readonly IComicRepository _comicRepository;
+        private readonly IHistoryRepository _historyRepository;
+        private readonly IAppwriteService _appwriteService;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
         public ChapterService(
             IChapterRepository chapterRepository,
+            IChapterSourceRepository chapterSourceRepository,
             IComicRepository comicRepository,
+            IHistoryRepository historyRepository,
+            IAppwriteService appwriteService,
             IMapper mapper,
             Util util)
         {
             _chapterRepository = chapterRepository;
+            _chapterSourceRepository = chapterSourceRepository;
             _comicRepository = comicRepository;
+            _historyRepository = historyRepository;
+            _appwriteService = appwriteService;
             _mapper = mapper;
             _util = util;
         }
@@ -77,7 +90,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Comic Has No Chapter Data!");
 
-                var data = _mapper.Map<IEnumerable<ChapterRes>>(chapters);
+                var data = chapters.Adapt<IEnumerable<ChapterRes>>();
 
                 var totalData = await _chapterRepository.CountChapterByComicIdAsync(getChapterReq.ComicId);
                 int totalPage = (int)Math.Ceiling((decimal)totalData / getChapterReq.PageIndex);
@@ -99,18 +112,54 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Get Chapter By Id
-        public async Task<ObjectResponse<ChapterRes?>> GetChapterByIdAsync(Guid id)
+        public async Task<ObjectResponse<ChapterRes?>> GetChapterByIdAsync(Guid id, Guid accId)
         {
+            var comic = new Comic();
+            var chapter = new Chapter();
+            var history = new History();
+
             try
             {
-                var chapter = await _chapterRepository.GetByIdAsync(id, false);
+                var (chap, sources) = await _chapterRepository.GetChapterByIdAsync(id);
+
+                chapter = chap;
 
                 if (chapter == null)
                     return new ObjectResponse<ChapterRes?>(
                         (int)HttpStatusCode.BadRequest,
                         "Chapter Not Found!");
 
+                comic = await _comicRepository.GetByIdAsync(chapter.ComicId, true);
+
+                if (comic == null)
+                    return new ObjectResponse<ChapterRes?>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Comic Not Found!");
+
+                comic.TotalReadNum = comic.TotalReadNum + 1;
+                chapter.ReadNum = chapter.ReadNum + 1;
+
+                await _comicRepository.RunTransactionAsync(async () =>
+                {
+                    await _chapterRepository.UpdateAsync(chapter, false);
+
+                    await _comicRepository.UpdateAsync(comic, false);
+
+                    history = new History
+                    {
+                        Id = Guid.NewGuid(),
+                        ChapterId = id,
+                        AccountId = accId,
+                        ReadTime = DateTime.UtcNow,
+                    };
+
+                    await _historyRepository.InsertAsync(history, false);
+
+                    await _chapterRepository.SaveChangeAsync();
+                });
+
                 var data = _mapper.Map<ChapterRes>(chapter);
+                data.Chaptersources = sources.Adapt<List<ChapterSourceRes>>();
 
                 return new ObjectResponse<ChapterRes?>(
                     (int)HttpStatusCode.OK,
@@ -118,6 +167,23 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
+                if (comic != null)
+                {
+                    comic.TotalReadNum = comic.TotalReadNum - 1;
+                    chapter.ReadNum = chapter.ReadNum - 1;
+
+                    await _comicRepository.RunTransactionAsync(async () =>
+                    {
+                        await _chapterRepository.UpdateAsync(chapter, false);
+
+                        await _comicRepository.UpdateAsync(comic, false);
+
+                        await _historyRepository.DeleteAsync(history, false);
+
+                        await _chapterRepository.SaveChangeAsync();
+                    });
+                }
+
                 return new ObjectResponse<ChapterRes?>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
@@ -126,24 +192,99 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Create Chapter
-        public async Task<ObjectResponse<Chapter>> CreateChapterAsync(CreateChapterReq createChapterReq)
+        public async Task<ObjectResponse<Chapter>> CreateChapterAsync(List<IFormFile> files, CreateChapterReq createChapterReq)
         {
+            Guid chapId = Guid.NewGuid();
+            var newChapter = new Chapter();
+            var chapSrcs = new List<Chaptersource>();
+
             try
             {
-                var isComicExist = await _comicRepository.CheckComicIdAsync(createChapterReq.ComicId);
+                if (files.IsNullOrEmpty())
+                    return new ObjectResponse<Chapter>(
+                        (int)HttpStatusCode.BadRequest,
+                        "No File Uploaded!");
 
-                if (!isComicExist)
+                if (files.Count > 5)
+                    return new ObjectResponse<Chapter>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Only Create Max 5 Record At Once!");
+
+                const long maxFileSize = 2 * 1024 * 1024; // 2MB 
+
+                var comic = await _comicRepository.GetByIdAsync(createChapterReq.ComicId, true);
+
+                if (comic == null)
                     return new ObjectResponse<Chapter>(
                         (int)HttpStatusCode.NotFound,
                         "Comic Not Found!");
 
-                var newChapter = _mapper.Map<Chapter>(createChapterReq);
-                newChapter.ChapNo = await _chapterRepository.GetMaxChapNoByComicIdAsync(createChapterReq.ComicId) + 1;
+                newChapter = _mapper.Map<Chapter>(createChapterReq);
+                newChapter.Id = chapId;
+                newChapter.ChapNo = await _chapterRepository
+                    .GetMaxChapNoByComicIdAsync(createChapterReq.ComicId) + 1;
 
                 if (!string.IsNullOrEmpty(newChapter.Name))
                     newChapter.Name = _util.FormatStringName(newChapter.Name);
 
-                await _chapterRepository.InsertAsync(newChapter, true);
+                var fileRes = new FileRes();
+
+                for (int i = 1; i <= files.Count; i++)
+                {
+                    foreach (var file in files)
+                    {
+                        if (file.Length > maxFileSize)
+                            return new ObjectResponse<Chapter>(
+                            (int)HttpStatusCode.BadRequest,
+                            "Max Size Per File Is 2MB!");
+
+                        if ((comic.IsNovel && file.ContentType.Contains("image")) ||
+                            (!comic.IsNovel && !file.ContentType.Contains("image")))
+                            return new ObjectResponse<Chapter>(
+                                (int)HttpStatusCode.BadRequest,
+                                "Invalid Source Format!");
+
+                        var chapSrc = new Chaptersource();
+                        chapSrc.ChapterId = chapId;
+                        chapSrc.Id = Guid.NewGuid();
+                        chapSrc.Arrangement = i;
+
+                        if (comic.IsNovel)
+                        {
+                            fileRes = await _appwriteService
+                                .CreateFileAsync(file, chapSrc.Id.ToString());
+
+                            chapSrc.IsImage = false;
+                        }
+                        else
+                        {
+                            fileRes = await _appwriteService
+                                .CreateImgSourceFileAsync(file, chapSrc.Id.ToString());
+
+                            chapSrc.IsImage = true;
+                        }
+
+                        chapSrc.SrcUrl = fileRes.Url;
+
+                        chapSrcs.Add(chapSrc);
+                    }
+                }
+
+                await _chapterRepository.RunTransactionAsync(async () =>
+                {
+                    await _chapterRepository.InsertAsync(newChapter, false);
+
+                    comic.ChapNum = comic.ChapNum + 1;
+                    comic.UpdateTime = DateTime.UtcNow;
+
+                    await _comicRepository.UpdateAsync(comic, false);
+
+                    await _chapterRepository.SaveChangeAsync();
+                });
+
+                await _chapterSourceRepository.BulkInsertAsync(chapSrcs);
+
+                newChapter.Chaptersources = chapSrcs;
 
                 return new ObjectResponse<Chapter>(
                     (int)HttpStatusCode.Created,
@@ -152,56 +293,17 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<Chapter>(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-
-            throw new NotImplementedException();
-        }
-
-        //Bulk Create Range Chapters
-        public async Task<ObjectResponse<IEnumerable<Chapter>>> CreateRangeChaptersAsync(List<CreateChapterReq> chapters)
-        {
-            try
-            {
-                if (chapters.Count > 10)
-                    return new ObjectResponse<IEnumerable<Chapter>>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Only Create Max 10 Record At Once!");
-
-                Guid[] ids = chapters.Select(c => c.ComicId).ToArray();
-                Guid[] dataIds = await _comicRepository.GetComicIdsAsync();
-                Guid[] nonIds = _util.CompareGuidArray(ids, dataIds);
-
-                if (nonIds.Length > 0)
-                    return new ObjectResponse<IEnumerable<Chapter>>(
-                        (int)HttpStatusCode.NotFound,
-                        "Comics Not Found!, IDs: " + string.Join(", ", nonIds));
-
-                var chapNos = await _chapterRepository.GetMaxChapNosByComicIdsAsync(ids);
-
-                var newChapters = chapters.Adapt<IEnumerable<Chapter>>();
-
-                foreach (var items in newChapters)
+                if (newChapter != null)
                 {
-                    if (!string.IsNullOrEmpty(items.Name))
-                        items.Name = _util.FormatStringName(items.Name);
+                    await _chapterRepository.DeleteAsync(newChapter, true);
 
-                    items.ChapNo = chapNos[items.ComicId] + 1;
+                    foreach (var file in chapSrcs)
+                    {
+                        await _appwriteService.DeleteFileAsync(file.Id.ToString());
+                    }
                 }
 
-                await _chapterRepository.BulkInsertAsync(newChapters);
-
-                return new ObjectResponse<IEnumerable<Chapter>>(
-                    (int)HttpStatusCode.OK,
-                    "Create Chapters Successfully!",
-                    newChapters);
-            }
-            catch (Exception ex)
-            {
-                return new ObjectResponse<IEnumerable<Chapter>>(
+                return new ObjectResponse<Chapter>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
                     ex.Message);
@@ -285,7 +387,21 @@ namespace OnComics.Application.Services.Implements
                     (int)HttpStatusCode.NotFound,
                     "Chapter Not Found!");
 
-                await _chapterRepository.DeleteAsync(chapter, true);
+                var comic = await _comicRepository.GetByIdAsync(chapter.ComicId, true);
+
+                if (comic == null) return new VoidResponse(
+                    (int)HttpStatusCode.NotFound,
+                    "Comic Not Found!");
+
+                await _chapterRepository.RunTransactionAsync(async () =>
+                {
+                    await _chapterRepository.DeleteAsync(chapter, true);
+
+                    comic.ChapNum = comic.ChapNum - 1;
+                    comic.UpdateTime = DateTime.UtcNow;
+
+                    await _comicRepository.UpdateAsync(comic, true);
+                });
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

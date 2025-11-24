@@ -8,8 +8,5 @@ namespace OnComics.Application.Models.Request.InteractionType
     {
         [DefaultValue(null)]
         public ItrTypeSortOption? SortBy { get; set; }
-
-        [DefaultValue(null)]
-        public ItrTypeStatus? Status { get; set; }
     }
 }

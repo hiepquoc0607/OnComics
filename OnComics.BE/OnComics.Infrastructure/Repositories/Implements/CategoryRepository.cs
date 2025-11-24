@@ -2,7 +2,6 @@
 using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Interfaces;
-using System.Xml.Linq;
 
 namespace OnComics.Infrastructure.Repositories.Implements
 {

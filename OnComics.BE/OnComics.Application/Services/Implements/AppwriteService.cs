@@ -79,18 +79,17 @@ namespace OnComics.Application.Services.Implements
             {
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                var ms = new MemoryStream();
-
                 if (file.ContentType.Contains("image"))
                 {
-                    ms = await _fileService.ConvertWebPAsync(ms);
+                    file = await _fileService.ConvertWebPAsync(file);
                 }
 
                 if (_util.CheckWordExtension(ext))
                 {
-                    ms = await _fileService.ConvertMarkdownAsync(ms, ext);
+                    file = await _fileService.ConvertMarkdownAsync(file);
                 }
 
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
@@ -130,11 +129,9 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                file = await _fileService.ResizeProfileAsync(file);
 
-                var ms = new MemoryStream();
-                ms = await _fileService.ResizeProfileAsync(ms);
-
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
@@ -174,11 +171,9 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                file = await _fileService.ResizeThumbnailAsync(file);
 
-                var ms = new MemoryStream();
-                ms = await _fileService.ResizeThumbnailAsync(ms);
-
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
@@ -213,18 +208,59 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Upload Image Chapter Source File
+        public async Task<FileRes> CreateImgSourceFileAsync(IFormFile file, string fileName)
+        {
+            try
+            {
+                file = await _fileService.ResizeImgSourceAsync(file);
+
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+
+                var inputFile = InputFile
+                        .FromBytes(bytes, fileName, file.ContentType);
+
+                List<string> permissions = new List<string>();
+                permissions.Add(Permission.Read(Role.Any()));
+                permissions.Add(Permission.Write(Role.Any()));
+                permissions.Add(Permission.Delete(Role.Any()));
+
+                var data = await _storage.CreateFile(
+                    _appwriteHelper.BucketId,
+                    fileName,
+                    inputFile,
+                    permissions);
+
+                string path = "{endpoint}/storage/buckets/{bucketId}/files/{fileId}/view?project={projectId}"
+                    .Replace("{endpoint}", _appwriteHelper.Endpoint)
+                    .Replace("{bucketId}", _appwriteHelper.BucketId)
+                    .Replace("{fileId}", data.Id)
+                    .Replace("{projectId}", _appwriteHelper.ProjectId);
+
+                var fileRes = _mapper.Map<FileRes>(data);
+                fileRes.Url = path;
+
+                return fileRes;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
         //Upload Emote File
         public async Task<FileRes> CreateEmoteFileAsync(IFormFile file, string fileName)
         {
             try
             {
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                file = await _fileService.ResizeEmoteAsync(file);
 
-                var ms = new MemoryStream();
-                ms = await _fileService.ResizeEmoteAsync(ms);
-
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
-                var bytes = ms.ToArray();
+                var bytes = ms.ToArray(); ;
 
                 var inputFile = InputFile
                         .FromBytes(bytes, fileName, file.ContentType);
@@ -266,18 +302,17 @@ namespace OnComics.Application.Services.Implements
 
                 var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                var ms = new MemoryStream();
-
                 if (file.ContentType.Contains("image"))
                 {
-                    ms = await _fileService.ConvertWebPAsync(ms);
+                    file = await _fileService.ConvertWebPAsync(file);
                 }
 
                 if (_util.CheckWordExtension(ext))
                 {
-                    ms = await _fileService.ConvertMarkdownAsync(ms, ext);
+                    file = await _fileService.ConvertMarkdownAsync(file);
                 }
 
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
@@ -319,11 +354,9 @@ namespace OnComics.Application.Services.Implements
             {
                 await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                file = await _fileService.ResizeProfileAsync(file);
 
-                var ms = new MemoryStream();
-                ms = await _fileService.ResizeProfileAsync(ms);
-
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
@@ -365,11 +398,53 @@ namespace OnComics.Application.Services.Implements
             {
                 await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                file = await _fileService.ResizeThumbnailAsync(file);
 
-                var ms = new MemoryStream();
-                ms = await _fileService.ResizeThumbnailAsync(ms);
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                var bytes = ms.ToArray();
 
+                var inputFile = InputFile
+                    .FromBytes(bytes, fileName, file.ContentType);
+
+                List<string>? permissions = new List<string>();
+                permissions.Add(Permission.Read(Role.Any()));
+                permissions.Add(Permission.Write(Role.Any()));
+                permissions.Add(Permission.Delete(Role.Any()));
+
+                var data = await _storage.CreateFile(
+                    _appwriteHelper.BucketId,
+                    id,
+                    inputFile,
+                    permissions);
+
+                string path = "{endpoint}/storage/buckets/{bucketId}/files/{fileId}/view?project={projectId}"
+                    .Replace("{endpoint}", _appwriteHelper.Endpoint)
+                    .Replace("{bucketId}", _appwriteHelper.BucketId)
+                    .Replace("{fileId}", data.Id)
+                    .Replace("{projectId}", _appwriteHelper.ProjectId);
+
+                var fileRes = _mapper.Map<FileRes>(data);
+                fileRes.Url = path;
+
+                return fileRes;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Update Image Chapter Source
+        public async Task<FileRes> UpdateImgSourceFileAsync(string id, IFormFile file, string fileName)
+        {
+            try
+            {
+                await _storage.DeleteFile(_appwriteHelper.BucketId, id);
+
+                file = await _fileService.ResizeImgSourceAsync(file);
+
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 
@@ -411,11 +486,9 @@ namespace OnComics.Application.Services.Implements
             {
                 await _storage.DeleteFile(_appwriteHelper.BucketId, id);
 
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                file = await _fileService.ResizeProfileAsync(file);
 
-                var ms = new MemoryStream();
-                ms = await _fileService.ResizeProfileAsync(ms);
-
+                using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var bytes = ms.ToArray();
 

@@ -121,22 +121,6 @@ namespace OnComics.Application.Utils
 
             return true;
         }
-
-        //Compare 2 Guid Dictionary And Get Same
-        public Dictionary<Guid, int> CompareGuidDictionary(Dictionary<Guid, int> a, Dictionary<Guid, int> b)
-        {
-            var dictionary = new Dictionary<Guid, int>();
-
-            foreach (var kv in a)
-            {
-                if (b.TryGetValue(kv.Key, out int value) && kv.Value == value)
-                {
-                    dictionary[kv.Key] = kv.Value;
-                }
-            }
-
-            return dictionary;
-        }
         #endregion
 
         #region Date Ultils

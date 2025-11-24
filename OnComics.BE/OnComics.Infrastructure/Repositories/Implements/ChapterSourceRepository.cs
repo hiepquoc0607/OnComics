@@ -41,7 +41,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Count Chapter Source By Chapter Id
-        public async Task<int> CountSourceByChapterId(Guid chapterId)
+        public async Task<int> CountSourceByChapterIdAsync(Guid chapterId)
         {
             return await _context.Chaptersources
                 .AsNoTracking()

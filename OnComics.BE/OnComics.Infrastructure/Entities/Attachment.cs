@@ -6,7 +6,7 @@ public partial class Attachment
 
     public Guid CommentId { get; set; }
 
-    public string StorageUrl { get; set; } = null!;
+    public string SrcUrl { get; set; } = null!;
 
     public virtual Comment Comment { get; set; } = null!;
 }

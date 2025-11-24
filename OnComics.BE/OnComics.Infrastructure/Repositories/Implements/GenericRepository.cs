@@ -24,7 +24,9 @@ namespace OnComics.Infrastructure.Repositories.Implements
             int? pageNumber = null,
             int? pageSize = null)
         {
-            IQueryable<T> query = _dbSet.AsNoTracking();
+            IQueryable<T> query = _dbSet
+                .AsNoTracking()
+                .AsQueryable();
 
             if (filter != null)
                 query = query.Where(filter);
@@ -62,10 +64,15 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Insert
         public async Task InsertAsync(T entity, bool isSaving)
         {
+            var original = _context.ChangeTracker.AutoDetectChangesEnabled;
+            _context.ChangeTracker.AutoDetectChangesEnabled = false;
+
             await _dbSet.AddAsync(entity);
 
             if (isSaving)
                 await _context.SaveChangesAsync();
+
+            _context.ChangeTracker.AutoDetectChangesEnabled = original;
         }
 
         // Bulk Insert Range

@@ -8,7 +8,5 @@ public partial class Interactiontype
 
     public string? ImgUrl { get; set; }
 
-    public string Status { get; set; } = null!;
-
     public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
 }

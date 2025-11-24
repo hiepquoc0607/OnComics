@@ -1,5 +1,4 @@
-﻿using OnComics.Application.Models.Request.ChapterSource;
-using OnComics.Application.Models.Response.ChapterSource;
+﻿using Microsoft.AspNetCore.Http;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Infrastructure.Entities;
 
@@ -7,16 +6,8 @@ namespace OnComics.Application.Services.Interfaces
 {
     public interface IChapterSourceService
     {
-        Task<ObjectResponse<IEnumerable<ChapterSourceRes>?>> GetChapterSourcesAsync(GetChapterSourceReq getChapterSourceReq);
+        Task<ObjectResponse<IEnumerable<Chaptersource>>> UpdateChapterSourceAsync(Guid chapterId, List<IFormFile> files);
 
-        Task<ObjectResponse<Chaptersource>> CreateChapterSourceAsync(CreateChapterSourceReq createChapterSourceReq);
-
-        Task<ObjectResponse<IEnumerable<Chaptersource>>> CreateRangeChapterSourcesAsync(List<CreateChapterSourceReq> sources);
-
-        Task<VoidResponse> UpdateChapterSourceAsync(Guid id, UpdateChapterSourceReq updateChapterSourceReq);
-
-        Task<VoidResponse> DeleteChapterSourceAsync(Guid id);
-
-        Task<VoidResponse> DeleteRangeChapterSourcesAsync(Guid chapterId);
+        Task<VoidResponse> DeleteChapterSourcesAsync(Guid chapterId);
     }
 }

@@ -1,9 +1,7 @@
 ﻿using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using OnComics.Application.Constants;
 using OnComics.Application.Enums.InteractionType;
-using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Request.InteractionType;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Models.Response.InteractionType;
@@ -39,21 +37,13 @@ namespace OnComics.Application.Services.Implements
             {
                 string? searchKey = getItrTypeReq.SearchKey;
 
-                string? status = getItrTypeReq.Status switch
-                {
-                    ItrTypeStatus.ACTIVE => StatusConstant.ACTIVE,
-                    ItrTypeStatus.INACTIVE => StatusConstant.INACTIVE,
-                    _ => null
-                };
-
                 bool isDescending = getItrTypeReq.IsDescending;
 
                 int pageNum = getItrTypeReq.PageNum;
                 int pageIndex = getItrTypeReq.PageIndex;
 
                 Expression<Func<Interactiontype, bool>>? search = i =>
-                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(i.Name, $"%{searchKey}%")) &&
-                    (string.IsNullOrEmpty(status) || i.Status.Equals(status));
+                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(i.Name, $"%{searchKey}%"));
 
                 Func<IQueryable<Interactiontype>, IOrderedQueryable<Interactiontype>>? order = i => getItrTypeReq.SortBy switch
                 {
@@ -183,41 +173,6 @@ namespace OnComics.Application.Services.Implements
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Interaction Type Successfully!");
-            }
-            catch (Exception ex)
-            {
-                return new VoidResponse(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-        }
-
-        //Update Interaction Type Status
-        public async Task<VoidResponse> UpdateItrTypeStatusAsync(Guid id, UpdateStatusReq<ItrTypeStatus> updateStatusReq)
-        {
-            try
-            {
-                string status = updateStatusReq.Status switch
-                {
-                    ItrTypeStatus.ACTIVE => StatusConstant.ACTIVE,
-                    _ => StatusConstant.INACTIVE,
-                };
-
-                var type = await _interactionTypeRepository.GetByIdAsync(id, true);
-
-                if (type == null)
-                    return new VoidResponse(
-                        (int)HttpStatusCode.NotFound,
-                        "Interaction Type Not Found!");
-
-                type.Status = status;
-
-                await _interactionTypeRepository.UpdateAsync(type, true);
-
-                return new VoidResponse(
-                    (int)HttpStatusCode.OK,
-                    "Update Status Successfully!");
             }
             catch (Exception ex)
             {

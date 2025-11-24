@@ -4,6 +4,7 @@ using OnComics.Application.Enums.Chapter;
 using OnComics.Application.Models.Request.Chapter;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Services.Interfaces;
+using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
@@ -12,10 +13,14 @@ namespace OnComics.API.Controller
     public class ChapterController : ControllerBase
     {
         private readonly IChapterService _chapterService;
+        private readonly IChapterSourceService _chapterSourceService;
 
-        public ChapterController(IChapterService chapterService)
+        public ChapterController(
+            IChapterService chapterService,
+            IChapterSourceService chapterSourceService)
         {
             _chapterService = chapterService;
+            _chapterSourceService = chapterSourceService;
         }
 
         //Get All Chapters
@@ -28,10 +33,19 @@ namespace OnComics.API.Controller
         }
 
         //Get Chapter By Id
-        [HttpGet("{id}")]
+        [Authorize]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
-            var result = await _chapterService.GetChapterByIdAsync(id);
+            string? userIdClaim = HttpContext.User
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Forbid();
+
+            Guid accId = Guid.Parse(userIdClaim);
+
+            var result = await _chapterService.GetChapterByIdAsync(id, accId);
 
             return StatusCode(result.StatusCode, result);
         }
@@ -39,26 +53,19 @@ namespace OnComics.API.Controller
         //Create Chapter
         [Authorize(Policy = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateChapterReq createChapterReq)
+        public async Task<IActionResult> CreateAsync(
+            [FromForm] CreateChapterReq createChapterReq,
+            [FromForm] List<IFormFile> files)
         {
-            var result = await _chapterService.CreateChapterAsync(createChapterReq);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
-        //Bulk(Range) Create Chapters
-        [Authorize(Policy = "Admin")]
-        [HttpPost("bulk")]
-        public async Task<IActionResult> BulkCreateAsync([FromBody] List<CreateChapterReq> chapters)
-        {
-            var result = await _chapterService.CreateRangeChaptersAsync(chapters);
+            var result = await _chapterService
+                .CreateChapterAsync(files, createChapterReq);
 
             return StatusCode(result.StatusCode, result);
         }
 
         //Update Chapter
         [Authorize(Policy = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateAsync(
             [FromRoute] Guid id,
             [FromBody] UpdateChapterReq updateChapterReq)
@@ -70,10 +77,10 @@ namespace OnComics.API.Controller
 
         //Update Chapter Status
         [Authorize(Policy = "Admin")]
-        [HttpPatch("{id}/status")]
+        [HttpPatch("{id:guid}/status")]
         public async Task<IActionResult> UpdateStatusAsync(
             [FromRoute] Guid id,
-            [FromBody] UpdateStatusReq<ChapterStatus> updateStatusReq)
+            [FromQuery] UpdateStatusReq<ChapterStatus> updateStatusReq)
         {
             var result = await _chapterService.UpdateStatusAsync(id, updateStatusReq);
 
@@ -82,10 +89,34 @@ namespace OnComics.API.Controller
 
         //Delete Chapter
         [Authorize(Policy = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             var result = await _chapterService.DeleteChapterAsync(id);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        //Update Chapter Sources
+        [Authorize(Policy = "Admin")]
+        [HttpPut("{id:guid}/chapter-sources")]
+        public async Task<IActionResult> UpdateSourcesAsync(
+            [FromRoute] Guid id,
+            [FromForm] List<IFormFile> files)
+        {
+            var result = await _chapterSourceService
+                .UpdateChapterSourceAsync(id, files);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        //Delete Chapter Sources
+        [Authorize(Policy = "Admin")]
+        [HttpDelete("{id:guid}/chapter-sources")]
+        public async Task<IActionResult> BulkDeleteAsync([FromRoute] Guid id)
+        {
+            var result = await _chapterSourceService
+                .DeleteChapterSourcesAsync(id);
 
             return StatusCode(result.StatusCode, result);
         }

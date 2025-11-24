@@ -8,8 +8,6 @@ public partial class Chaptersource
 
     public string SrcUrl { get; set; } = null!;
 
-    public string? ViewUrl { get; set; }
-
     public int Arrangement { get; set; }
 
     public bool IsImage { get; set; }

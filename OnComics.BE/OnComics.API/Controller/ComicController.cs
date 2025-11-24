@@ -60,6 +60,7 @@ namespace OnComics.API.Controller
 
         //Update Comic Thumnail
         [Authorize(Policy = "Admin")]
+        [RequestSizeLimit(2 * 1024 * 1024)] //Limit File To Max 2 MB
         [HttpPatch("{id:guid}/thumnail")]
         public async Task<IActionResult> UpdateThumbnailAsync(
             [FromRoute] Guid id,

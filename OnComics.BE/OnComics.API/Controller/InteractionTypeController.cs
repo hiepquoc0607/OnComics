@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnComics.Application.Enums.InteractionType;
-using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Request.InteractionType;
 using OnComics.Application.Services.Interfaces;
 
@@ -54,18 +52,6 @@ namespace OnComics.API.Controller
             [FromBody] UpdateItrTypeReq updateItrTypeReq)
         {
             var result = await _interactionService.UpdateItrTypeAsync(id, updateItrTypeReq);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
-        //Update Interaction Type Status
-        [Authorize(Policy = "Admin")]
-        [HttpPatch("{id:guid}/status")]
-        public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] Guid id,
-            [FromQuery] UpdateStatusReq<ItrTypeStatus> updateStatusReq)
-        {
-            var result = await _interactionService.UpdateItrTypeStatusAsync(id, updateStatusReq);
 
             return StatusCode(result.StatusCode, result);
         }

@@ -6,9 +6,6 @@ namespace OnComics.Application.Models.Request.ChapterSource
     public class GetChapterSourceReq
     {
         [Required]
-        public Guid ChapterId { get; set; }
-
-        [Required]
         [DefaultValue(10)]
         [Range(1, int.MaxValue)]
         public int PageIndex { get; set; }

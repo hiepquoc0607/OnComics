@@ -1,13 +1,10 @@
-﻿using Mapster;
-using MapsterMapper;
-using OnComics.Application.Models.Request.ChapterSource;
-using OnComics.Application.Models.Response.ChapterSource;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
+using OnComics.Application.Models.Response.Appwrite;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
-using OnComics.Application.Utils;
 using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Repositories.Interfaces;
-using System.Linq.Expressions;
 using System.Net;
 
 namespace OnComics.Application.Services.Implements
@@ -15,115 +12,114 @@ namespace OnComics.Application.Services.Implements
     public class ChapterSourceService : IChapterSourceService
     {
         private readonly IChapterSourceRepository _chapterSourceRepository;
-        private readonly IMapper _mapper;
-        private readonly Util _utils;
+        private readonly IChapterRepository _chapterRepository;
+        private readonly IComicRepository _comicRepository;
+        private readonly IAppwriteService _appwriteService;
 
         public ChapterSourceService(
             IChapterSourceRepository chapterSourceRepository,
-            IMapper mapper,
-            Util util)
+            IChapterRepository chapterRepository,
+            IComicRepository comicRepository,
+            IAppwriteService appwriteService)
         {
             _chapterSourceRepository = chapterSourceRepository;
-            _mapper = mapper;
-            _utils = util;
+            _chapterRepository = chapterRepository;
+            _comicRepository = comicRepository;
+            _appwriteService = appwriteService;
         }
 
-        //Get All Chapter Sources
-        public async Task<ObjectResponse<IEnumerable<ChapterSourceRes>?>> GetChapterSourcesAsync(GetChapterSourceReq getChapterSourceReq)
+        //Update Chapter Sources
+        public async Task<ObjectResponse<IEnumerable<Chaptersource>>> UpdateChapterSourceAsync(Guid chapterId, List<IFormFile> files)
         {
             try
             {
-                Guid searchId = getChapterSourceReq.ChapterId;
+                if (files.IsNullOrEmpty())
+                    return new ObjectResponse<IEnumerable<Chaptersource>>(
+                        (int)HttpStatusCode.BadRequest,
+                        "No File Uploaded!");
 
-                int pageIndex = getChapterSourceReq.PageIndex;
-                int pageNum = getChapterSourceReq.PageNum;
+                if (files.Count > 5)
+                    return new ObjectResponse<IEnumerable<Chaptersource>>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Only Create Max 5 Record At Once!");
 
-                Expression<Func<Chaptersource, bool>>? search = s => s.ChapterId == searchId;
+                const long maxFileSize = 2 * 1024 * 1024; // 2MB 
 
-                Func<IQueryable<Chaptersource>, IOrderedQueryable<Chaptersource>>? order = s =>
-                    s.OrderBy(s => s.Arrangement);
+                foreach (var file in files)
+                {
+                    if (file.Length > maxFileSize)
+                        return new ObjectResponse<IEnumerable<Chaptersource>>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Max Size Per File Is 2MB!");
+                }
 
-                var srcs = await _chapterSourceRepository.GetAsync(search, order, pageNum, pageIndex);
+                var chapter = await _chapterRepository.GetByIdAsync(chapterId, false);
 
-                if (srcs == null)
-                    return new ObjectResponse<IEnumerable<ChapterSourceRes>?>(
+                if (chapter == null)
+                    return new ObjectResponse<IEnumerable<Chaptersource>>(
                         (int)HttpStatusCode.NotFound,
-                        "Chapter Source Data Empty!");
+                        "Chapter Not Found!");
 
-                var data = srcs.Adapt<IEnumerable<ChapterSourceRes>>();
+                var comic = await _comicRepository.GetByIdAsync(chapter.ComicId, false);
 
-                var totalData = await _chapterSourceRepository.CountSourceByChapterId(searchId);
-                int totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
-                var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+                var oldSrcs = await _chapterSourceRepository
+                    .GetSourcesByChapterIdAsync(chapterId);
 
-                return new ObjectResponse<IEnumerable<ChapterSourceRes>?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!",
-                    data,
-                    pagination);
-            }
-            catch (Exception ex)
-            {
-                return new ObjectResponse<IEnumerable<ChapterSourceRes>?>(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-        }
+                if (oldSrcs != null)
+                {
+                    await _chapterSourceRepository.BulkDeleteAsync(oldSrcs);
 
-        //Create Chapter Source
-        public async Task<ObjectResponse<Chaptersource>> CreateChapterSourceAsync(CreateChapterSourceReq createChapterSourceReq)
-        {
-            try
-            {
-                bool isExisted = await _chapterSourceRepository
-                    .CheckChapterSourceAsync(
-                        createChapterSourceReq.ChapterId,
-                        createChapterSourceReq.Arrangement);
+                    Guid[] oldSrcIds = oldSrcs.Select(s => s.Id).ToArray();
 
-                if (isExisted)
-                    return new ObjectResponse<Chaptersource>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Chapter Source Is Existed!");
+                    foreach (var id in oldSrcIds)
+                    {
+                        await _appwriteService.DeleteFileAsync(id.ToString());
+                    }
+                }
 
-                var newSrc = _mapper.Map<Chaptersource>(createChapterSourceReq);
+                var fileRes = new FileRes();
+                var newSrcs = new List<Chaptersource>();
 
-                await _chapterSourceRepository.InsertAsync(newSrc, true);
+                for (int i = 1; i < files.Count; i++)
+                {
+                    foreach (var file in files)
+                    {
+                        if (file.Length > maxFileSize)
+                            return new ObjectResponse<IEnumerable<Chaptersource>>(
+                            (int)HttpStatusCode.BadRequest,
+                            "Max Size Per File Is 2MB!");
 
-                return new ObjectResponse<Chaptersource>(
-                    (int)HttpStatusCode.Created,
-                    "Create Chapter Source Sucessfully!",
-                    newSrc);
-            }
-            catch (Exception ex)
-            {
-                return new ObjectResponse<Chaptersource>(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-        }
+                        if ((comic!.IsNovel == true && file.ContentType.Contains("image")) ||
+                            (comic!.IsNovel == false && !file.ContentType.Contains("image")))
+                            return new ObjectResponse<IEnumerable<Chaptersource>>(
+                                (int)HttpStatusCode.BadRequest,
+                                "Invalid Source Format!");
 
-        //Bulk Create Range Chapter Sources
-        public async Task<ObjectResponse<IEnumerable<Chaptersource>>> CreateRangeChapterSourcesAsync(List<CreateChapterSourceReq> sources)
-        {
-            try
-            {
-                if (sources.Count > 10)
-                    return new ObjectResponse<IEnumerable<Chaptersource>>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Only Create Max 10 Record At Once!");
+                        var chapSrc = new Chaptersource();
+                        chapSrc.ChapterId = chapterId;
+                        chapSrc.Id = Guid.NewGuid();
+                        chapSrc.Arrangement = i;
 
-                var srcs = sources.ToDictionary(s => s.ChapterId, s => s.Arrangement);
-                var dataSrcs = await _chapterSourceRepository.GetChapterSourcesAsync();
-                var existedSrcs = _utils.CompareGuidDictionary(dataSrcs, srcs);
+                        if (file.ContentType.Contains("image"))
+                        {
+                            fileRes = await _appwriteService
+                                .CreateImgSourceFileAsync(file, chapSrc.Id.ToString());
 
-                if (existedSrcs != null)
-                    return new ObjectResponse<IEnumerable<Chaptersource>>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Chapter Sources Are Existed, Record:\n" + existedSrcs);
+                            chapSrc.IsImage = true;
+                        }
+                        else
+                        {
+                            fileRes = await _appwriteService
+                                .CreateFileAsync(file, chapSrc.Id.ToString());
 
-                var newSrcs = sources.Adapt<IEnumerable<Chaptersource>>();
+                            chapSrc.IsImage = false;
+                        }
+
+                        chapSrc.SrcUrl = fileRes.Url;
+
+                        newSrcs.Add(chapSrc);
+                    }
+                }
 
                 await _chapterSourceRepository.BulkInsertAsync(newSrcs);
 
@@ -141,64 +137,8 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
-        //Update Chapter Source
-        public async Task<VoidResponse> UpdateChapterSourceAsync(Guid id, UpdateChapterSourceReq updateChapterSourceReq)
-        {
-            try
-            {
-                var src = await _chapterSourceRepository.GetByIdAsync(id, true);
-
-                if (src == null)
-                    return new VoidResponse(
-                        (int)HttpStatusCode.NotFound,
-                        "Chapter Source Not Found!");
-
-                var newSrc = _mapper.Map(updateChapterSourceReq, src);
-
-                await _chapterSourceRepository.UpdateAsync(newSrc, true);
-
-                return new VoidResponse(
-                    (int)HttpStatusCode.OK,
-                    "Update Chapter Source Successfully!");
-            }
-            catch (Exception ex)
-            {
-                return new VoidResponse(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-        }
-
-        //Delete Chapter Source
-        public async Task<VoidResponse> DeleteChapterSourceAsync(Guid id)
-        {
-            try
-            {
-                var src = await _chapterSourceRepository.GetByIdAsync(id, true);
-
-                if (src == null)
-                    return new VoidResponse(
-                        (int)HttpStatusCode.NotFound,
-                        "Chapter Source Not Found!");
-
-                await _chapterSourceRepository.DeleteAsync(src, true);
-
-                return new VoidResponse(
-                    (int)HttpStatusCode.OK,
-                    "Delete Chapter Source Successfully!");
-            }
-            catch (Exception ex)
-            {
-                return new VoidResponse(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-        }
-
-        //Bulk Delete Range Chapter Sources
-        public async Task<VoidResponse> DeleteRangeChapterSourcesAsync(Guid chapterId)
+        // Delete Chapter Sources By Chapter Id
+        public async Task<VoidResponse> DeleteChapterSourcesAsync(Guid chapterId)
         {
             try
             {
@@ -211,6 +151,11 @@ namespace OnComics.Application.Services.Implements
                         "Chapter Sources Not Found!");
 
                 await _chapterSourceRepository.BulkDeleteAsync(srcs);
+
+                foreach (var file in srcs)
+                {
+                    await _appwriteService.DeleteFileAsync(file.Id.ToString());
+                }
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

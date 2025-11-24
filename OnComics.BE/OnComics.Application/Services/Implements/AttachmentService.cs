@@ -28,7 +28,7 @@ namespace OnComics.Application.Services.Implements
                 if (files == null || files.Count == 0)
                     return new ObjectResponse<Attachment>(
                         (int)HttpStatusCode.BadRequest,
-                        "no file uploaded!");
+                        "No File Uploaded!");
 
                 var attachments = new List<Attachment>();
 
@@ -42,7 +42,7 @@ namespace OnComics.Application.Services.Implements
                     {
                         Id = id,
                         CommentId = commentId,
-                        StorageUrl = file.Url
+                        SrcUrl = file.Url
                     };
 
                     attachments.Add(atm);

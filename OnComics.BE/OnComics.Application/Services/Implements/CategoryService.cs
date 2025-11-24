@@ -1,10 +1,8 @@
 ﻿using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using OnComics.Application.Constants;
 using OnComics.Application.Enums.Category;
 using OnComics.Application.Models.Request.Category;
-using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Response.Category;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
@@ -39,13 +37,6 @@ namespace OnComics.Application.Services.Implements
             {
                 string? searchKey = getCategoryReq.SearchKey;
 
-                string? status = getCategoryReq.Status switch
-                {
-                    CategoryStatus.ACTIVE => StatusConstant.ACTIVE,
-                    CategoryStatus.INACTIVE => StatusConstant.INACTIVE,
-                    _ => null
-                };
-
                 bool isDescending = getCategoryReq.IsDescending;
 
                 int pageNum = getCategoryReq.PageNum;
@@ -53,17 +44,13 @@ namespace OnComics.Application.Services.Implements
 
 
                 Expression<Func<Category, bool>>? search = c =>
-                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%")) &&
-                    (string.IsNullOrEmpty(status) || c.Status.Equals(status));
+                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%"));
 
                 Func<IQueryable<Category>, IOrderedQueryable<Category>>? order = c => getCategoryReq.SortBy switch
                 {
                     CategorySortOption.NAME => isDescending
                         ? c.OrderByDescending(c => c.Name)
                         : c.OrderBy(c => c.Name),
-                    CategorySortOption.STATUS => isDescending
-                        ? c.OrderByDescending(c => c.Status)
-                        : c.OrderBy(c => c.Status),
                     _ => c.OrderBy(c => c.Id)
                 };
 
@@ -229,39 +216,6 @@ namespace OnComics.Application.Services.Implements
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Category Successfully!");
-            }
-            catch (Exception ex)
-            {
-                return new VoidResponse(
-                    (int)HttpStatusCode.InternalServerError,
-                    ex.GetType().FullName!,
-                    ex.Message);
-            }
-        }
-
-        //Update Category Status
-        public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<CategoryStatus> updateStatus)
-        {
-            try
-            {
-                var category = await _categoryRepository.GetByIdAsync(id, true);
-
-                if (category == null)
-                    return new VoidResponse(
-                        (int)HttpStatusCode.NotFound,
-                        "Category Not Found!");
-
-                category.Status = updateStatus.Status switch
-                {
-                    CategoryStatus.ACTIVE => StatusConstant.ACTIVE,
-                    _ => StatusConstant.INACTIVE
-                };
-
-                await _categoryRepository.UpdateAsync(category, true);
-
-                return new VoidResponse(
-                    (int)HttpStatusCode.OK,
-                    "Update Status Successfully!");
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using OnComics.Application.Enums.Chapter;
+﻿using Microsoft.AspNetCore.Http;
+using OnComics.Application.Enums.Chapter;
 using OnComics.Application.Models.Request.Chapter;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Response.Chapter;
@@ -11,11 +12,9 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<ChapterRes>?>> GetChaptersAsync(GetChapterReq getChapterReq);
 
-        Task<ObjectResponse<ChapterRes?>> GetChapterByIdAsync(Guid id);
+        Task<ObjectResponse<ChapterRes?>> GetChapterByIdAsync(Guid id, Guid accId);
 
-        Task<ObjectResponse<Chapter>> CreateChapterAsync(CreateChapterReq createChapterReq);
-
-        Task<ObjectResponse<IEnumerable<Chapter>>> CreateRangeChaptersAsync(List<CreateChapterReq> chapters);
+        Task<ObjectResponse<Chapter>> CreateChapterAsync(List<IFormFile> files, CreateChapterReq createChapterReq);
 
         Task<VoidResponse> UpdateChapterAsync(Guid id, UpdateChapterReq updateChapterReq);
 

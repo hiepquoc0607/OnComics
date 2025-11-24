@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnComics.Application.Enums.Category;
 using OnComics.Application.Models.Request.Category;
-using OnComics.Application.Models.Request.General;
 using OnComics.Application.Services.Interfaces;
 
 namespace OnComics.API.Controller
@@ -64,18 +62,6 @@ namespace OnComics.API.Controller
             [FromBody] UpdateCategoryReq updateCategoryReq)
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryReq);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
-        //Update Category Status
-        [Authorize(Policy = "Admin")]
-        [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateStatusAsync(
-            [FromRoute] Guid id,
-            [FromQuery] UpdateStatusReq<CategoryStatus> updateStatusReq)
-        {
-            var result = await _categoryService.UpdateStatusAsync(id, updateStatusReq);
 
             return StatusCode(result.StatusCode, result);
         }

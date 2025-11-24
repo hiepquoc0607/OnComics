@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnComics.Application.Models.Request.Chapter
 {
@@ -7,6 +8,7 @@ namespace OnComics.Application.Models.Request.Chapter
         [Required]
         public Guid ComicId { get; set; }
 
+        [DefaultValue("")]
         public string? Name { get; set; } = string.Empty;
     }
 }

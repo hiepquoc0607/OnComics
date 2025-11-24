@@ -15,6 +15,8 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<FileRes> CreateThumbnailFileAsync(IFormFile file, string fileName);
 
+        Task<FileRes> CreateImgSourceFileAsync(IFormFile file, string fileName);
+
         Task<FileRes> CreateEmoteFileAsync(IFormFile file, string fileName);
 
         Task<FileRes> UpdateFileAsync(string id, IFormFile file, string fileName);
@@ -22,6 +24,8 @@ namespace OnComics.Application.Services.Interfaces
         Task<FileRes> UpdateProfileFileAsync(string id, IFormFile file, string fileName);
 
         Task<FileRes> UpdateThumbnailFileAsync(string id, IFormFile file, string fileName);
+
+        Task<FileRes> UpdateImgSourceFileAsync(string id, IFormFile file, string fileName);
 
         Task<FileRes> UpdateEmoteFileAsync(string id, IFormFile file, string fileName);
 

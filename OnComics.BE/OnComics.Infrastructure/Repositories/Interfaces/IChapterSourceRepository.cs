@@ -10,6 +10,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<bool> CheckChapterSourceAsync(Guid chapterId, int arrangement);
 
-        Task<int> CountSourceByChapterId(Guid chapterId);
+        Task<int> CountSourceByChapterIdAsync(Guid chapterId);
     }
 }

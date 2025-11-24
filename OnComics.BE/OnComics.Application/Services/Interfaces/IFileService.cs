@@ -1,15 +1,19 @@
-﻿namespace OnComics.Application.Services.Interfaces
+﻿using Microsoft.AspNetCore.Http;
+
+namespace OnComics.Application.Services.Interfaces
 {
     public interface IFileService
     {
-        Task<MemoryStream> ResizeProfileAsync(MemoryStream memoryStream);
+        Task<IFormFile> ResizeProfileAsync(IFormFile file);
 
-        Task<MemoryStream> ResizeThumbnailAsync(MemoryStream memoryStream);
+        Task<IFormFile> ResizeThumbnailAsync(IFormFile file);
 
-        Task<MemoryStream> ResizeEmoteAsync(MemoryStream memoryStream);
+        Task<IFormFile> ResizeImgSourceAsync(IFormFile file);
 
-        Task<MemoryStream> ConvertWebPAsync(MemoryStream memoryStream);
+        Task<IFormFile> ResizeEmoteAsync(IFormFile file);
 
-        Task<MemoryStream> ConvertMarkdownAsync(MemoryStream memoryStream, string extension);
+        Task<IFormFile> ConvertWebPAsync(IFormFile file);
+
+        Task<IFormFile> ConvertMarkdownAsync(IFormFile file);
     }
 }

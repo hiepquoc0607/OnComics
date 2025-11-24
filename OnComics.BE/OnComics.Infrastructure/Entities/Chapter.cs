@@ -12,7 +12,7 @@ public partial class Chapter
 
     public int ReadNum { get; set; }
 
-    public DateTime ReleaseTime { get; set; }
+    public DateOnly ReleaseTime { get; set; }
 
     public string Status { get; set; } = null!;
 
