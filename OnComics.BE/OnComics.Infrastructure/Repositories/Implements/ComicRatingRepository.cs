@@ -80,5 +80,42 @@ namespace OnComics.Infrastructure.Repositories.Implements
                         .CountAsync();
             }
         }
+
+        //Caculate Comic Average Rating
+        public async Task<decimal> AverageRatingAsync(Guid comicId, double? newRating, decimal? oldRating)
+        {
+            int rateNo = await _context.Comicratings
+                .AsNoTracking()
+                .Where(r => r.ComicId == comicId)
+                .CountAsync();
+
+            decimal average = _context.Comicratings
+                .AsNoTracking()
+                .Where(r => r.ComicId == comicId)
+                .Select(r => r.Rating)
+                .AverageAsync()
+                .Result;
+
+            decimal result = 0;
+
+            if (oldRating.HasValue && newRating.HasValue)
+            {
+                result = (average * (decimal)rateNo - oldRating.Value + (decimal)newRating) / rateNo;
+            }
+            else if (oldRating.HasValue && !newRating.HasValue)
+            {
+                result = (average * (decimal)rateNo - oldRating.Value) / (rateNo - 1);
+            }
+            else if (!oldRating.HasValue && newRating.HasValue)
+            {
+                result = (average * rateNo + (decimal)newRating) / (rateNo + 1);
+            }
+            else
+            {
+                result = average;
+            }
+
+            return result;
+        }
     }
 }

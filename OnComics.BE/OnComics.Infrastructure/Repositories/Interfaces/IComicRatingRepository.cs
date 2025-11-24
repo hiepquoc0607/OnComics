@@ -14,5 +14,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
         Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(Guid accId, Guid comicId);
 
         Task<int> CountRatingAsync(Guid id, bool isComicId);
+
+        Task<decimal> AverageRatingAsync(Guid comicId, double? newRating, decimal? oldRating);
     }
 }

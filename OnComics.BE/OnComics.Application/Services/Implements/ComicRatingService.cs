@@ -15,13 +15,16 @@ namespace OnComics.Application.Services.Implements
     public class ComicRatingService : IComicRatingService
     {
         private readonly IComicRatingRepository _comicRatingRepository;
+        private readonly IComicRepository _comicRepository;
         private readonly IMapper _mapper;
 
         public ComicRatingService(
             IComicRatingRepository comicRatingRepository,
+            IComicRepository comicRepository,
             IMapper mapper)
         {
             _comicRatingRepository = comicRatingRepository;
+            _comicRepository = comicRepository;
             _mapper = mapper;
         }
 
@@ -125,6 +128,16 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
+                var comicId = createComicRatingReq.ComicId;
+                var rate = createComicRatingReq.Rating;
+
+                var comic = await _comicRepository.GetByIdAsync(comicId, true);
+
+                if (comic == null)
+                    return new ObjectResponse<Comicrating>(
+                        (int)HttpStatusCode.NotFound,
+                        "Comic Not Found!");
+
                 var rating = await _comicRatingRepository
                     .GetRatingByAccIdAndComicIdAsync(accId, createComicRatingReq.ComicId);
 
@@ -134,9 +147,20 @@ namespace OnComics.Application.Services.Implements
                         "Rating Is Existed!");
 
                 var newRating = _mapper.Map<Comicrating>(createComicRatingReq);
-                newRating.Id = accId;
+                newRating.AccountId = accId;
 
-                await _comicRatingRepository.InsertAsync(newRating, true);
+                comic.RateNum = comic.RateNum + 1;
+                comic.Rating = await _comicRatingRepository
+                    .AverageRatingAsync(comicId, rate, null);
+
+                await _comicRatingRepository.RunTransactionAsync(async () =>
+                {
+                    await _comicRatingRepository.InsertAsync(newRating, false);
+
+                    await _comicRepository.UpdateAsync(comic, false);
+
+                    await _comicRatingRepository.SaveChangeAsync();
+                });
 
                 return new ObjectResponse<Comicrating>(
                     (int)HttpStatusCode.OK,
@@ -157,6 +181,8 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
+                var newRating = updateRatingReq.Rating;
+
                 var rating = await _comicRatingRepository.GetByIdAsync(id, true);
 
                 if (rating == null)
@@ -164,9 +190,26 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Rating Not Found!");
 
-                rating.Rating = (decimal)updateRatingReq.Rating;
+                var comic = await _comicRepository.GetByIdAsync(rating.ComicId, true);
 
-                await _comicRatingRepository.UpdateAsync(rating, true);
+                if (comic == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Comic Not Found!");
+
+                comic.Rating = await _comicRatingRepository
+                    .AverageRatingAsync(rating.ComicId, newRating, rating.Rating);
+
+                rating.Rating = (decimal)newRating;
+
+                await _comicRatingRepository.RunTransactionAsync(async () =>
+                {
+                    await _comicRatingRepository.UpdateAsync(rating, true);
+
+                    await _comicRepository.UpdateAsync(comic, false);
+
+                    await _comicRatingRepository.SaveChangeAsync();
+                });
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -193,7 +236,24 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Rating Not Found!");
 
-                await _comicRatingRepository.DeleteAsync(rating, true);
+                var comic = await _comicRepository.GetByIdAsync(rating.ComicId, true);
+
+                if (comic == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Comic Not Found!");
+
+                comic.Rating = await _comicRatingRepository
+                    .AverageRatingAsync(rating.ComicId, null, rating.Rating);
+
+                await _comicRatingRepository.RunTransactionAsync(async () =>
+                {
+                    await _comicRatingRepository.DeleteAsync(rating, false);
+
+                    await _comicRepository.UpdateAsync(comic, false);
+
+                    await _comicRatingRepository.SaveChangeAsync();
+                });
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

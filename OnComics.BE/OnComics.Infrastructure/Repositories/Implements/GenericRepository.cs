@@ -64,15 +64,10 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Insert
         public async Task InsertAsync(T entity, bool isSaving)
         {
-            var original = _context.ChangeTracker.AutoDetectChangesEnabled;
-            _context.ChangeTracker.AutoDetectChangesEnabled = false;
-
             await _dbSet.AddAsync(entity);
 
             if (isSaving)
                 await _context.SaveChangesAsync();
-
-            _context.ChangeTracker.AutoDetectChangesEnabled = original;
         }
 
         // Bulk Insert Range

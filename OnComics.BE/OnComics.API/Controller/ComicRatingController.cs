@@ -75,9 +75,9 @@ namespace OnComics.API.Controller
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(
             [FromRoute] Guid id,
-            [FromBody] CreateComicRatingReq createComicRatingReq)
+            [FromBody] UpdateComicRatingReq updateComicRatingReq)
         {
-            var result = await _comicRatingService.CreateRatingAsync(id, createComicRatingReq);
+            var result = await _comicRatingService.UpdateRatingAsync(id, updateComicRatingReq);
 
             return StatusCode(result.StatusCode, result);
         }
