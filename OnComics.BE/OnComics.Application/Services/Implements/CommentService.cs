@@ -1,7 +1,11 @@
-﻿using MapsterMapper;
+﻿using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OnComics.Application.Enums.Comment;
 using OnComics.Application.Models.Request.Comment;
+using OnComics.Application.Models.Response.Appwrite;
+using OnComics.Application.Models.Response.Attachment;
 using OnComics.Application.Models.Response.Comment;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Services.Interfaces;
@@ -15,13 +19,19 @@ namespace OnComics.Application.Services.Implements
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
+        private readonly IAttachmentRepsitory _attachmentRepsitory;
+        private readonly IAppwriteService _appwriteService;
         private readonly IMapper _mapper;
 
         public CommentService(
             ICommentRepository commentRepository,
+            IAttachmentRepsitory attachmentRepsitory,
+            IAppwriteService appwriteService,
             IMapper mapper)
         {
             _commentRepository = commentRepository;
+            _attachmentRepsitory = attachmentRepsitory;
+            _appwriteService = appwriteService;
             _mapper = mapper;
         }
 
@@ -55,7 +65,8 @@ namespace OnComics.Application.Services.Implements
                     seacrh = c => (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
                         EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
-                        c.AccountId == searchId;
+                        c.AccountId == searchId &&
+                        c.IsMainCmt == true;
 
                     totalData = await _commentRepository.CountCommentAsync(searchId.Value, false);
                 }
@@ -64,7 +75,8 @@ namespace OnComics.Application.Services.Implements
                     seacrh = c => (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
                         EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
-                        c.ComicId == searchId;
+                        c.ComicId == searchId &&
+                        c.IsMainCmt == true;
 
                     totalData = await _commentRepository.CountCommentAsync(searchId.Value, true);
                 }
@@ -72,7 +84,8 @@ namespace OnComics.Application.Services.Implements
                 {
                     seacrh = c => (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(c.Account.Fullname, $"%{searchKey}%") ||
-                        EF.Functions.Like(c.Comic.Name, $"%{searchKey}%"));
+                        EF.Functions.Like(c.Comic.Name, $"%{searchKey}%")) &&
+                        c.IsMainCmt == true;
 
                     totalData = await _commentRepository.CountRecordAsync(seacrh);
                 }
@@ -94,7 +107,7 @@ namespace OnComics.Application.Services.Implements
                     _ => c.OrderBy(c => c.Id)
                 };
 
-                var (comments, accounts, comics) = await _commentRepository
+                var (comments, accounts, comics, attachments) = await _commentRepository
                     .GetCommentsAsync(seacrh, order, pageNum, pageIndex);
 
                 if (comments == null)
@@ -105,15 +118,16 @@ namespace OnComics.Application.Services.Implements
                 var data = comments.Select(c => new CommentRes
                 {
                     Id = c.Id,
-                    AccountId = c.Account.Id,
-                    Fullname = accounts[c.AccountId],
-                    ComicId = c.ComicId,
-                    ComicName = comics[c.ComicId],
+                    AccountId = accounts[c.Id].Item1,
+                    Fullname = accounts[c.Id].Item2,
+                    ComicId = comics[c.Id].Item1,
+                    ComicName = comics[c.Id].Item2,
                     Content = c.Content,
                     IsMainCmt = c.IsMainCmt,
                     MainCmtId = c.MainCmtId,
                     CmtTime = c.CmtTime,
-                    InteractionNum = c.InteractionNum
+                    InteractionNum = c.InteractionNum,
+                    Attachments = attachments[c.Id].Adapt<List<AttachmentRes>>()
                 });
 
                 var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
@@ -139,25 +153,27 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var (comments, accounts) = await _commentRepository.GetReplyCommentsAsync(mainCmtId);
+                var (comments, accounts, attachments) = await _commentRepository
+                    .GetReplyCommentsAsync(mainCmtId);
 
                 if (comments == null)
                     return new ObjectResponse<IEnumerable<CommentRes>?>(
                         (int)HttpStatusCode.NotFound,
                         "Comment Has No Reply!");
 
-                var data = comments.Select(d => new CommentRes
+                var data = comments.Select(c => new CommentRes
                 {
-                    Id = d.Id,
-                    AccountId = d.AccountId,
-                    Fullname = accounts[d.AccountId],
+                    Id = c.Id,
+                    AccountId = accounts[c.Id].Item1,
+                    Fullname = accounts[c.Id].Item2,
                     ComicId = null,
                     ComicName = null,
-                    Content = d.Content,
-                    IsMainCmt = d.IsMainCmt,
-                    MainCmtId = d.MainCmtId,
-                    CmtTime = d.CmtTime,
-                    InteractionNum = d.InteractionNum
+                    Content = c.Content,
+                    IsMainCmt = c.IsMainCmt,
+                    MainCmtId = c.MainCmtId,
+                    CmtTime = c.CmtTime,
+                    InteractionNum = c.InteractionNum,
+                    Attachments = attachments[c.Id].Adapt<List<AttachmentRes>>()
                 });
 
                 return new ObjectResponse<IEnumerable<CommentRes>?>(
@@ -175,22 +191,55 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Create Comment
-        public async Task<ObjectResponse<Comment>> CreateCommentAsync(CreateCommentReq createCommentReq)
+        public async Task<ObjectResponse<Comment>> CreateCommentAsync(
+            Guid accId,
+            List<IFormFile>? files,
+            CreateCommentReq createCommentReq)
         {
+            Guid id = Guid.NewGuid();
+
             try
             {
-                var isExisted = await _commentRepository.CheckCommentExistedAsync(
-                    createCommentReq.AccountId,
-                    createCommentReq.ComicId);
-
-                if (isExisted)
+                if (files != null && files.Count > 5)
                     return new ObjectResponse<Comment>(
                         (int)HttpStatusCode.BadRequest,
-                        "Comment Is Existed!");
+                        "Only Create Max 5 Record At Once!");
 
                 var newCmt = _mapper.Map<Comment>(createCommentReq);
+                newCmt.Id = id;
+                newCmt.AccountId = accId;
 
                 await _commentRepository.InsertAsync(newCmt, true);
+
+                while (files != null)
+                {
+                    const long maxFileSize = 2 * 1024 * 1024; // 2MB
+
+                    var fileRes = new FileRes();
+
+                    var attachments = new List<Attachment>();
+
+                    foreach (var file in files)
+                    {
+                        if (file.Length > maxFileSize)
+                            return new ObjectResponse<Comment>(
+                            (int)HttpStatusCode.BadRequest,
+                            "Max Size Per File Is 2MB!");
+
+                        var attach = new Attachment();
+                        attach.Id = Guid.NewGuid();
+                        attach.CommentId = newCmt.Id;
+
+                        fileRes = await _appwriteService
+                            .CreateFileAsync(file, attach.Id.ToString());
+
+                        attach.SrcUrl = fileRes.Url;
+
+                        attachments.Add(attach);
+                    }
+
+                    await _attachmentRepsitory.BulkInsertAsync(attachments);
+                }
 
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.Created,
@@ -199,6 +248,11 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
+                var cmt = await _commentRepository.GetByIdAsync(id, true);
+
+                if (cmt != null)
+                    await _commentRepository.DeleteAsync(cmt, true);
+
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
@@ -207,10 +261,21 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Reply Comment
-        public async Task<ObjectResponse<Comment>> ReplyCommentAsync(Guid mainCmtId, CreateCommentReq createCommentReq)
+        public async Task<ObjectResponse<Comment>> ReplyCommentAsync(
+            Guid mainCmtId,
+            Guid accId,
+            List<IFormFile>? files,
+            CreateCommentReq createCommentReq)
         {
+            Guid id = Guid.NewGuid();
+
             try
             {
+                if (files != null && files.Count > 5)
+                    return new ObjectResponse<Comment>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Only Create Max 5 Record At Once!");
+
                 var mainCmt = await _commentRepository.GetByIdAsync(mainCmtId, false);
 
                 if (mainCmt == null)
@@ -219,10 +284,42 @@ namespace OnComics.Application.Services.Implements
                         "Comment Not Found!");
 
                 var newCmt = _mapper.Map<Comment>(createCommentReq);
+                newCmt.Id = id;
+                newCmt.AccountId = accId;
                 newCmt.IsMainCmt = false;
                 newCmt.MainCmtId = mainCmtId;
 
                 await _commentRepository.InsertAsync(newCmt, true);
+
+                while (files != null)
+                {
+                    const long maxFileSize = 2 * 1024 * 1024; // 2MB
+
+                    var fileRes = new FileRes();
+
+                    var attachments = new List<Attachment>();
+
+                    foreach (var file in files)
+                    {
+                        if (file.Length > maxFileSize)
+                            return new ObjectResponse<Comment>(
+                            (int)HttpStatusCode.BadRequest,
+                            "Max Size Per File Is 2MB!");
+
+                        var attach = new Attachment();
+                        attach.Id = Guid.NewGuid();
+                        attach.CommentId = newCmt.Id;
+
+                        fileRes = await _appwriteService
+                            .CreateFileAsync(file, attach.Id.ToString());
+
+                        attach.SrcUrl = fileRes.Url;
+
+                        attachments.Add(attach);
+                    }
+
+                    await _attachmentRepsitory.BulkInsertAsync(attachments);
+                }
 
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.Created,
@@ -231,6 +328,11 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
+                var cmt = await _commentRepository.GetByIdAsync(id, true);
+
+                if (cmt != null)
+                    await _commentRepository.DeleteAsync(cmt, true);
+
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
@@ -279,7 +381,17 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Comment Not Found!");
 
+                var attachs = await _attachmentRepsitory.GetAttachIdsByCmtIdAsync(cmt.Id);
+
                 await _commentRepository.DeleteAsync(cmt, true);
+
+                while (attachs != null)
+                {
+                    foreach (var item in attachs)
+                    {
+                        await _appwriteService.DeleteFileAsync(item.ToString());
+                    }
+                }
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

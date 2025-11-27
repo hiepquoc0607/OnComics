@@ -15,7 +15,7 @@ namespace OnComics.Application.Mappers
                 .Map(dest => dest.Id, src => Guid.NewGuid())
                 .Map(dest => dest.IsEdited, src => false)
                 .Map(dest => dest.IsMainCmt, src => true)
-                .Map(dest => dest.MainCmtId, src => (int?)null)
+                .Map(dest => dest.MainCmtId, src => Guid.Empty)
                 .Map(dest => dest.CmtTime, src => DateTime.UtcNow)
                 .Map(dest => dest.InteractionNum, src => 0);
 

@@ -4,8 +4,6 @@
     {
         public Guid Id { get; set; }
 
-        public Guid CommentId { get; set; }
-
-        public string StorageUrl { get; set; } = null!;
+        public string SrcUrl { get; set; } = null!;
     }
 }

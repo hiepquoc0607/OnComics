@@ -5,16 +5,25 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface ICommentRepository : IGenericRepository<Comment>
     {
-        Task<(IEnumerable<Comment>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetCommentsAsync(
+        Task<CommentsInfo> GetCommentsAsync(
             Expression<Func<Comment, bool>>? filter = null,
             Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? orderBy = null,
             int? pageNumber = null,
             int? pageSize = null);
 
-        Task<(IEnumerable<Comment>?, IDictionary<Guid, string>)> GetReplyCommentsAsync(Guid id);
-
-        Task<bool> CheckCommentExistedAsync(Guid accId, Guid comicId);
+        Task<RepliesInfo> GetReplyCommentsAsync(Guid id);
 
         Task<int> CountCommentAsync(Guid id, bool isComicId);
     }
+
+    public record CommentsInfo(
+        IEnumerable<Comment>? Comments,
+        IDictionary<Guid, (Guid, string)> Accounts,
+        IDictionary<Guid, (Guid, string)> Comics,
+        IDictionary<Guid, List<Attachment>?> Attachments);
+
+    public record RepliesInfo(
+        IEnumerable<Comment>? Comments,
+        IDictionary<Guid, (Guid, string)> Accounts,
+        IDictionary<Guid, List<Attachment>?> Attachments);
 }

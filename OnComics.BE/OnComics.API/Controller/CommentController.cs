@@ -43,7 +43,7 @@ namespace OnComics.API.Controller
         }
 
         //Get All Comments
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] GetCommentReq getCommentReq)
         {
@@ -76,9 +76,17 @@ namespace OnComics.API.Controller
         //Create Comment
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateCommentReq createCommentReq)
+        public async Task<IActionResult> CreateAsync(
+            [FromForm] CreateCommentReq createCommentReq,
+            [FromForm] List<IFormFile> files)
         {
-            var result = await _commentService.CreateCommentAsync(createCommentReq);
+            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim)) return Forbid();
+
+            Guid accId = Guid.Parse(userIdClaim);
+
+            var result = await _commentService.CreateCommentAsync(accId, files, createCommentReq);
 
             return StatusCode(result.StatusCode, result);
         }
@@ -88,9 +96,16 @@ namespace OnComics.API.Controller
         [HttpPost("{id}/reply-comments")]
         public async Task<IActionResult> ReplyCommentAsync(
             [FromRoute] Guid id,
-            [FromBody] CreateCommentReq createCommentReq)
+            [FromForm] CreateCommentReq createCommentReq,
+            [FromForm] List<IFormFile> files)
         {
-            var result = await _commentService.ReplyCommentAsync(id, createCommentReq);
+            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim)) return Forbid();
+
+            Guid accId = Guid.Parse(userIdClaim);
+
+            var result = await _commentService.ReplyCommentAsync(id, accId, files, createCommentReq);
 
             return StatusCode(result.StatusCode, result);
         }

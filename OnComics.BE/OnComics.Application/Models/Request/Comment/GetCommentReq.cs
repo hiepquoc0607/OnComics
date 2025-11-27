@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnComics.Application.Models.Request.Comment
 {
-    public class GetCommentReq : GetReq
+    public class GetCommentReq : GetReq, IValidatableObject
     {
         [DefaultValue(null)]
         public Guid? Id { get; set; }
@@ -18,7 +18,7 @@ namespace OnComics.Application.Models.Request.Comment
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Id.HasValue && IdType == null)
+            if (Id.HasValue && !IdType.HasValue)
             {
                 yield return new ValidationResult(
                     "IdType Is Required When Id Is Provided.",

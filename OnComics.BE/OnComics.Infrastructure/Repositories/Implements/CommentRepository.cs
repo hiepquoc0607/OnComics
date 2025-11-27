@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Comments
-        public async Task<(IEnumerable<Comment>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetCommentsAsync(
+        public async Task<CommentsInfo> GetCommentsAsync(
             Expression<Func<Comment, bool>>? filter = null,
             Func<IQueryable<Comment>, IOrderedQueryable<Comment>>? orderBy = null,
             int? pageNumber = null,
@@ -37,24 +37,43 @@ namespace OnComics.Infrastructure.Repositories.Implements
                     .Select(c => new
                     {
                         Comments = c,
+                        CommentId = c.Id,
                         AccountId = c.Account.Id,
                         Fullname = c.Account.Fullname,
                         ComicId = c.Comic.Id,
-                        ComicName = c.Comic.Name
+                        ComicName = c.Comic.Name,
+                        Attachments = c.Attachments
                     })
                     .ToListAsync();
 
             var comments = projected.Select(c => c.Comments).ToList();
 
-            var accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+            var accounts = projected
+                .GroupBy(a => a.CommentId)
+                .ToDictionary(
+                    a => a.Key,
+                    a => (a.First().AccountId, a.First().Fullname)
+                );
 
-            var comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
+            var comics = projected
+                .GroupBy(c => c.CommentId)
+                .ToDictionary(
+                    c => c.Key,
+                    c => (c.First().ComicId, c.First().ComicName)
+                );
 
-            return (comments, accounts, comics);
+            var attachments = projected
+                .GroupBy(a => a.CommentId)
+                .ToDictionary(
+                    a => a.Key,
+                    a => a.First().Attachments.ToList()
+                );
+
+            return new CommentsInfo(comments, accounts, comics, attachments!); ;
         }
 
         //Get Reply Comment By Main Comment Id
-        public async Task<(IEnumerable<Comment>?, IDictionary<Guid, string>)> GetReplyCommentsAsync(Guid id)
+        public async Task<RepliesInfo> GetReplyCommentsAsync(Guid id)
         {
             var projected = await _context.Comments
                 .AsNoTracking()
@@ -62,26 +81,30 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 .Select(c => new
                 {
                     Comments = c,
+                    CommentId = c.Id,
                     AccountId = c.Account.Id,
-                    Fullname = c.Account.Fullname
+                    Fullname = c.Account.Fullname,
+                    Attachments = c.Attachments
                 })
                 .ToListAsync();
 
             var comments = projected.Select(c => c.Comments).ToList();
 
-            var accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+            var accounts = projected
+                .GroupBy(a => a.CommentId)
+                .ToDictionary(
+                    a => a.Key,
+                    a => (a.First().AccountId, a.First().Fullname)
+                );
 
-            return (comments, accounts);
-        }
+            var attachments = projected
+                .GroupBy(a => a.CommentId)
+                .ToDictionary(
+                    a => a.Key,
+                    a => a.First().Attachments.ToList()
+                );
 
-        //Check If Comment Is Existed
-        public async Task<bool> CheckCommentExistedAsync(Guid accId, Guid comicId)
-        {
-            return await _context.Comments
-                .AsNoTracking()
-                .AnyAsync(c =>
-                    c.AccountId == accId &&
-                    c.ComicId == comicId);
+            return new RepliesInfo(comments, accounts, attachments!);
         }
 
         //Count Comment Data By Account Id

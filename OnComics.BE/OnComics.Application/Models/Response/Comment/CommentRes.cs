@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using OnComics.Application.Models.Response.Attachment;
+using System.Text.Json.Serialization;
 
 namespace OnComics.Application.Models.Response.Comment
 {
@@ -28,5 +29,8 @@ namespace OnComics.Application.Models.Response.Comment
         public DateTime CmtTime { get; set; }
 
         public int InteractionNum { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<AttachmentRes>? Attachments { get; set; } = null;
     }
 }
