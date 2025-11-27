@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnComics.Application.Models.Request.Favorite;
 using OnComics.Application.Services.Interfaces;
 using System.Security.Claims;
@@ -17,6 +18,7 @@ namespace OnComics.API.Controller
         }
 
         //Get All Favorite
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] GetFavoriteReq getFavoriteReq)
         {
@@ -25,16 +27,8 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
-        //Get Favorite By Id
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
-        {
-            var result = await _favoriteService.GetFavoriteByIdAsync(id);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
         //Create Favorite
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateFavoriteReq createFavoriteReq)
         {
@@ -48,6 +42,7 @@ namespace OnComics.API.Controller
         }
 
         //Delete Favorite
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {

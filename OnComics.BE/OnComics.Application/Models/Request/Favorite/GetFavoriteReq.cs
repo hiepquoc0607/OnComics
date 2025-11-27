@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnComics.Application.Models.Request.Favorite
 {
-    public class GetFavoriteReq : GetReq
+    public class GetFavoriteReq : GetReq, IValidatableObject
     {
         [DefaultValue(null)]
         public Guid? Id { get; set; }

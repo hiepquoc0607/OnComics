@@ -9,8 +9,6 @@ namespace OnComics.Application.Services.Interfaces
     {
         Task<ObjectResponse<IEnumerable<FavoriteRes>?>> GetFavoritesAsync(GetFavoriteReq getFavoriteReq);
 
-        Task<ObjectResponse<FavoriteRes?>> GetFavoriteByIdAsync(Guid id);
-
         Task<ObjectResponse<Favorite>> CreateFavoriteAsync(Guid accId, CreateFavoriteReq createFavoriteReq);
 
         Task<VoidResponse> DeleteFavoriteAsync(Guid id);

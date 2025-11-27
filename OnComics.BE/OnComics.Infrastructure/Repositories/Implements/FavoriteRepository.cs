@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Favorite
-        public async Task<(IEnumerable<Favorite>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetFavoritesAsync(
+        public async Task<FavoritesInfo> GetFavoritesAsync(
             Expression<Func<Favorite, bool>>? filter = null,
             Func<IQueryable<Favorite>, IOrderedQueryable<Favorite>>? orderBy = null,
             int? pageNumber = null,
@@ -36,7 +36,8 @@ namespace OnComics.Infrastructure.Repositories.Implements
             var projected = await query
                 .Select(i => new
                 {
-                    Interactions = i,
+                    Favorites = i,
+                    FavoriteId = i.Id,
                     AccountId = i.Account.Id,
                     Fullname = i.Account.Fullname,
                     ComicId = i.Comic.Id,
@@ -44,37 +45,24 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 })
                 .ToListAsync();
 
-            var interactions = projected.Select(i => i.Interactions).ToList();
+            if (orderBy == null)
+                return new FavoritesInfo(null, null, null);
 
-            var accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+            var favorites = projected.Select(i => i.Favorites).ToList();
 
-            var comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
+            var accounts = projected
+                .GroupBy(a => a.FavoriteId)
+                .ToDictionary(
+                    a => a.Key,
+                    a => (a.First().AccountId, a.First().Fullname));
 
-            return (interactions, accounts, comics);
-        }
+            var comics = projected
+                .GroupBy(c => c.FavoriteId)
+                .ToDictionary(
+                    c => c.Key,
+                    c => (c.First().ComicId, c.First().ComicName));
 
-
-        //Get Favorite By Id
-        public async Task<(Favorite?, string, string)> GetFavoriteByIdAsync(Guid id)
-        {
-            var projected = await _context.Favorites
-                .AsNoTracking()
-                .Where(f => f.Id == id)
-                .Select(f => new
-                {
-                    Favorite = f,
-                    Fullname = f.Account.Fullname,
-                    ComicName = f.Comic.Name
-                })
-                .FirstOrDefaultAsync();
-
-            var favorite = projected!.Favorite;
-
-            var fullname = projected!.Fullname;
-
-            var comicName = projected!.ComicName;
-
-            return (favorite, fullname, comicName);
+            return new FavoritesInfo(favorites, accounts, comics);
         }
 
         //Check If Favorite Is Existed

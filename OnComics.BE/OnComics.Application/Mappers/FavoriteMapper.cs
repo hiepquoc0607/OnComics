@@ -11,8 +11,8 @@ namespace OnComics.Application.Mappers
         {
             config.NewConfig<Favorite, FavoriteRes>();
 
-            config.NewConfig<CreateFavoriteReq, FavoriteRes>()
-                .Map(dest => dest.Id, src => Guid.NewGuid());
+            config.NewConfig<CreateFavoriteReq, Favorite>()
+                .Map(dest => dest.Id, opt => Guid.NewGuid());
         }
     }
 }
