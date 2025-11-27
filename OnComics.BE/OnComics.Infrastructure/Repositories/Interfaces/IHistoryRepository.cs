@@ -20,6 +20,6 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
     public record HistoriesInfo(
         IEnumerable<History>? Histories,
-        IDictionary<Guid, string>? Accounts,
-        IDictionary<Guid, string>? Comics);
+        IDictionary<Guid, (Guid, string)>? Accounts,
+        IDictionary<Guid, (Guid, string)>? Comics);
 }

@@ -26,9 +26,6 @@ namespace OnComics.Infrastructure.Repositories.Implements
             if (filter != null)
                 query = query.Where(filter);
 
-            if (query == null)
-                return new HistoriesInfo(null, null, null);
-
             if (orderBy != null)
                 query = orderBy(query);
 
@@ -40,6 +37,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 .Select(h => new
                 {
                     Histories = h,
+                    HistoryId = h.Id,
                     AccountId = h.Account.Id,
                     Fullname = h.Account.Fullname,
                     ComicId = h.Chapter.Comic.Id,
@@ -49,9 +47,20 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
             var histories = projected.Select(i => i.Histories).ToList();
 
-            var accounts = projected.ToDictionary(a => a.AccountId, a => a.Fullname);
+            if (histories == null)
+                return new HistoriesInfo(null, null, null);
 
-            var comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
+            var accounts = projected
+                    .GroupBy(a => a.HistoryId)
+                    .ToDictionary(
+                        a => a.Key,
+                        a => (a.First().AccountId, a.First().Fullname));
+
+            var comics = projected
+                .GroupBy(a => a.HistoryId)
+                .ToDictionary(
+                    a => a.Key,
+                    a => (a.First().ComicId, a.First().ComicName));
 
             return new HistoriesInfo(histories, accounts, comics);
         }

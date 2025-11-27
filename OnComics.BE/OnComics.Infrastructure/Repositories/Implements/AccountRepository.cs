@@ -28,6 +28,14 @@ namespace OnComics.Infrastructure.Repositories.Implements
             }
         }
 
+        //Check If Account Is Existed By Idd
+        public async Task<bool> CheckAccIdExistedAsync(Guid id)
+        {
+            return await _context.Accounts
+                .AsNoTracking()
+                .AnyAsync(a => a.Id == id);
+        }
+
         //Check If Email is Existed
         public async Task<bool> CheckEmailExistedAsync(string email)
         {

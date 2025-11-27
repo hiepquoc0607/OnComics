@@ -26,27 +26,31 @@ namespace OnComics.API.Controller
             string? roleClaim,
             HistoryIdType? idType)
         {
-            if (id.HasValue &&
-                !string.IsNullOrEmpty(roleClaim) &&
-                roleClaim.Equals(RoleConstant.USER))
-                return false;
-
-            if (id.HasValue &&
-                idType.Equals(CmtIdType.ACCOUNT) &&
-                !string.IsNullOrEmpty(roleClaim) &&
-                roleClaim.Equals(RoleConstant.USER) &&
-                id != Guid.Parse(idClaim!))
+            if (string.IsNullOrEmpty(idClaim) || string.IsNullOrEmpty(roleClaim))
             {
                 return false;
             }
-
-            return true;
+            else if (id.HasValue && roleClaim.Equals(RoleConstant.USER))
+            {
+                return false;
+            }
+            else if (id.HasValue &&
+                    idType.Equals(CmtIdType.ACCOUNT) &&
+                    roleClaim.Equals(RoleConstant.USER) &&
+                    id != Guid.Parse(idClaim))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         //Get All History
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync([FromRoute] GetHistoryReq getHistoryReq)
+        public async Task<IActionResult> GetAllAsync([FromQuery] GetHistoryReq getHistoryReq)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -64,32 +68,6 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
-        //Create History
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateHistoryReq createHistoryReq)
-        {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            Guid accId = Guid.Parse(userIdClaim!);
-
-            var result = await _historyService.CreateHistroyAsync(accId, createHistoryReq);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
-        //Updaate History
-        [Authorize]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(
-            [FromRoute] Guid id,
-            [FromBody] UpdateHistoryReq updateHistoryReq)
-        {
-            var result = await _historyService.UpdateHistroyAsync(id, updateHistoryReq);
-
-            return StatusCode(result.StatusCode, result);
-        }
-
         //Delete History
         [Authorize]
         [HttpDelete("{id}")]
@@ -102,14 +80,15 @@ namespace OnComics.API.Controller
 
         //Bulk(Range) Delete History
         [Authorize]
-        [HttpDelete("{accId}/bulk")]
-        public async Task<IActionResult> BulkDeleteAsync([FromRoute] Guid accId)
+        [HttpDelete("bulk")]
+        public async Task<IActionResult> BulkDeleteAsync()
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userIdClaim != null &&
-                !userIdClaim.Equals(accId.ToString()))
+            if (string.IsNullOrEmpty(userIdClaim))
                 return Forbid();
+
+            Guid accId = Guid.Parse(userIdClaim);
 
             var result = await _historyService.DeleteRangeHistoriesAsync(accId);
 

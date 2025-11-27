@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Enums.History;
 using OnComics.Application.Models.Request.History;
 using OnComics.Application.Models.Response.Common;
@@ -15,13 +16,19 @@ namespace OnComics.Application.Services.Implements
     public class HistoryService : IHistoryService
     {
         private readonly IHistoryRepository _historyRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IComicRepository _comicRepository;
         private readonly IMapper _mapper;
 
         public HistoryService(
             IHistoryRepository historyRepository,
+            IAccountRepository accountRepository,
+            IComicRepository comicRepository,
             IMapper mapper)
         {
             _historyRepository = historyRepository;
+            _accountRepository = accountRepository;
+            _comicRepository = comicRepository;
             _mapper = mapper;
         }
 
@@ -46,37 +53,52 @@ namespace OnComics.Application.Services.Implements
                     _ => null
                 };
 
+                bool isExisted = true;
+
                 Expression<Func<History, bool>>? search = null;
 
                 int totalData = 0;
 
                 if (searchId.HasValue && isComicId == true)
                 {
-                    search = h =>
-                        (string.IsNullOrEmpty(searchKey) ||
-                        EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%")) &&
-                        h.Chapter.Comic.Id == searchId;
+                    isExisted = await _comicRepository.CheckComicIdAsync(searchId.Value);
 
-                    totalData = await _historyRepository
-                        .CountHistoryAsync(searchId.Value, isComicId.Value);
-                }
-                else if (searchId.HasValue && isComicId == false)
-                {
+                    if (isExisted == false)
+                        return new ObjectResponse<IEnumerable<HistoryRes>?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Comic Not Found!");
+
                     search = h =>
                         (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
                         h.Chapter.Comic.Id == searchId;
 
                     totalData = await _historyRepository
-                        .CountHistoryAsync(searchId.Value, isComicId.Value);
+                        .CountHistoryAsync(searchId.Value, true);
+                }
+                else if (searchId.HasValue && isComicId == false)
+                {
+                    isExisted = await _accountRepository.CheckAccIdExistedAsync(searchId.Value);
+
+                    if (isExisted == false)
+                        return new ObjectResponse<IEnumerable<HistoryRes>?>(
+                        (int)HttpStatusCode.NotFound,
+                        "Account Not Found!");
+
+                    search = h =>
+                        (string.IsNullOrEmpty(searchKey) ||
+                        EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%")) &&
+                        h.AccountId == searchId;
+
+                    totalData = await _historyRepository
+                        .CountHistoryAsync(searchId.Value, false);
                 }
                 else
                 {
                     search = h =>
                         (string.IsNullOrEmpty(searchKey) ||
                         EF.Functions.Like(h.Account.Fullname, $"%{searchKey}%") ||
-                        EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%")) &&
-                        h.Chapter.Comic.Id == searchId;
+                        EF.Functions.Like(h.Chapter.Comic.Name, $"%{searchKey}%"));
 
                     totalData = await _historyRepository.CountRecordAsync(search);
                 }
@@ -98,7 +120,7 @@ namespace OnComics.Application.Services.Implements
                 var (histories, accounts, comics) = await _historyRepository
                     .GetHistoriesAsync(search, order, pageNum, pageIndex);
 
-                if (histories == null)
+                if (histories == null || histories.IsNullOrEmpty())
                     return new ObjectResponse<IEnumerable<HistoryRes>?>(
                         (int)HttpStatusCode.NotFound,
                         "History Data Is Empty!");
@@ -106,10 +128,10 @@ namespace OnComics.Application.Services.Implements
                 var data = histories.Select(h => new HistoryRes
                 {
                     Id = h.Id,
-                    AccountId = h.AccountId,
-                    Fullname = accounts[h.AccountId],
-                    ComicId = h.Chapter.Comic.Id,
-                    ComicName = comics[h.Chapter.Comic.Id],
+                    AccountId = accounts![h.Id].Item1,
+                    Fullname = accounts![h.Id].Item2,
+                    ComicId = comics![h.Id].Item1,
+                    ComicName = comics![h.Id].Item2,
                     ChapterId = h.ChapterId,
                     ReadTime = h.ReadTime
                 });
