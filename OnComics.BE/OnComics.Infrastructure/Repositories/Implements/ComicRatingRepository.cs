@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Ratings
-        public async Task<(IEnumerable<Comicrating>, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetRatingsAsync(
+        public async Task<RatingsInfo> GetRatingsAsync(
             Expression<Func<Comicrating, bool>>? filter = null,
             Func<IQueryable<Comicrating>, IOrderedQueryable<Comicrating>>? orderBy = null,
             int? pageNumber = null,
@@ -25,6 +25,9 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
             if (filter != null)
                 query = query.Where(filter);
+
+            if (query == null)
+                return new RatingsInfo(null, null, null);
 
             if (orderBy != null)
                 query = orderBy(query);
@@ -50,17 +53,17 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
             var comics = projected.ToDictionary(c => c.ComicId, c => c.ComicName);
 
-            return (ratings, accounts, comics);
+            return new RatingsInfo(ratings, accounts, comics);
         }
 
         //Get Rating By Account Id And Comic Id
         public async Task<Comicrating?> GetRatingByAccIdAndComicIdAsync(Guid accId, Guid comicId)
         {
             return await _context.Comicratings
-                        .AsNoTracking()
-                        .Where(r => r.AccountId == accId &&
-                            r.ComicId == comicId)
-                        .FirstOrDefaultAsync();
+                .AsNoTracking()
+                .Where(r => r.AccountId == accId &&
+                    r.ComicId == comicId)
+                .FirstOrDefaultAsync();
         }
 
         //Count Rating Record

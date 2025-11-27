@@ -24,129 +24,173 @@ namespace OnComics.Infrastructure.Repositories.Implements
             int? pageNumber = null,
             int? pageSize = null)
         {
-            IQueryable<T> query = _dbSet
-                .AsNoTracking()
-                .AsQueryable();
+            try
+            {
+                IQueryable<T> query = _dbSet
+                    .AsNoTracking()
+                    .AsQueryable();
 
-            if (filter != null)
-                query = query.Where(filter);
+                if (filter != null)
+                    query = query.Where(filter);
 
-            if (orderBy != null)
-                query = orderBy(query);
+                if (query == null)
+                    return null;
 
-            if (pageNumber.HasValue && pageSize.HasValue)
-                query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
-                             .Take(pageSize.Value);
+                if (orderBy != null)
+                    query = orderBy(query);
 
-            return await query.ToListAsync();
+                if (pageNumber.HasValue && pageSize.HasValue)
+                    query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
+                                 .Take(pageSize.Value);
+
+                return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Get By Id
         public async Task<T?> GetByIdAsync(object id, bool isTracking)
         {
-            switch (isTracking)
+            try
             {
-                case true:
-                    return await _dbSet
-                        .FirstOrDefaultAsync(e => EF
-                            .Property<object>(e, "Id")
-                            .Equals(id));
+                switch (isTracking)
+                {
+                    case true:
+                        return await _dbSet
+                            .FirstOrDefaultAsync(e => EF
+                                .Property<object>(e, "Id")
+                                .Equals(id));
 
-                case false:
-                    return await _dbSet
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(e => EF
-                            .Property<object>(e, "Id")
-                            .Equals(id));
+                    case false:
+                        return await _dbSet
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(e => EF
+                                .Property<object>(e, "Id")
+                                .Equals(id));
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
         //Insert
-        public async Task InsertAsync(T entity, bool isSaving)
+        public async Task InsertAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
-
-            if (isSaving)
+            try
+            {
+                await _dbSet.AddAsync(entity);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+            finally
+            {
                 await _context.SaveChangesAsync();
+            }
         }
 
         // Bulk Insert Range
         public async Task BulkInsertAsync(IEnumerable<T> entities)
         {
-            // For high performance bulk insert (require EFBulk Extensions package):
-            await _context.BulkInsertAsync(entities);
+            try
+            {
+                // For high performance bulk insert (require EFBulk Extensions package):
+                await _context.BulkInsertAsync(entities);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Update
-        public async Task UpdateAsync(T entity, bool isSaving)
+        public async Task UpdateAsync(T entity)
         {
-            _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
-
-            if (isSaving)
+            try
+            {
+                _dbSet.Attach(entity);
+                _context.Entry(entity).State = EntityState.Modified;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
                 await _context.SaveChangesAsync();
+            }
         }
 
         //Bulk Update Range
         public async Task BulkUpdateAsync(IEnumerable<T> entities)
         {
-            // For high performance bulk insert (require EFBulk Extensions package):
-            await _context.BulkUpdateAsync(entities);
+            try
+            {
+                // For high performance bulk insert (require EFBulk Extensions package):
+                await _context.BulkUpdateAsync(entities);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Delete Ojbect
-        public async Task DeleteAsync(T entity, bool isSaving)
+        public async Task DeleteAsync(T entity)
         {
-            if (_context.Entry(entity).State == EntityState.Detached)
-                _dbSet.Attach(entity);
+            try
+            {
+                if (_context.Entry(entity).State == EntityState.Detached)
+                    _dbSet.Attach(entity);
 
-            _dbSet.Remove(entity);
-
-            if (isSaving)
+                _dbSet.Remove(entity);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
                 await _context.SaveChangesAsync();
+            }
         }
 
         //Bulk Delete Range
         public async Task BulkDeleteAsync(IEnumerable<T> entities)
         {
-            // For high performance bulk delete (require EFBulk Extensions package):
-            await _context.BulkDeleteAsync(entities);
-        }
-
-        //Save Change
-        public async Task SaveChangeAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        //Run Transaction Operation
-        public async Task RunTransactionAsync(Func<Task> operations)
-        {
-            using (var transaction = await _context.Database
-                .BeginTransactionAsync())
+            try
             {
-                try
-                {
-                    await operations();
-                    await transaction.CommitAsync();
-                }
-                catch
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
+                // For high performance bulk delete (require EFBulk Extensions package):
+                await _context.BulkDeleteAsync(entities);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
         //Count Total Record Of An Entity
         public async Task<int> CountRecordAsync(Expression<Func<T, bool>>? filter)
         {
-            IQueryable<T> query = _dbSet.AsNoTracking();
+            try
+            {
+                IQueryable<T> query = _dbSet.AsNoTracking();
 
-            if (filter != null)
-                query = query.Where(filter);
+                if (filter != null)
+                    query = query.Where(filter);
 
-            return await query.CountAsync();
+                return await query.CountAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

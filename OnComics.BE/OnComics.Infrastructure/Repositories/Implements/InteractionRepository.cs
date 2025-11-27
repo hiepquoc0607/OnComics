@@ -13,7 +13,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get All Interactions
-        public async Task<(IEnumerable<Interaction>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetInteractionsAsync(
+        public async Task<InteractionsInfo> GetInteractionsAsync(
             Expression<Func<Interaction, bool>>? filter = null,
             Func<IQueryable<Interaction>, IOrderedQueryable<Interaction>>? orderBy = null,
             int? pageNumber = null,
@@ -25,6 +25,9 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
             if (filter != null)
                 query = query.Where(filter);
+
+            if (query == null)
+                return new InteractionsInfo(null, null, null);
 
             if (orderBy != null)
                 query = orderBy(query);
@@ -50,21 +53,24 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
             var comments = projected.ToDictionary(c => c.CommentId, c => c.CommentAuthor);
 
-            return (interactions, accounts, comments);
+            return new InteractionsInfo(interactions, accounts, comments);
         }
 
         //Get Interaction By Id
-        public async Task<(Interaction?, string, string)> GetInteractionById(Guid id)
+        public async Task<InteractionInfo> GetInteractionById(Guid id)
         {
             var interaction = await _context.Interactions
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Id == id);
 
+            if (interaction == null)
+                return new InteractionInfo(null, null, null);
+
             string fullname = interaction!.Account.Fullname;
 
             string author = interaction!.Comment.Account.Fullname;
 
-            return (interaction, fullname, author);
+            return new InteractionInfo(interaction, fullname, author);
         }
 
         //Check If Interaction Is Existed

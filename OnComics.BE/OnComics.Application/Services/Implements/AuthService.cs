@@ -121,7 +121,7 @@ namespace OnComics.Application.Services.Implements
                 data.Token = GenerateToken(account);
                 data.TokenExpiredIn = expiredSeccond;
 
-                await _accountRepository.UpdateAsync(account, true);
+                await _accountRepository.UpdateAsync(account);
 
                 return new ObjectResponse<AuthRes?>(
                     (int)HttpStatusCode.OK,
@@ -162,7 +162,7 @@ namespace OnComics.Application.Services.Implements
                     newAccount.RefreshToken = GenerateRefreshToken();
                     newAccount.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
 
-                    await _accountRepository.InsertAsync(newAccount, true);
+                    await _accountRepository.InsertAsync(newAccount);
 
                     var expiredSeccond = CaculateExpiredSeccond();
 
@@ -187,7 +187,7 @@ namespace OnComics.Application.Services.Implements
                     data.Token = GenerateToken(account);
                     data.TokenExpiredIn = expiredSeccond;
 
-                    await _accountRepository.UpdateAsync(account, true);
+                    await _accountRepository.UpdateAsync(account);
 
                     return new ObjectResponse<AuthRes?>(
                         (int)HttpStatusCode.OK,
@@ -240,9 +240,8 @@ namespace OnComics.Application.Services.Implements
                     _ => "Female"
                 };
                 newAccount.PasswordHash = _util.HashPassword(registerReq.Password);
-                newAccount.RefreshToken = GenerateRefreshToken();
 
-                await _accountRepository.InsertAsync(newAccount, true);
+                await _accountRepository.InsertAsync(newAccount);
 
                 return new ObjectResponse<Account>(
                     (int)HttpStatusCode.Created,
@@ -289,7 +288,7 @@ namespace OnComics.Application.Services.Implements
                 data.Token = token;
                 data.TokenExpiredIn = expiredSeccond;
 
-                await _accountRepository.UpdateAsync(account, true);
+                await _accountRepository.UpdateAsync(account);
 
                 return new ObjectResponse<AuthRes>(
                     (int)HttpStatusCode.OK,
@@ -324,12 +323,9 @@ namespace OnComics.Application.Services.Implements
                 string url = _configuration["AppReturnUrl:ResetPassword"]! +
                     $"AccountId={account.Id}&RefreshToken={account.RefreshToken}";
 
-                await _accountRepository.RunTransactionAsync(async () =>
-                {
-                    await _accountRepository.UpdateAsync(account, true);
+                await _accountRepository.UpdateAsync(account);
 
-                    await _mailService.SendEmailAsync(email, "OnComics Reset Password Link:", url);
-                });
+                await _mailService.SendEmailAsync(email, "OnComics Reset Password Link:", url);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -387,7 +383,7 @@ namespace OnComics.Application.Services.Implements
                 account.RefreshExpireTime = null;
 
 
-                await _accountRepository.UpdateAsync(account, true);
+                await _accountRepository.UpdateAsync(account);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -462,7 +458,7 @@ namespace OnComics.Application.Services.Implements
                 account.RefreshToken = string.Empty;
                 account.RefreshExpireTime = null;
 
-                await _accountRepository.UpdateAsync(account, true);
+                await _accountRepository.UpdateAsync(account);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

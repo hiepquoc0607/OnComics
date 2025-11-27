@@ -129,7 +129,7 @@ namespace OnComics.Application.Services.Implements
                 var newType = _mapper.Map<Interactiontype>(createItrTypeReq);
                 newType.Name = name;
 
-                await _interactionTypeRepository.InsertAsync(newType, true);
+                await _interactionTypeRepository.InsertAsync(newType);
 
                 return new ObjectResponse<Interactiontype>(
                     (int)HttpStatusCode.Created,
@@ -168,7 +168,7 @@ namespace OnComics.Application.Services.Implements
                 var newType = _mapper.Map(updateItrTypeReq, oldType);
                 newType.Name = name;
 
-                await _interactionTypeRepository.UpdateAsync(newType, true);
+                await _interactionTypeRepository.UpdateAsync(newType);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -195,7 +195,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Interaction Type Not Found!");
 
-                await _interactionTypeRepository.DeleteAsync(type, true);
+                await _interactionTypeRepository.DeleteAsync(type);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

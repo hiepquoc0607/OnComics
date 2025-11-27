@@ -5,7 +5,7 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 {
     public interface IHistoryRepository : IGenericRepository<History>
     {
-        Task<(IEnumerable<History>?, IDictionary<Guid, string>, IDictionary<Guid, string>)> GetHistoriesAsync(
+        Task<HistoriesInfo> GetHistoriesAsync(
             Expression<Func<History, bool>>? filter = null,
             Func<IQueryable<History>, IOrderedQueryable<History>>? orderBy = null,
             int? pageNumber = null,
@@ -17,4 +17,9 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<int> CountHistoryAsync(Guid id, bool isComicId);
     }
+
+    public record HistoriesInfo(
+        IEnumerable<History>? Histories,
+        IDictionary<Guid, string>? Accounts,
+        IDictionary<Guid, string>? Comics);
 }

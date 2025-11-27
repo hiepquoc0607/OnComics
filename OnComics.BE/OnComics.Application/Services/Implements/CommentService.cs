@@ -221,7 +221,7 @@ namespace OnComics.Application.Services.Implements
                 newCmt.AccountId = accId;
                 newCmt.MainCmtId = null;
 
-                await _commentRepository.InsertAsync(newCmt, true);
+                await _commentRepository.InsertAsync(newCmt);
 
                 if (files != null && files.Count > 0)
                 {
@@ -265,7 +265,7 @@ namespace OnComics.Application.Services.Implements
                 var cmt = await _commentRepository.GetByIdAsync(id, true);
 
                 if (cmt != null)
-                    await _commentRepository.DeleteAsync(cmt, true);
+                    await _commentRepository.DeleteAsync(cmt);
 
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.InternalServerError,
@@ -310,7 +310,7 @@ namespace OnComics.Application.Services.Implements
                 newCmt.IsMainCmt = false;
                 newCmt.MainCmtId = mainCmtId;
 
-                await _commentRepository.InsertAsync(newCmt, true);
+                await _commentRepository.InsertAsync(newCmt);
 
                 if (files != null && files.Count > 0)
                 {
@@ -352,7 +352,7 @@ namespace OnComics.Application.Services.Implements
                 var cmt = await _commentRepository.GetByIdAsync(id, true);
 
                 if (cmt != null)
-                    await _commentRepository.DeleteAsync(cmt, true);
+                    await _commentRepository.DeleteAsync(cmt);
 
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.InternalServerError,
@@ -375,7 +375,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newCmt = _mapper.Map(updateCommentReq, oldCmt);
 
-                await _commentRepository.UpdateAsync(newCmt, true);
+                await _commentRepository.UpdateAsync(newCmt);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -404,7 +404,7 @@ namespace OnComics.Application.Services.Implements
 
                 var attachs = await _attachmentRepsitory.GetAttachIdsByCmtIdAsync(cmt.Id);
 
-                await _commentRepository.DeleteAsync(cmt, true);
+                await _commentRepository.DeleteAsync(cmt);
 
                 if (attachs != null)
                 {

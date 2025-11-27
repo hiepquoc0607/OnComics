@@ -156,9 +156,9 @@ namespace OnComics.Application.Services.Implements
 
                 comic.FavoriteNum = comic.FavoriteNum + 1;
 
-                await _favoriteRepository.InsertAsync(newFav, true);
+                await _favoriteRepository.InsertAsync(newFav);
 
-                await _comicRepository.UpdateAsync(comic, true);
+                await _comicRepository.UpdateAsync(comic);
 
                 return new ObjectResponse<Favorite>(
                     (int)HttpStatusCode.Created,
@@ -195,9 +195,9 @@ namespace OnComics.Application.Services.Implements
 
                 comic.FavoriteNum = comic.FavoriteNum - 1;
 
-                await _favoriteRepository.DeleteAsync(fav, true);
+                await _favoriteRepository.DeleteAsync(fav);
 
-                await _comicRepository.UpdateAsync(comic, true);
+                await _comicRepository.UpdateAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

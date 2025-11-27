@@ -147,7 +147,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newHistory = _mapper.Map<History>(createHistoryReq);
 
-                await _historyRepository.InsertAsync(newHistory, false);
+                await _historyRepository.InsertAsync(newHistory);
 
                 return new ObjectResponse<History>(
                     (int)HttpStatusCode.OK,
@@ -177,7 +177,7 @@ namespace OnComics.Application.Services.Implements
 
                 var newHistory = _mapper.Map(updateHistoryReq, oldHistory);
 
-                await _historyRepository.UpdateAsync(newHistory, false);
+                await _historyRepository.UpdateAsync(newHistory);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -204,7 +204,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "History Not Found!");
 
-                await _historyRepository.DeleteAsync(history, false);
+                await _historyRepository.DeleteAsync(history);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

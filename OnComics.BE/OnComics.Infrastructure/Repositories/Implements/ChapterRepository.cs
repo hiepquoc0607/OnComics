@@ -12,7 +12,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Get Chapter By Id
-        public async Task<(Chapter, IEnumerable<Chaptersource>?)> GetChapterByIdAsync(Guid id)
+        public async Task<SourceInfo> GetChapterByIdAsync(Guid id)
         {
             var projected = await _context.Chapters
                 .AsNoTracking()
@@ -43,9 +43,8 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 .OrderBy(s => s.Arrangement)
                 .ToList();
 
-            return (chapter, sources);
+            return new SourceInfo(chapter, sources);
         }
-
 
         //Count Chapter Record By Comic Id
         public async Task<int> CountChapterByComicIdAsync(Guid id)

@@ -126,7 +126,7 @@ namespace OnComics.Application.Services.Implements
                 var newCate = _mapper.Map<Category>(createCategoryReq);
                 newCate.Name = name;
 
-                await _categoryRepository.InsertAsync(newCate, true);
+                await _categoryRepository.InsertAsync(newCate);
 
                 return new ObjectResponse<Category>(
                     (int)HttpStatusCode.Created,
@@ -211,7 +211,7 @@ namespace OnComics.Application.Services.Implements
                 var newCate = _mapper.Map(updateCategoryReq, oldCate);
                 newCate.Name = name;
 
-                await _categoryRepository.UpdateAsync(newCate, true);
+                await _categoryRepository.UpdateAsync(newCate);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -238,7 +238,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Category Not Found!");
 
-                await _categoryRepository.DeleteAsync(category, true);
+                await _categoryRepository.DeleteAsync(category);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

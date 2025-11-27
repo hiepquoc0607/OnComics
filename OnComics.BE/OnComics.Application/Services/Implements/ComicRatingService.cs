@@ -153,14 +153,9 @@ namespace OnComics.Application.Services.Implements
                 comic.Rating = await _comicRatingRepository
                     .AverageRatingAsync(comicId, rate, null);
 
-                await _comicRatingRepository.RunTransactionAsync(async () =>
-                {
-                    await _comicRatingRepository.InsertAsync(newRating, false);
+                await _comicRatingRepository.InsertAsync(newRating);
 
-                    await _comicRepository.UpdateAsync(comic, false);
-
-                    await _comicRatingRepository.SaveChangeAsync();
-                });
+                await _comicRepository.UpdateAsync(comic);
 
                 return new ObjectResponse<Comicrating>(
                     (int)HttpStatusCode.OK,
@@ -202,14 +197,9 @@ namespace OnComics.Application.Services.Implements
 
                 rating.Rating = (decimal)newRating;
 
-                await _comicRatingRepository.RunTransactionAsync(async () =>
-                {
-                    await _comicRatingRepository.UpdateAsync(rating, true);
+                await _comicRatingRepository.UpdateAsync(rating);
 
-                    await _comicRepository.UpdateAsync(comic, false);
-
-                    await _comicRatingRepository.SaveChangeAsync();
-                });
+                await _comicRepository.UpdateAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -246,14 +236,9 @@ namespace OnComics.Application.Services.Implements
                 comic.Rating = await _comicRatingRepository
                     .AverageRatingAsync(rating.ComicId, null, rating.Rating);
 
-                await _comicRatingRepository.RunTransactionAsync(async () =>
-                {
-                    await _comicRatingRepository.DeleteAsync(rating, false);
+                await _comicRatingRepository.DeleteAsync(rating);
 
-                    await _comicRepository.UpdateAsync(comic, false);
-
-                    await _comicRatingRepository.SaveChangeAsync();
-                });
+                await _comicRepository.UpdateAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

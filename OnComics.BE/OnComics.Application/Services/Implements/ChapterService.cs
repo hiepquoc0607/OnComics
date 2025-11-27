@@ -139,24 +139,19 @@ namespace OnComics.Application.Services.Implements
                 comic.TotalReadNum = comic.TotalReadNum + 1;
                 chapter.ReadNum = chapter.ReadNum + 1;
 
-                await _comicRepository.RunTransactionAsync(async () =>
+                await _chapterRepository.UpdateAsync(chapter);
+
+                await _comicRepository.UpdateAsync(comic);
+
+                history = new History
                 {
-                    await _chapterRepository.UpdateAsync(chapter, false);
+                    Id = Guid.NewGuid(),
+                    ChapterId = id,
+                    AccountId = accId,
+                    ReadTime = DateTime.UtcNow,
+                };
 
-                    await _comicRepository.UpdateAsync(comic, false);
-
-                    history = new History
-                    {
-                        Id = Guid.NewGuid(),
-                        ChapterId = id,
-                        AccountId = accId,
-                        ReadTime = DateTime.UtcNow,
-                    };
-
-                    await _historyRepository.InsertAsync(history, false);
-
-                    await _chapterRepository.SaveChangeAsync();
-                });
+                await _historyRepository.InsertAsync(history);
 
                 var data = _mapper.Map<ChapterRes>(chapter);
                 data.Chaptersources = sources.Adapt<List<ChapterSourceRes>>();
@@ -172,16 +167,11 @@ namespace OnComics.Application.Services.Implements
                     comic.TotalReadNum = comic.TotalReadNum - 1;
                     chapter.ReadNum = chapter.ReadNum - 1;
 
-                    await _comicRepository.RunTransactionAsync(async () =>
-                    {
-                        await _chapterRepository.UpdateAsync(chapter, false);
+                    await _chapterRepository.UpdateAsync(chapter);
 
-                        await _comicRepository.UpdateAsync(comic, false);
+                    await _comicRepository.UpdateAsync(comic);
 
-                        await _historyRepository.DeleteAsync(history, false);
-
-                        await _chapterRepository.SaveChangeAsync();
-                    });
+                    await _historyRepository.DeleteAsync(history);
                 }
 
                 return new ObjectResponse<ChapterRes?>(
@@ -270,17 +260,12 @@ namespace OnComics.Application.Services.Implements
                     }
                 }
 
-                await _chapterRepository.RunTransactionAsync(async () =>
-                {
-                    await _chapterRepository.InsertAsync(newChapter, false);
+                await _chapterRepository.InsertAsync(newChapter);
 
-                    comic.ChapNum = comic.ChapNum + 1;
-                    comic.UpdateTime = DateTime.UtcNow;
+                comic.ChapNum = comic.ChapNum + 1;
+                comic.UpdateTime = DateTime.UtcNow;
 
-                    await _comicRepository.UpdateAsync(comic, false);
-
-                    await _chapterRepository.SaveChangeAsync();
-                });
+                await _comicRepository.UpdateAsync(comic);
 
                 await _chapterSourceRepository.BulkInsertAsync(chapSrcs);
 
@@ -295,7 +280,7 @@ namespace OnComics.Application.Services.Implements
             {
                 if (newChapter != null)
                 {
-                    await _chapterRepository.DeleteAsync(newChapter, true);
+                    await _chapterRepository.DeleteAsync(newChapter);
 
                     foreach (var file in chapSrcs)
                     {
@@ -327,7 +312,7 @@ namespace OnComics.Application.Services.Implements
                 if (!string.IsNullOrEmpty(newChapter.Name))
                     newChapter.Name = _util.FormatStringName(newChapter.Name);
 
-                await _chapterRepository.UpdateAsync(newChapter, true);
+                await _chapterRepository.UpdateAsync(newChapter);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -361,7 +346,7 @@ namespace OnComics.Application.Services.Implements
                     _ => StatusConstant.ERROR
                 };
 
-                await _chapterRepository.UpdateAsync(chapter, true);
+                await _chapterRepository.UpdateAsync(chapter);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -393,15 +378,12 @@ namespace OnComics.Application.Services.Implements
                     (int)HttpStatusCode.NotFound,
                     "Comic Not Found!");
 
-                await _chapterRepository.RunTransactionAsync(async () =>
-                {
-                    await _chapterRepository.DeleteAsync(chapter, true);
+                await _chapterRepository.DeleteAsync(chapter);
 
-                    comic.ChapNum = comic.ChapNum - 1;
-                    comic.UpdateTime = DateTime.UtcNow;
+                comic.ChapNum = comic.ChapNum - 1;
+                comic.UpdateTime = DateTime.UtcNow;
 
-                    await _comicRepository.UpdateAsync(comic, true);
-                });
+                await _comicRepository.UpdateAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

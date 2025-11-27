@@ -214,7 +214,7 @@ namespace OnComics.Application.Services.Implements
                 var newCates = new List<Comiccategory>();
                 var cates = createComicReq.Categories;
 
-                await _comicRepository.InsertAsync(newComic, true);
+                await _comicRepository.InsertAsync(newComic);
 
                 comicId = newComic.Id;
 
@@ -240,7 +240,7 @@ namespace OnComics.Application.Services.Implements
                 var comic = await _comicRepository.GetByIdAsync(comicId, true);
 
                 if (comic != null)
-                    await _comicRepository.DeleteAsync(comic, true);
+                    await _comicRepository.DeleteAsync(comic);
 
                 return new ObjectResponse<Comic>(
                     (int)HttpStatusCode.InternalServerError,
@@ -281,23 +281,20 @@ namespace OnComics.Application.Services.Implements
                 var cates = updateComicReq.Categories;
                 var newCates = new List<Comiccategory>();
 
-                await _comicRepository.UpdateAsync(newComic, true);
+                await _comicRepository.UpdateAsync(newComic);
 
-                await _comicRepository.RunTransactionAsync(async () =>
+                await _comicCategoryRepository.DeleteComicCateoriesAsync(id);
+
+                foreach (var item in cates)
                 {
-                    await _comicCategoryRepository.DeleteComicCateoriesAsync(id);
-
-                    foreach (var item in cates)
+                    newCates.Add(new Comiccategory
                     {
-                        newCates.Add(new Comiccategory
-                        {
-                            ComicId = newComic.Id,
-                            CategoryId = item
-                        });
-                    }
+                        ComicId = newComic.Id,
+                        CategoryId = item
+                    });
+                }
 
-                    await _comicCategoryRepository.BulkInsertAsync(newCates);
-                });
+                await _comicCategoryRepository.BulkInsertAsync(newCates);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -305,7 +302,7 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
-                await _comicRepository.UpdateAsync(tempData, true);
+                await _comicRepository.UpdateAsync(tempData);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.InternalServerError,
@@ -353,7 +350,7 @@ namespace OnComics.Application.Services.Implements
 
                 oldComic.ThumbnailUrl = fileRes.Url;
 
-                await _comicRepository.UpdateAsync(oldComic, true);
+                await _comicRepository.UpdateAsync(oldComic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -388,7 +385,7 @@ namespace OnComics.Application.Services.Implements
                     _ => StatusConstant.FINISHED
                 };
 
-                await _comicRepository.UpdateAsync(comic, true);
+                await _comicRepository.UpdateAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -415,7 +412,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Comic Not Found!");
 
-                await _comicRepository.DeleteAsync(comic, true);
+                await _comicRepository.DeleteAsync(comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

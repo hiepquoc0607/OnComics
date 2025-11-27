@@ -35,6 +35,7 @@ namespace OnComics.Application.Mappers
             .Map(dest => dest.Dob, src => src.Dob);
 
             config.NewConfig<RegisterReq, Account>()
+                .Map(dest => dest.Id, otp => Guid.NewGuid())
                 .Map(dest => dest.PasswordHash, src => src.Password)
                 .Map(dest => dest.Dob, src => src.Dob)
                 .Map(dest => dest.ImgUrl, otp => GetDefaultImageUrl())
