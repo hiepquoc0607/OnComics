@@ -78,7 +78,7 @@ namespace OnComics.API.Controller
         [HttpPost]
         public async Task<IActionResult> CreateAsync(
             [FromForm] CreateCommentReq createCommentReq,
-            [FromForm] List<IFormFile> files)
+            [FromForm] List<IFormFile>? files)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -97,7 +97,7 @@ namespace OnComics.API.Controller
         public async Task<IActionResult> ReplyCommentAsync(
             [FromRoute] Guid id,
             [FromForm] CreateCommentReq createCommentReq,
-            [FromForm] List<IFormFile> files)
+            [FromForm] List<IFormFile>? files)
         {
             string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

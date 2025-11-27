@@ -46,6 +46,11 @@ namespace OnComics.Infrastructure.Repositories.Implements
                     })
                     .ToListAsync();
 
+            if (projected == null)
+            {
+                return new CommentsInfo(null, null, null, null);
+            }
+
             var comments = projected.Select(c => c.Comments).ToList();
 
             var accounts = projected
@@ -87,6 +92,11 @@ namespace OnComics.Infrastructure.Repositories.Implements
                     Attachments = c.Attachments
                 })
                 .ToListAsync();
+
+            if (projected == null)
+            {
+                return new RepliesInfo(null, null, null);
+            }
 
             var comments = projected.Select(c => c.Comments).ToList();
 

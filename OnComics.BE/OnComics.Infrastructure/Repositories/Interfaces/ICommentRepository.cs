@@ -18,12 +18,12 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
     public record CommentsInfo(
         IEnumerable<Comment>? Comments,
-        IDictionary<Guid, (Guid, string)> Accounts,
-        IDictionary<Guid, (Guid, string)> Comics,
-        IDictionary<Guid, List<Attachment>?> Attachments);
+        IDictionary<Guid, (Guid, string)>? Accounts,
+        IDictionary<Guid, (Guid, string)>? Comics,
+        IDictionary<Guid, List<Attachment>?>? Attachments);
 
     public record RepliesInfo(
         IEnumerable<Comment>? Comments,
-        IDictionary<Guid, (Guid, string)> Accounts,
-        IDictionary<Guid, List<Attachment>?> Attachments);
+        IDictionary<Guid, (Guid, string)>? Accounts,
+        IDictionary<Guid, List<Attachment>?>? Attachments);
 }

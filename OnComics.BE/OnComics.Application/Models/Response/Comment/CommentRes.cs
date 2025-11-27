@@ -21,6 +21,8 @@ namespace OnComics.Application.Models.Response.Comment
 
         public string Content { get; set; } = null!;
 
+        public bool IsEdited { get; set; }
+
         public bool IsMainCmt { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

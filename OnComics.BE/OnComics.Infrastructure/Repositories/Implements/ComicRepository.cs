@@ -64,7 +64,10 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 })
                 .FirstOrDefaultAsync();
 
-            var comic = projected!.Comic;
+            if (projected == null)
+                return (null, new List<Category>());
+
+            var comic = projected.Comic;
             var categories = projected.Categories
                 .Select(c => new Category
                 {

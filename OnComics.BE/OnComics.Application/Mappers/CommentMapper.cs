@@ -12,12 +12,11 @@ namespace OnComics.Application.Mappers
             config.NewConfig<Comment, CommentRes>();
 
             config.NewConfig<CreateCommentReq, Comment>()
-                .Map(dest => dest.Id, src => Guid.NewGuid())
-                .Map(dest => dest.IsEdited, src => false)
-                .Map(dest => dest.IsMainCmt, src => true)
-                .Map(dest => dest.MainCmtId, src => Guid.Empty)
-                .Map(dest => dest.CmtTime, src => DateTime.UtcNow)
-                .Map(dest => dest.InteractionNum, src => 0);
+                .Map(dest => dest.Id, opt => Guid.NewGuid())
+                .Map(dest => dest.IsEdited, opt => false)
+                .Map(dest => dest.IsMainCmt, opt => true)
+                .Map(dest => dest.CmtTime, opt => DateTime.UtcNow)
+                .Map(dest => dest.InteractionNum, opt => 0);
 
             config.NewConfig<UpdateCommentReq, Comment>()
                 .Map(dest => dest.IsEdited, src => true);

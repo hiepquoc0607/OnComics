@@ -2,6 +2,7 @@
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Enums.Comment;
 using OnComics.Application.Models.Request.Comment;
 using OnComics.Application.Models.Response.Appwrite;
@@ -19,17 +20,20 @@ namespace OnComics.Application.Services.Implements
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
+        private readonly IComicRepository _comicRepository;
         private readonly IAttachmentRepsitory _attachmentRepsitory;
         private readonly IAppwriteService _appwriteService;
         private readonly IMapper _mapper;
 
         public CommentService(
             ICommentRepository commentRepository,
+            IComicRepository comicRepository,
             IAttachmentRepsitory attachmentRepsitory,
             IAppwriteService appwriteService,
             IMapper mapper)
         {
             _commentRepository = commentRepository;
+            _comicRepository = comicRepository;
             _attachmentRepsitory = attachmentRepsitory;
             _appwriteService = appwriteService;
             _mapper = mapper;
@@ -164,7 +168,7 @@ namespace OnComics.Application.Services.Implements
                 var data = comments.Select(c => new CommentRes
                 {
                     Id = c.Id,
-                    AccountId = accounts[c.Id].Item1,
+                    AccountId = accounts![c.Id].Item1,
                     Fullname = accounts[c.Id].Item2,
                     ComicId = null,
                     ComicName = null,
@@ -173,7 +177,7 @@ namespace OnComics.Application.Services.Implements
                     MainCmtId = c.MainCmtId,
                     CmtTime = c.CmtTime,
                     InteractionNum = c.InteractionNum,
-                    Attachments = attachments[c.Id].Adapt<List<AttachmentRes>>()
+                    Attachments = attachments![c.Id].Adapt<List<AttachmentRes>>()
                 });
 
                 return new ObjectResponse<IEnumerable<CommentRes>?>(
@@ -205,13 +209,21 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         "Only Create Max 5 Record At Once!");
 
+                var comic = await _comicRepository.GetByIdAsync(createCommentReq.ComicId, false);
+
+                if (comic == null)
+                    return new ObjectResponse<Comment>(
+                       (int)HttpStatusCode.NotFound,
+                       "Comic Not Found");
+
                 var newCmt = _mapper.Map<Comment>(createCommentReq);
                 newCmt.Id = id;
                 newCmt.AccountId = accId;
+                newCmt.MainCmtId = null;
 
                 await _commentRepository.InsertAsync(newCmt, true);
 
-                while (files != null)
+                if (files != null && files.Count > 0)
                 {
                     const long maxFileSize = 2 * 1024 * 1024; // 2MB
 
@@ -237,6 +249,8 @@ namespace OnComics.Application.Services.Implements
 
                         attachments.Add(attach);
                     }
+
+                    newCmt.Attachments = attachments;
 
                     await _attachmentRepsitory.BulkInsertAsync(attachments);
                 }
@@ -276,6 +290,13 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         "Only Create Max 5 Record At Once!");
 
+                var comic = await _comicRepository.GetByIdAsync(createCommentReq.ComicId, false);
+
+                if (comic == null)
+                    return new ObjectResponse<Comment>(
+                       (int)HttpStatusCode.NotFound,
+                       "Comic Not Found");
+
                 var mainCmt = await _commentRepository.GetByIdAsync(mainCmtId, false);
 
                 if (mainCmt == null)
@@ -291,7 +312,7 @@ namespace OnComics.Application.Services.Implements
 
                 await _commentRepository.InsertAsync(newCmt, true);
 
-                while (files != null)
+                if (files != null && files.Count > 0)
                 {
                     const long maxFileSize = 2 * 1024 * 1024; // 2MB
 
@@ -385,7 +406,7 @@ namespace OnComics.Application.Services.Implements
 
                 await _commentRepository.DeleteAsync(cmt, true);
 
-                while (attachs != null)
+                if (attachs != null)
                 {
                     foreach (var item in attachs)
                     {
