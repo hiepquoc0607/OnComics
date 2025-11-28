@@ -47,12 +47,12 @@ VALUES
 #Sample Data For InteractionType Table
 INSERT INTO InteractionType (Id, Name, ImgUrl) 
 VALUES
-(UUID_TO_BIN('d1d11111-aaaa-4aaa-8aaa-111111111111'), 'LIKE', NULL),
-(UUID_TO_BIN('d1d22222-bbbb-4bbb-8bbb-222222222222'), 'DISLIKE', NULL),
-(UUID_TO_BIN('d1d33333-cccc-4ccc-8ccc-333333333333'), 'LOVE', NULL),
-(UUID_TO_BIN('d1d44444-dddd-4ddd-8ddd-444444444444'), 'LAUGH', NULL),
-(UUID_TO_BIN('d1d55555-eeee-4eee-8eee-555555555555'), 'ANGRY', NULL),
-(UUID_TO_BIN('d1d66666-ffff-4fff-8fff-666666666666'), 'SAD', NULL);
+(UUID_TO_BIN('d1d11111-aaaa-4aaa-8aaa-111111111111'), 'LIKE', '/images/like.png'),
+(UUID_TO_BIN('d1d22222-bbbb-4bbb-8bbb-222222222222'), 'DISLIKE', '/images/dislike.png'),
+(UUID_TO_BIN('d1d33333-cccc-4ccc-8ccc-333333333333'), 'LOVE', '/images/love.png'),
+(UUID_TO_BIN('d1d44444-dddd-4ddd-8ddd-444444444444'), 'LAUGH', '/images/laugh.png'),
+(UUID_TO_BIN('d1d55555-eeee-4eee-8eee-555555555555'), 'ANGRY', '/images/angry.png'),
+(UUID_TO_BIN('d1d66666-ffff-4fff-8fff-666666666666'), 'SAD', '/images/sad.png');
 
 #Sample Data For Chapter Table
 INSERT INTO Chapter (Id, ComicId, ChapNo, Name, ReadNum, ReleaseTime, Status) 

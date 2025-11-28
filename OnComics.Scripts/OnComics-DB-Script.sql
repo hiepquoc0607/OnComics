@@ -63,7 +63,7 @@ CREATE TABLE Category (
 CREATE TABLE InteractionType (
     Id BINARY(16) PRIMARY KEY,
     Name NVARCHAR(100) UNIQUE NOT NULL,
-    ImgUrl TEXT NULL
+    ImgUrl TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Chapter (
