@@ -122,16 +122,16 @@ namespace OnComics.Application.Services.Implements
                 var data = comments.Select(c => new CommentRes
                 {
                     Id = c.Id,
-                    AccountId = accounts[c.Id].Item1,
+                    AccountId = accounts![c.Id].Item1,
                     Fullname = accounts[c.Id].Item2,
-                    ComicId = comics[c.Id].Item1,
+                    ComicId = comics![c.Id].Item1,
                     ComicName = comics[c.Id].Item2,
                     Content = c.Content,
                     IsMainCmt = c.IsMainCmt,
                     MainCmtId = c.MainCmtId,
                     CmtTime = c.CmtTime,
                     InteractionNum = c.InteractionNum,
-                    Attachments = attachments[c.Id].Adapt<List<AttachmentRes>>()
+                    Attachments = attachments![c.Id].Adapt<List<AttachmentRes>>()
                 });
 
                 var toatlPage = (int)Math.Ceiling((decimal)totalData / pageIndex);

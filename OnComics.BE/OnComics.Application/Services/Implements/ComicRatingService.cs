@@ -99,9 +99,9 @@ namespace OnComics.Application.Services.Implements
                 {
                     Id = d.Id,
                     AccountId = d.AccountId,
-                    Fullname = accounts[d.AccountId],
+                    Fullname = accounts![d.AccountId],
                     ComicId = d.ComicId,
-                    ComicName = comics[d.ComicId],
+                    ComicName = comics![d.ComicId],
                     Rating = d.Rating
                 });
 

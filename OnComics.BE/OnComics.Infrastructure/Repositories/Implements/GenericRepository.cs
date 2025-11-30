@@ -85,7 +85,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
             {
                 await _dbSet.AddAsync(entity);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }

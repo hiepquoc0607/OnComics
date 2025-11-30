@@ -20,11 +20,13 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
     public record InteractionsInfo(
         IEnumerable<Interaction>? Interactions,
-        IDictionary<Guid, string>? Accounts,
-        IDictionary<Guid, string>? Comments);
+        IDictionary<Guid, (Guid, string)>? Accounts,
+        IDictionary<Guid, (Guid, string)>? Comments,
+        IDictionary<Guid, Interactiontype>? Types);
 
     public record InteractionInfo(
         Interaction? Interaction,
-        string? Fullname,
-        string? Author);
+        string Fullname,
+        string Author,
+        Interactiontype? Type);
 }

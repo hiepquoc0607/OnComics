@@ -27,8 +27,10 @@ namespace OnComics.API.Controller
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (!string.IsNullOrEmpty(userRoleClaim) &&
+                !string.IsNullOrEmpty(userIdClaim) &&
                 userRoleClaim.Equals(RoleConstant.USER) &&
-                !getInteractionReq.AccountId.HasValue)
+                getInteractionReq.Id.HasValue &&
+                getInteractionReq.Id.Value != Guid.Parse(userIdClaim))
             {
                 return Forbid();
             }

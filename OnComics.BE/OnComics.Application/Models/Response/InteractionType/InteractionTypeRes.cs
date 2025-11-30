@@ -6,8 +6,6 @@
 
         public string Name { get; set; } = null!;
 
-        public string? ImgUrl { get; set; }
-
-        public string Status { get; set; } = null!;
+        public string ImgUrl { get; set; } = null!;
     }
 }

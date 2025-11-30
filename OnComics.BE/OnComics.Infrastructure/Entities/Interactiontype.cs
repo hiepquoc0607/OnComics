@@ -6,7 +6,7 @@ public partial class Interactiontype
 
     public string Name { get; set; } = null!;
 
-    public string? ImgUrl { get; set; }
+    public string ImgUrl { get; set; } = null!;
 
     public virtual ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
 }

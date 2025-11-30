@@ -1,4 +1,6 @@
-﻿namespace OnComics.Application.Models.Response.Interaction
+﻿using OnComics.Application.Models.Response.InteractionType;
+
+namespace OnComics.Application.Models.Response.Interaction
 {
     public class InteractionRes
     {
@@ -12,7 +14,7 @@
 
         public string CommentAuthor { get; set; } = null!;
 
-        public Guid TypeId { get; set; }
+        public InteractionTypeRes Type { get; set; } = new InteractionTypeRes();
 
         public DateTime ReactTime { get; set; }
     }

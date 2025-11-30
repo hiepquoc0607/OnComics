@@ -321,7 +321,7 @@ namespace OnComics.Application.Services.Implements
 
                 //Reset Password API URL
                 string url = _configuration["AppReturnUrl:ResetPassword"]! +
-                    $"AccountId={account.Id}&RefreshToken={account.RefreshToken}";
+                    $"Id={account.Id}&RefreshToken={account.RefreshToken}";
 
                 await _accountRepository.UpdateAsync(account);
 
@@ -412,7 +412,7 @@ namespace OnComics.Application.Services.Implements
 
                 //Confirm Email API URL
                 string url = _configuration["AppReturnUrl:ComfirmEmail"]! +
-                    $"AccountId={account.Id}&RefreshToken={account.RefreshToken}";
+                    $"Id={account.Id}&RefreshToken={account.RefreshToken}";
 
                 await _mailService.SendEmailAsync(
                     account.Email,
