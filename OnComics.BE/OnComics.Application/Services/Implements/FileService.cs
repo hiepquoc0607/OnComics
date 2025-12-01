@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OnComics.Application.Services.Interfaces;
+using Org.BouncyCastle.Utilities.Zlib;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Webp;
@@ -314,5 +315,25 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Convert Byte To IFromFile
+        public async Task<IFormFile> ConvertIFormFileAsync(byte[] bytes, string fileName)
+        {
+            var ms = new MemoryStream();
+            await ms.WriteAsync(bytes, 0, bytes.Length);
+            ms.Position = 0;
+
+            IFormFile outputFile = new FormFile(
+                    ms,
+                    0,
+                    bytes.Length,
+                    fileName,
+                    fileName + ".webp")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/webp"
+            };
+
+            return outputFile;
+        }
     }
 }

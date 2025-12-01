@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnComics.Application.Models.Request.InteractionType
 {
@@ -7,6 +8,7 @@ namespace OnComics.Application.Models.Request.InteractionType
         [Required]
         public string Name { get; set; } = string.Empty;
 
-        public string ImgUrl { get; set; } = string.Empty;
+        [Required]
+        public IFormFile File { get; set; } = null!;
     }
 }

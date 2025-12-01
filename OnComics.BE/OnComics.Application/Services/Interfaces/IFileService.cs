@@ -15,5 +15,7 @@ namespace OnComics.Application.Services.Interfaces
         Task<IFormFile> ConvertWebPAsync(IFormFile file);
 
         Task<IFormFile> ConvertMarkdownAsync(IFormFile file);
+
+        Task<IFormFile> ConvertIFormFileAsync(byte[] bytes, string fileName);
     }
 }

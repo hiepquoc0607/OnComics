@@ -1,4 +1,5 @@
-﻿using OnComics.Application.Models.Request.InteractionType;
+﻿using Microsoft.AspNetCore.Http;
+using OnComics.Application.Models.Request.InteractionType;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Models.Response.InteractionType;
 using OnComics.Infrastructure.Entities;
@@ -14,6 +15,8 @@ namespace OnComics.Application.Services.Interfaces
         Task<ObjectResponse<Interactiontype>> CreateItrTypeAsync(CreateItrTypeReq createItrTypeReq);
 
         Task<VoidResponse> UpdateItrTypeAsync(Guid id, UpdateItrTypeReq updateItrTypeReq);
+
+        Task<VoidResponse> UpdateItrTypeImgAsync(Guid id, IFormFile file);
 
         Task<VoidResponse> DeleteItrTypeAsync(Guid id);
     }

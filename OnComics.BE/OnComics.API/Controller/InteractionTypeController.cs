@@ -37,7 +37,7 @@ namespace OnComics.API.Controller
         //Create Interaction Type
         [Authorize(Policy = "Admin")]
         [HttpPut]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateItrTypeReq createItrTypeReq)
+        public async Task<IActionResult> CreateAsync([FromForm] CreateItrTypeReq createItrTypeReq)
         {
             var result = await _interactionService.CreateItrTypeAsync(createItrTypeReq);
 
@@ -52,6 +52,19 @@ namespace OnComics.API.Controller
             [FromBody] UpdateItrTypeReq updateItrTypeReq)
         {
             var result = await _interactionService.UpdateItrTypeAsync(id, updateItrTypeReq);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        //Update Interaction Type Image
+        [Authorize(Policy = "Admin")]
+        [RequestSizeLimit(2 * 1024 * 1024)] //Limit File To Max 2 MB
+        [HttpPost("{id:guid}/image")]
+        public async Task<IActionResult> UpdateImageAsync(
+            [FromRoute] Guid id,
+            IFormFile file)
+        {
+            var result = await _interactionService.UpdateItrTypeImgAsync(id, file);
 
             return StatusCode(result.StatusCode, result);
         }

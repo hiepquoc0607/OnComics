@@ -1,6 +1,8 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Enums.InteractionType;
 using OnComics.Application.Models.Request.InteractionType;
 using OnComics.Application.Models.Response.Common;
@@ -17,15 +19,21 @@ namespace OnComics.Application.Services.Implements
     public class InteractionTypeService : IInteractionTypeService
     {
         private readonly IInteractionTypeRepository _interactionTypeRepository;
+        private readonly IAppwriteService _appwriteService;
+        private readonly IFileService _fileService;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
         public InteractionTypeService(
             IInteractionTypeRepository interactionTypeRepository,
+            IAppwriteService appwriteService,
+            IFileService fileService,
             IMapper mapper,
             Util util)
         {
             _interactionTypeRepository = interactionTypeRepository;
+            _appwriteService = appwriteService;
+            _fileService = fileService;
             _mapper = mapper;
             _util = util;
         }
@@ -115,19 +123,39 @@ namespace OnComics.Application.Services.Implements
         //Create Interaction Type
         public async Task<ObjectResponse<Interactiontype>> CreateItrTypeAsync(CreateItrTypeReq createItrTypeReq)
         {
+            Guid id = Guid.NewGuid();
+
             try
             {
+                var file = createItrTypeReq.File;
+
+                if (file == null || file.Length == 0)
+                    return new ObjectResponse<Interactiontype>(
+                        (int)HttpStatusCode.BadRequest,
+                        "No File Uploaded!");
+
+                if (!file.ContentType.Contains("image"))
+                    return new ObjectResponse<Interactiontype>(
+                        (int)HttpStatusCode.BadRequest,
+                        "Invalid Picture File Format!");
+
                 string name = _util.FormatStringName(createItrTypeReq.Name);
 
-                var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
+                var isExisted = await _interactionTypeRepository
+                    .CheckTypeNameExistedAsync(name);
 
                 if (isExisted)
                     return new ObjectResponse<Interactiontype>(
                         (int)HttpStatusCode.BadRequest,
                         "Interaction Type Is Existed!");
 
+                var fileRes = await _appwriteService
+                    .CreateEmoteFileAsync(file, id.ToString());
+
                 var newType = _mapper.Map<Interactiontype>(createItrTypeReq);
+                newType.Id = id;
                 newType.Name = name;
+                newType.ImgUrl = fileRes.Url;
 
                 await _interactionTypeRepository.InsertAsync(newType);
 
@@ -137,6 +165,11 @@ namespace OnComics.Application.Services.Implements
             }
             catch (Exception ex)
             {
+                var upFile = await _appwriteService.GetFileAsync(id.ToString());
+
+                if (upFile != null)
+                    await _appwriteService.DeleteFileAsync(id.ToString());
+
                 return new ObjectResponse<Interactiontype>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
@@ -156,7 +189,7 @@ namespace OnComics.Application.Services.Implements
                 if (isExisted)
                     return new VoidResponse(
                         (int)HttpStatusCode.BadRequest,
-                        "Interaaction Type Is Existed!");
+                        "Interaction Type Is Existed!");
 
                 var oldType = await _interactionTypeRepository.GetByIdAsync(id, true);
 
@@ -183,6 +216,65 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Update Interaction Type Picture
+        public async Task<VoidResponse> UpdateItrTypeImgAsync(Guid id, IFormFile file)
+        {
+            IFormFile formFile = null!;
+
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "No File Uploaded!");
+
+                if (!file.ContentType.Contains("image"))
+                    return new VoidResponse(
+                        (int)HttpStatusCode.BadRequest,
+                        "Invalid Picture File Format!");
+
+                var oldType = await _interactionTypeRepository.GetByIdAsync(id, true);
+
+                if (oldType == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Interaction Type Not Found!");
+
+                var fileBytes = await _appwriteService.GetFileDownloadAsync(id.ToString());
+
+                if (fileBytes.IsNullOrEmpty() || fileBytes.Length == 0)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Source File Not Found!");
+
+                formFile = await _fileService.ConvertIFormFileAsync(fileBytes, id.ToString());
+
+                await _appwriteService.DeleteFileAsync(id.ToString());
+
+                var fileRes = await _appwriteService.CreateEmoteFileAsync(file, id.ToString());
+
+                oldType.ImgUrl = fileRes.Url;
+
+                await _interactionTypeRepository.UpdateAsync(oldType);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Update Interaction Type Image Successfully!");
+            }
+            catch (Exception ex)
+            {
+                var img = await _appwriteService.GetFileAsync(id.ToString());
+
+                if (img == null)
+                    await _appwriteService.CreateEmoteFileAsync(formFile, id.ToString());
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
+        }
+
         //Delete Interaction Type
         public async Task<VoidResponse> DeleteItrTypeAsync(Guid id)
         {
@@ -196,6 +288,8 @@ namespace OnComics.Application.Services.Implements
                         "Interaction Type Not Found!");
 
                 await _interactionTypeRepository.DeleteAsync(type);
+
+                await _appwriteService.DeleteFileAsync(id.ToString());
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
