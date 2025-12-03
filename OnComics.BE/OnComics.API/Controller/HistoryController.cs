@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnComics.Application.Constants;
-using OnComics.Application.Enums.Comment;
 using OnComics.Application.Enums.History;
 using OnComics.Application.Models.Request.History;
 using OnComics.Application.Services.Interfaces;
@@ -35,7 +34,7 @@ namespace OnComics.API.Controller
                 return false;
             }
             else if (id.HasValue &&
-                    idType.Equals(CmtIdType.ACCOUNT) &&
+                    idType.Equals(HistoryIdType.ACCOUNT) &&
                     roleClaim.Equals(RoleConstant.USER) &&
                     id != Guid.Parse(idClaim))
             {

@@ -196,28 +196,18 @@ builder.Services
 #endregion
 
 #region Inject Redis
-var host = builder.Configuration["Redis:Host"];
-var port = builder.Configuration["Redis:Port"] ?? "6379";
-var token = builder.Configuration["Redis:Token"];
+var redisConn = builder.Configuration["Redis:ConnectionString"]
+    ?? throw new ArgumentNullException();
 
-var conf = new ConfigurationOptions
-{
-    AbortOnConnectFail = false,
-    Ssl = true,
-    ConnectTimeout = 10000,
-};
-conf.EndPoints.Add($"{host}:{port}");
-
-if (!string.IsNullOrEmpty(token))
-    conf.Password = token;
-
+// Register Redis multiplexer
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(conf)
+    ConnectionMultiplexer.Connect(redisConn)
 );
 
+// Register distributed cache using Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = $"{host}:{port},token={token},ssl=True,abortConnect=False";
+    options.Configuration = redisConn;
     options.InstanceName = "OnComics:";
 });
 #endregion
