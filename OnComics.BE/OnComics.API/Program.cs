@@ -17,6 +17,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Implements;
 using OnComics.Infrastructure.Repositories.Interfaces;
+using StackExchange.Redis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -152,6 +153,7 @@ builder.Services.AddScoped<IChapterSourceService, ChapterSourceService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IAppwriteService, AppwriteService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 #endregion
 
 #region Inject Utils
@@ -191,6 +193,33 @@ builder.Services.AddSingleton(appwriteClient);
 builder.Services.AddSingleton(sp => new Storage(appwriteClient));
 builder.Services
     .Configure<AppwriteHelper>(builder.Configuration.GetSection("Appwrite"));
+#endregion
+
+#region Inject Redis
+var host = builder.Configuration["Redis:Host"];
+var port = builder.Configuration["Redis:Port"] ?? "6379";
+var token = builder.Configuration["Redis:Token"];
+
+var conf = new ConfigurationOptions
+{
+    AbortOnConnectFail = false,
+    Ssl = true,
+    ConnectTimeout = 10000,
+};
+conf.EndPoints.Add($"{host}:{port}");
+
+if (!string.IsNullOrEmpty(token))
+    conf.Password = token;
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(conf)
+);
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = $"{host}:{port},token={token},ssl=True,abortConnect=False";
+    options.InstanceName = "OnComics:";
+});
 #endregion
 
 #region Logger
