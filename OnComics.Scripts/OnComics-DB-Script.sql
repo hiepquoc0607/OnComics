@@ -226,3 +226,15 @@ CREATE TABLE Interaction (
     INDEX (CommentId),
     INDEX (TypeId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Notification (
+    Id BINARY(16) PRIMARY KEY,
+    ChapterId BINARY(16) NOT NULL,
+    Content TEXT NOT NULL,
+    SendTime DATETIME NOT NULL,
+    FOREIGN KEY (ChapterId)
+        REFERENCES Chapter (Id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    INDEX (ChapterId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
