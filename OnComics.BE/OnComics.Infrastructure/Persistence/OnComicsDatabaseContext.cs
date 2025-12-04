@@ -41,6 +41,8 @@ public partial class OnComicsDatabaseContext : DbContext
 
     public virtual DbSet<Interactiontype> Interactiontypes { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var builder = new ConfigurationBuilder()
@@ -415,6 +417,28 @@ public partial class OnComicsDatabaseContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity
+                .ToTable("notification")
+                .UseCollation("utf8mb4_unicode_ci");
+
+            entity.HasIndex(e => e.ChapterId, "ChapterId");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("binary(16)");
+            entity.Property(e => e.ChapterId).HasColumnType("binary(16)");
+            entity.Property(e => e.Content).HasColumnType("text");
+            entity.Property(e => e.SendTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Chapter).WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.ChapterId)
+                .HasConstraintName("notification_ibfk_1");
         });
 
         OnModelCreatingPartial(modelBuilder);

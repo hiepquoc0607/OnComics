@@ -21,4 +21,6 @@ public partial class Chapter
     public virtual Comic Comic { get; set; } = null!;
 
     public virtual ICollection<History> Histories { get; set; } = new List<History>();
+
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

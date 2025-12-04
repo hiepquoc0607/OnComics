@@ -121,38 +121,40 @@ builder.Services.AddAuthorization(options =>
 
 #region Inject Repository
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAttachmentRepsitory, AttachmentRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IChapterRepository, ChapterRepository>();
+builder.Services.AddScoped<IChapterSourceRepository, ChapterSourceRepository>();
 builder.Services.AddScoped<IComicRepository, ComicRepository>();
 builder.Services.AddScoped<IComicCategoryRepository, ComicCategoryRepository>();
-builder.Services.AddScoped<IChapterRepository, ChapterRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IInteractionTypeRepository, InteractionTypeRepository>();
 builder.Services.AddScoped<IComicRatingRepository, ComicRatingRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
 builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
-builder.Services.AddScoped<IChapterSourceRepository, ChapterSourceRepository>();
-builder.Services.AddScoped<IAttachmentRepsitory, AttachmentRepository>();
+builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
+builder.Services.AddScoped<IInteractionTypeRepository, InteractionTypeRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 #endregion
 
 #region Inject Service
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IMailService, MailService>();
-builder.Services.AddScoped<IGoogleService, GoogleService>();
-builder.Services.AddScoped<IComicService, ComicService>();
-builder.Services.AddScoped<IChapterService, ChapterService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IInteractionTypeService, InteractionTypeService>();
-builder.Services.AddScoped<IComicRatingService, ComicRatingService>();
-builder.Services.AddScoped<ICommentService, CommentService>();
-builder.Services.AddScoped<IInteractionService, InteractionService>();
-builder.Services.AddScoped<IFavoriteService, FavoriteService>();
-builder.Services.AddScoped<IHistoryService, HistoryService>();
-builder.Services.AddScoped<IChapterSourceService, ChapterSourceService>();
-builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IAppwriteService, AppwriteService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IChapterService, ChapterService>();
+builder.Services.AddScoped<IChapterSourceService, ChapterSourceService>();
+builder.Services.AddScoped<IComicRatingService, ComicRatingService>();
+builder.Services.AddScoped<IComicService, ComicService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IGoogleService, GoogleService>();
+builder.Services.AddScoped<IHistoryService, HistoryService>();
+builder.Services.AddScoped<IInteractionService, InteractionService>();
+builder.Services.AddScoped<IInteractionTypeService, InteractionTypeService>();
+builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 #endregion
 
@@ -196,18 +198,15 @@ builder.Services
 #endregion
 
 #region Inject Redis
-var redisConn = builder.Configuration["Redis:ConnectionString"]
-    ?? throw new ArgumentNullException();
-
 // Register Redis multiplexer
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(redisConn)
+    ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"]!)
 );
 
 // Register distributed cache using Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = redisConn;
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
     options.InstanceName = "OnComics:";
 });
 #endregion
