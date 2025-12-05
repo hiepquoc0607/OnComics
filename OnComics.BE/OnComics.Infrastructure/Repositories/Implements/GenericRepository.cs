@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Interfaces;
 using System.Linq.Expressions;

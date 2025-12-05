@@ -25,6 +25,7 @@ namespace OnComics.Application.Services.Implements
         private readonly IChapterSourceRepository _chapterSourceRepository;
         private readonly IComicRepository _comicRepository;
         private readonly IHistoryRepository _historyRepository;
+        private readonly INotificationRepository _notificationRepository;
         private readonly IAppwriteService _appwriteService;
         private readonly IMapper _mapper;
         private readonly Util _util;
@@ -34,6 +35,7 @@ namespace OnComics.Application.Services.Implements
             IChapterSourceRepository chapterSourceRepository,
             IComicRepository comicRepository,
             IHistoryRepository historyRepository,
+            INotificationRepository notificationRepository,
             IAppwriteService appwriteService,
             IMapper mapper,
             Util util)
@@ -42,6 +44,7 @@ namespace OnComics.Application.Services.Implements
             _chapterSourceRepository = chapterSourceRepository;
             _comicRepository = comicRepository;
             _historyRepository = historyRepository;
+            _notificationRepository = notificationRepository;
             _appwriteService = appwriteService;
             _mapper = mapper;
             _util = util;
@@ -392,6 +395,42 @@ namespace OnComics.Application.Services.Implements
             catch (Exception ex)
             {
                 return new VoidResponse(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
+        }
+
+        //Error Report A Chapter
+        public async Task<ObjectResponse<Notification>> ReportChapterAsync(Guid id)
+        {
+            try
+            {
+                var chapter = await _chapterRepository.GetByIdAsync(id, false);
+
+                if (chapter == null)
+                    return new ObjectResponse<Notification>(
+                        (int)HttpStatusCode.NotFound,
+                        "Chapter Not Found!");
+
+                var noti = new Notification();
+                noti.Id = Guid.NewGuid();
+                noti.ChapterId = id;
+                noti.Content = "Chapter: {id} Error Report!"
+                    .Replace("{id}", id.ToString());
+                noti.SendTime = DateTime.Now;
+                noti.IsRead = false;
+
+                await _notificationRepository.InsertAsync(noti);
+
+                return new ObjectResponse<Notification>(
+                    (int)HttpStatusCode.Created,
+                    "Chapter Error Report Successfully!",
+                    noti);
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResponse<Notification>(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
                     ex.Message);

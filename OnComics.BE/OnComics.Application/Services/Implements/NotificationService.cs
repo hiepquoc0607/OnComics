@@ -129,10 +129,10 @@ namespace OnComics.Application.Services.Implements
                 var dataIds = await _notificationRepository.GetNotifcationIdsAsync();
                 var invalidIds = _util.CompareGuidArray(ids.ToArray(), dataIds.ToArray());
 
-                if (invalidIds != null)
+                if (invalidIds != null && invalidIds.Length > 0)
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
-                        "Notification Ids Not Found: " + invalidIds);
+                        "Notification Ids Not Found: " + string.Join(", ", invalidIds));
 
                 var notis = await _notificationRepository.GetNotificationsByIdsAsync(ids);
 
@@ -156,11 +156,11 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
-        public async Task<VoidResponse> MaskReadNotificationsAsync()
+        public async Task<VoidResponse> MarkReadNotificationsAsync()
         {
             try
             {
-                var affectRows = await _notificationRepository.MaskReadNotificationsAsync();
+                var affectRows = await _notificationRepository.MarkReadNotificationsAsync();
 
                 if (affectRows == 0)
                     return new VoidResponse(

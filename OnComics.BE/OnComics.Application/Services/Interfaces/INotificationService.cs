@@ -14,6 +14,6 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<VoidResponse> DeleteNotificationsAsync(List<Guid> ids);
 
-        Task<VoidResponse> MaskReadNotificationsAsync();
+        Task<VoidResponse> MarkReadNotificationsAsync();
     }
 }

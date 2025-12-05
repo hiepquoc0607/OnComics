@@ -33,10 +33,10 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("mask-all-read")]
-        public async Task<IActionResult> MaskReadAsync()
+        [HttpPut("mark-read")]
+        public async Task<IActionResult> MarkReadAsync()
         {
-            var result = await _notificationService.MaskReadNotificationsAsync();
+            var result = await _notificationService.MarkReadNotificationsAsync();
 
             return StatusCode(result.StatusCode, result);
         }

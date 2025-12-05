@@ -21,5 +21,7 @@ namespace OnComics.Application.Services.Interfaces
         Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ChapterStatus> updateStatusReq);
 
         Task<VoidResponse> DeleteChapterAsync(Guid id);
+
+        Task<ObjectResponse<Notification>> ReportChapterAsync(Guid id);
     }
 }

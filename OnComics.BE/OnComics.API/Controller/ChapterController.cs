@@ -87,6 +87,15 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Update Chapter Sources
+        [HttpPut("{id:guid}/error-report")]
+        public async Task<IActionResult> ReportAsync([FromRoute] Guid id)
+        {
+            var result = await _chapterService.ReportChapterAsync(id);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
         //Delete Chapter
         [Authorize(Policy = "Admin")]
         [HttpDelete("{id:guid}")]

@@ -30,7 +30,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
         }
 
         //Mask Read 20 Notification
-        public async Task<int> MaskReadNotificationsAsync()
+        public async Task<int> MarkReadNotificationsAsync()
         {
             return await _context.Notifications
                 .Where(n => n.IsRead == false)
