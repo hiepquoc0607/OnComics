@@ -1,6 +1,8 @@
 ﻿using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OnComics.Application.Enums.ComicRating;
+using OnComics.Application.Hubs;
 using OnComics.Application.Models.Request.ComicRating;
 using OnComics.Application.Models.Response.ComicRating;
 using OnComics.Application.Models.Response.Common;
@@ -16,15 +18,18 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly IComicRatingRepository _comicRatingRepository;
         private readonly IComicRepository _comicRepository;
+        private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
 
         public ComicRatingService(
             IComicRatingRepository comicRatingRepository,
             IComicRepository comicRepository,
+            IHubContext<OnComicsHub> hub,
             IMapper mapper)
         {
             _comicRatingRepository = comicRatingRepository;
             _comicRepository = comicRepository;
+            _hub = hub;
             _mapper = mapper;
         }
 
@@ -157,6 +162,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _comicRepository.UpdateAsync(comic);
 
+                await _hub.Clients.All.SendAsync("RatingCreated", newRating);
+
+                await _hub.Clients.All.SendAsync("ComicUpdated", comic);
+
                 return new ObjectResponse<Comicrating>(
                     (int)HttpStatusCode.OK,
                     "Create Rating Successfully!",
@@ -201,6 +210,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _comicRepository.UpdateAsync(comic);
 
+                await _hub.Clients.All.SendAsync("RatingUpdated", rating);
+
+                await _hub.Clients.All.SendAsync("ComicUpdated", comic);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Rating Successfully!");
@@ -239,6 +252,10 @@ namespace OnComics.Application.Services.Implements
                 await _comicRatingRepository.DeleteAsync(rating);
 
                 await _comicRepository.UpdateAsync(comic);
+
+                await _hub.Clients.All.SendAsync("RatingDeleted", id);
+
+                await _hub.Clients.All.SendAsync("ComicUpdated", comic);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OnComics.Application.Services.Interfaces;
-using Org.BouncyCastle.Utilities.Zlib;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Webp;

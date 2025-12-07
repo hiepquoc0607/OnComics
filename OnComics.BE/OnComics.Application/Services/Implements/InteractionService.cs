@@ -1,7 +1,9 @@
 ﻿using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Enums.Interaction;
+using OnComics.Application.Hubs;
 using OnComics.Application.Models.Request.Interaction;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Models.Response.Interaction;
@@ -19,17 +21,20 @@ namespace OnComics.Application.Services.Implements
         private readonly IInteractionRepository _interactionRepository;
         private readonly IInteractionTypeRepository _interactionTypeRepository;
         private readonly ICommentRepository _commentRepository;
+        private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
 
         public InteractionService(
             IInteractionRepository interactionRepository,
             IInteractionTypeRepository interactionTypeRepository,
             ICommentRepository commentRepository,
+            IHubContext<OnComicsHub> hub,
             IMapper mapper)
         {
             _interactionRepository = interactionRepository;
             _interactionTypeRepository = interactionTypeRepository;
             _commentRepository = commentRepository;
+            _hub = hub;
             _mapper = mapper;
         }
 
@@ -207,6 +212,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _commentRepository.UpdateAsync(comment);
 
+                await _hub.Clients.All.SendAsync("InteractionCreated", newItr);
+
+                await _hub.Clients.All.SendAsync("CommentUpdated", comment);
+
                 return new ObjectResponse<Interaction>(
                     (int)HttpStatusCode.Created,
                     "Create Interaction Successfully!",
@@ -250,6 +259,8 @@ namespace OnComics.Application.Services.Implements
 
                 await _interactionRepository.UpdateAsync(newItr);
 
+                await _hub.Clients.All.SendAsync("InteractionUpdated", newItr);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Interaction Successfully!");
@@ -287,6 +298,8 @@ namespace OnComics.Application.Services.Implements
                 comment.InteractionNum = comment.InteractionNum - 1;
 
                 await _interactionRepository.DeleteAsync(interaction);
+
+                await _hub.Clients.All.SendAsync("InteractionDeleted", id);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

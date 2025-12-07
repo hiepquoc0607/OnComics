@@ -1,9 +1,10 @@
 ﻿using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Enums.Comment;
+using OnComics.Application.Hubs;
 using OnComics.Application.Models.Request.Comment;
 using OnComics.Application.Models.Response.Appwrite;
 using OnComics.Application.Models.Response.Attachment;
@@ -23,6 +24,7 @@ namespace OnComics.Application.Services.Implements
         private readonly IComicRepository _comicRepository;
         private readonly IAttachmentRepsitory _attachmentRepsitory;
         private readonly IAppwriteService _appwriteService;
+        private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
 
         public CommentService(
@@ -30,12 +32,14 @@ namespace OnComics.Application.Services.Implements
             IComicRepository comicRepository,
             IAttachmentRepsitory attachmentRepsitory,
             IAppwriteService appwriteService,
+            IHubContext<OnComicsHub> hub,
             IMapper mapper)
         {
             _commentRepository = commentRepository;
             _comicRepository = comicRepository;
             _attachmentRepsitory = attachmentRepsitory;
             _appwriteService = appwriteService;
+            _hub = hub;
             _mapper = mapper;
         }
 
@@ -255,6 +259,8 @@ namespace OnComics.Application.Services.Implements
                     await _attachmentRepsitory.BulkInsertAsync(attachments);
                 }
 
+                await _hub.Clients.All.SendAsync("CommentCreated", newCmt);
+
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.Created,
                     "Create Comment Successfully!",
@@ -342,6 +348,8 @@ namespace OnComics.Application.Services.Implements
                     await _attachmentRepsitory.BulkInsertAsync(attachments);
                 }
 
+                await _hub.Clients.All.SendAsync("CommentCreated", newCmt);
+
                 return new ObjectResponse<Comment>(
                     (int)HttpStatusCode.Created,
                     "Reply Comment Successfully!",
@@ -376,6 +384,8 @@ namespace OnComics.Application.Services.Implements
                 var newCmt = _mapper.Map(updateCommentReq, oldCmt);
 
                 await _commentRepository.UpdateAsync(newCmt);
+
+                await _hub.Clients.All.SendAsync("CommentUpdated", newCmt);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -413,6 +423,8 @@ namespace OnComics.Application.Services.Implements
                         await _appwriteService.DeleteFileAsync(item.ToString());
                     }
                 }
+
+                await _hub.Clients.All.SendAsync("CommentDeleted", id);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

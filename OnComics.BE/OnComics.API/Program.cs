@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using OnComics.API.Middleware;
 using OnComics.Application.Constants;
 using OnComics.Application.Helpers;
+using OnComics.Application.Hubs;
 using OnComics.Application.Services.Implements;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
@@ -211,6 +212,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 #endregion
 
+#region Inject SignalR
+builder.Services.AddSignalR();
+#endregion
+
 #region Logger
 builder.Services.AddLogging(logging =>
 {
@@ -295,5 +300,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<OnComicsHub>("/hubs/oncomics");
 
 app.Run();

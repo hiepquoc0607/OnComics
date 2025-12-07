@@ -1,9 +1,11 @@
 ﻿using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Chapter;
+using OnComics.Application.Hubs;
 using OnComics.Application.Models.Request.Chapter;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Models.Response.Appwrite;
@@ -27,6 +29,7 @@ namespace OnComics.Application.Services.Implements
         private readonly IHistoryRepository _historyRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IAppwriteService _appwriteService;
+        private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
@@ -37,6 +40,7 @@ namespace OnComics.Application.Services.Implements
             IHistoryRepository historyRepository,
             INotificationRepository notificationRepository,
             IAppwriteService appwriteService,
+            IHubContext<OnComicsHub> hub,
             IMapper mapper,
             Util util)
         {
@@ -46,6 +50,7 @@ namespace OnComics.Application.Services.Implements
             _historyRepository = historyRepository;
             _notificationRepository = notificationRepository;
             _appwriteService = appwriteService;
+            _hub = hub;
             _mapper = mapper;
             _util = util;
         }
@@ -416,12 +421,13 @@ namespace OnComics.Application.Services.Implements
                 var noti = new Notification();
                 noti.Id = Guid.NewGuid();
                 noti.ChapterId = id;
-                noti.Content = "Chapter: {id} Error Report!"
-                    .Replace("{id}", id.ToString());
+                noti.Content = $"ChapterId: {id} Error Report!";
                 noti.SendTime = DateTime.Now;
                 noti.IsRead = false;
 
                 await _notificationRepository.InsertAsync(noti);
+
+                await _hub.Clients.All.SendAsync("NotificationCreated", noti);
 
                 return new ObjectResponse<Notification>(
                     (int)HttpStatusCode.Created,

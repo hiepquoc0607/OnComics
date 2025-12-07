@@ -1,6 +1,8 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
+using OnComics.Application.Hubs;
 using OnComics.Application.Models.Request.Notification;
 using OnComics.Application.Models.Response.Common;
 using OnComics.Application.Models.Response.Notification;
@@ -15,19 +17,23 @@ namespace OnComics.Application.Services.Implements
     public class NotificationService : INotificationService
     {
         private readonly INotificationRepository _notificationRepository;
+        private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
         public NotificationService(
             INotificationRepository notificationRepository,
+            IHubContext<OnComicsHub> hub,
             IMapper mapper,
             Util util)
         {
             _notificationRepository = notificationRepository;
+            _hub = hub;
             _mapper = mapper;
             _util = util;
         }
 
+        //Get All Notifications
         public async Task<ObjectResponse<IEnumerable<NotificationRes>?>> GetNotificationsAsync(GetNotificationReq getNotificationReq)
         {
 
@@ -65,6 +71,7 @@ namespace OnComics.Application.Services.Implements
                 pagination);
         }
 
+        //Get Notifcation By Id
         public async Task<ObjectResponse<NotificationRes?>> GetNotificationByIdAsync(Guid id)
         {
             try
@@ -96,6 +103,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Delete Notification
         public async Task<VoidResponse> DeleteNotificationAsync(Guid id)
         {
             try
@@ -108,6 +116,8 @@ namespace OnComics.Application.Services.Implements
                         "Notifcation Not Found!");
 
                 await _notificationRepository.DeleteAsync(noti);
+
+                await _hub.Clients.All.SendAsync("NotificationDeleted", id);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -122,6 +132,7 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Bulk (Range) Delete Notifications
         public async Task<VoidResponse> DeleteNotificationsAsync(List<Guid> ids)
         {
             try
@@ -143,6 +154,8 @@ namespace OnComics.Application.Services.Implements
 
                 await _notificationRepository.BulkDeleteAsync(notis);
 
+                await _hub.Clients.All.SendAsync("NotificationsDeleted", ids);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Delete Notifications Successfully!");
@@ -156,16 +169,26 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
+        //Mark Read For First 20 Unread Notifications
         public async Task<VoidResponse> MarkReadNotificationsAsync()
         {
             try
             {
+                var notiIds = await _notificationRepository.GetUnReadNotiIdsAsync();
+
                 var affectRows = await _notificationRepository.MarkReadNotificationsAsync();
 
-                if (affectRows == 0)
+                if (affectRows == 0 || notiIds == null || notiIds.IsNullOrEmpty())
                     return new VoidResponse(
                         (int)HttpStatusCode.NotFound,
                         "No Unread Notifcations Found!");
+
+                var notis = await _notificationRepository.GetNotificationsByIdsAsync(notiIds.ToList());
+
+                if (notis is not null)
+                {
+                    await _hub.Clients.All.SendAsync("NotificationMarked", notis);
+                }
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

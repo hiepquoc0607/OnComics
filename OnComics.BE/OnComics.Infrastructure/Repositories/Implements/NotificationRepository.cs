@@ -29,6 +29,17 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 .ToListAsync();
         }
 
+        //Get 20 First Unread Notification
+        public async Task<IEnumerable<Guid>?> GetUnReadNotiIdsAsync()
+        {
+            return await _context.Notifications
+                .AsNoTracking()
+                .Where(n => n.IsRead == false)
+                .Select(n => n.Id)
+                .Take(20)
+                .ToListAsync();
+        }
+
         //Mask Read 20 Notification
         public async Task<int> MarkReadNotificationsAsync()
         {

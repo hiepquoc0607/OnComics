@@ -8,6 +8,8 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task<IEnumerable<Notification>?> GetNotificationsByIdsAsync(List<Guid> ids);
 
+        Task<IEnumerable<Guid>?> GetUnReadNotiIdsAsync();
+
         Task<int> MarkReadNotificationsAsync();
     }
 }
