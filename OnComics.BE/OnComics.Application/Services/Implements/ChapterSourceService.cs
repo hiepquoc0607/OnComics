@@ -15,17 +15,22 @@ namespace OnComics.Application.Services.Implements
         private readonly IChapterRepository _chapterRepository;
         private readonly IComicRepository _comicRepository;
         private readonly IAppwriteService _appwriteService;
+        private readonly IRedisService _redisService;
+
+        private static string cacheKey = "chapters:{id}";
 
         public ChapterSourceService(
             IChapterSourceRepository chapterSourceRepository,
             IChapterRepository chapterRepository,
             IComicRepository comicRepository,
-            IAppwriteService appwriteService)
+            IAppwriteService appwriteService,
+            IRedisService redisService)
         {
             _chapterSourceRepository = chapterSourceRepository;
             _chapterRepository = chapterRepository;
             _comicRepository = comicRepository;
             _appwriteService = appwriteService;
+            _redisService = redisService;
         }
 
         //Update Chapter Sources
@@ -123,6 +128,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _chapterSourceRepository.BulkInsertAsync(newSrcs);
 
+                string key = cacheKey.Replace("{id}", chapterId.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new ObjectResponse<IEnumerable<Chaptersource>>(
                     (int)HttpStatusCode.Created,
                     "Create Chapter Sources Successfully!",
@@ -156,6 +165,10 @@ namespace OnComics.Application.Services.Implements
                 {
                     await _appwriteService.DeleteFileAsync(file.Id.ToString());
                 }
+
+                string key = cacheKey.Replace("{id}", chapterId.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

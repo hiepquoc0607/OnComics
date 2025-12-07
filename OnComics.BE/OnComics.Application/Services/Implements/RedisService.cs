@@ -4,12 +4,12 @@ using System.Text.Json;
 
 namespace OnComics.Application.Services.Implements
 {
-    public class RedisCacheService : IRedisCacheService
+    public class RedisService : IRedisService
     {
         private readonly IDistributedCache _cache;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public RedisCacheService(IDistributedCache cache)
+        public RedisService(IDistributedCache cache)
         {
             _cache = cache;
             _jsonOptions = new JsonSerializerOptions

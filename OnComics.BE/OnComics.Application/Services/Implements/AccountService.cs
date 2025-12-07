@@ -23,19 +23,24 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IAppwriteService _appwriteService;
+        private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly Util _util;
 
+        private static string cacheKey = "accounts:{id}";
+
         public AccountService(
             IAccountRepository accountRepository,
             IAppwriteService appwriteService,
+            IRedisService redisService,
             IMapper mapper,
             IConfiguration configuration,
             Util util)
         {
             _accountRepository = accountRepository;
             _appwriteService = appwriteService;
+            _redisService = redisService;
             _mapper = mapper;
             _configuration = configuration;
             _util = util;
@@ -113,20 +118,35 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var account = await _accountRepository.GetByIdAsync(id, false);
+                string key = cacheKey.Replace("{id}", id.ToString());
 
-                if (account == null)
+                var accCache = await _redisService.GetAsync<AccountRes>(key);
+
+                if (accCache is not null)
+                {
                     return new ObjectResponse<AccountRes?>(
-                        (int)HttpStatusCode.NotFound,
-                        "Account Not Found!");
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        accCache);
+                }
+                else
+                {
+                    var account = await _accountRepository.GetByIdAsync(id, false);
 
-                var data = account.Adapt<AccountRes>();
+                    if (account == null)
+                        return new ObjectResponse<AccountRes?>(
+                            (int)HttpStatusCode.NotFound,
+                            "Account Not Found!");
 
-                return new ObjectResponse<AccountRes?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!",
-                    data);
+                    var data = account.Adapt<AccountRes>();
 
+                    await _redisService.SetAsync<AccountRes>(key, data, TimeSpan.FromMinutes(10));
+
+                    return new ObjectResponse<AccountRes?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data);
+                }
             }
             catch (Exception ex)
             {
@@ -160,6 +180,10 @@ namespace OnComics.Application.Services.Implements
                 newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
 
                 await _accountRepository.UpdateAsync(newAccount);
+
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -215,6 +239,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _accountRepository.UpdateAsync(oldAccount);
 
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Profile Picture Successfully!");
@@ -247,6 +275,10 @@ namespace OnComics.Application.Services.Implements
                 account.RefreshExpireTime = null;
 
                 await _accountRepository.UpdateAsync(account);
+
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -281,6 +313,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _accountRepository.UpdateAsync(account);
 
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update New Status Successfully!");
@@ -307,6 +343,10 @@ namespace OnComics.Application.Services.Implements
                         "Account Not Found!");
 
                 await _accountRepository.DeleteAsync(account);
+
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

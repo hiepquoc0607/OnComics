@@ -22,21 +22,26 @@ namespace OnComics.Application.Services.Implements
         private readonly IAccountRepository _accountRepository;
         private readonly IMailService _mailService;
         private readonly IGoogleService _googleService;
+        private readonly IRedisService _redisService;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly Util _util;
+
         private static readonly DateTime _time = DateTime.UtcNow.AddHours(12);
+        private static string cacheKey = "accounts:{id}";
 
         public AuthService(
             IAccountRepository accountRepository,
             IMailService mailService,
             IGoogleService googleService,
+            IRedisService redisService,
             IConfiguration configuration,
             IMapper mapper, Util util)
         {
             _accountRepository = accountRepository;
             _mailService = mailService;
             _googleService = googleService;
+            _redisService = redisService;
             _configuration = configuration;
             _mapper = mapper;
             _util = util;
@@ -123,6 +128,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _accountRepository.UpdateAsync(account);
 
+                string key = cacheKey.Replace("{id}", account.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new ObjectResponse<AuthRes?>(
                     (int)HttpStatusCode.OK,
                     "Login Successfully!",
@@ -188,6 +197,10 @@ namespace OnComics.Application.Services.Implements
                     data.TokenExpiredIn = expiredSeccond;
 
                     await _accountRepository.UpdateAsync(account);
+
+                    string key = cacheKey.Replace("{id}", account.Id.ToString());
+
+                    await _redisService.RemoveAsync(key);
 
                     return new ObjectResponse<AuthRes?>(
                         (int)HttpStatusCode.OK,
@@ -290,6 +303,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _accountRepository.UpdateAsync(account);
 
+                string key = cacheKey.Replace("{id}", account.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new ObjectResponse<AuthRes>(
                     (int)HttpStatusCode.OK,
                     "Refresh RefreshToken Succesfully!",
@@ -326,6 +343,10 @@ namespace OnComics.Application.Services.Implements
                 await _accountRepository.UpdateAsync(account);
 
                 await _mailService.SendEmailAsync(email, "OnComics Reset Password Link:", url);
+
+                string key = cacheKey.Replace("{id}", account.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -382,8 +403,11 @@ namespace OnComics.Application.Services.Implements
                 account.RefreshToken = String.Empty;
                 account.RefreshExpireTime = null;
 
-
                 await _accountRepository.UpdateAsync(account);
+
+                var key = cacheKey.Replace("{id}", account.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -459,6 +483,10 @@ namespace OnComics.Application.Services.Implements
                 account.RefreshExpireTime = null;
 
                 await _accountRepository.UpdateAsync(account);
+
+                string key = cacheKey.Replace("{id}", account.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

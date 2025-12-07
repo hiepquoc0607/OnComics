@@ -29,9 +29,12 @@ namespace OnComics.Application.Services.Implements
         private readonly IHistoryRepository _historyRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IAppwriteService _appwriteService;
+        private readonly IRedisService _redisService;
         private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
         private readonly Util _util;
+
+        private static string cacheKey = "chapters:{id}";
 
         public ChapterService(
             IChapterRepository chapterRepository,
@@ -40,6 +43,7 @@ namespace OnComics.Application.Services.Implements
             IHistoryRepository historyRepository,
             INotificationRepository notificationRepository,
             IAppwriteService appwriteService,
+            IRedisService redisService,
             IHubContext<OnComicsHub> hub,
             IMapper mapper,
             Util util)
@@ -50,6 +54,7 @@ namespace OnComics.Application.Services.Implements
             _historyRepository = historyRepository;
             _notificationRepository = notificationRepository;
             _appwriteService = appwriteService;
+            _redisService = redisService;
             _hub = hub;
             _mapper = mapper;
             _util = util;
@@ -128,45 +133,62 @@ namespace OnComics.Application.Services.Implements
 
             try
             {
-                var (chap, sources) = await _chapterRepository.GetChapterByIdAsync(id);
+                string key = cacheKey.Replace("{id}", id.ToString());
 
-                chapter = chap;
+                var chapCache = await _redisService.GetAsync<ChapterRes?>(key);
 
-                if (chapter == null)
-                    return new ObjectResponse<ChapterRes?>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Chapter Not Found!");
-
-                comic = await _comicRepository.GetByIdAsync(chapter.ComicId, true);
-
-                if (comic == null)
-                    return new ObjectResponse<ChapterRes?>(
-                        (int)HttpStatusCode.BadRequest,
-                        "Comic Not Found!");
-
-                comic.TotalReadNum = comic.TotalReadNum + 1;
-                chapter.ReadNum = chapter.ReadNum + 1;
-
-                await _chapterRepository.UpdateAsync(chapter);
-
-                await _comicRepository.UpdateAsync(comic);
-
-                history = new History
+                if (chapCache is not null)
                 {
-                    Id = Guid.NewGuid(),
-                    ChapterId = id,
-                    AccountId = accId,
-                    ReadTime = DateTime.UtcNow,
-                };
+                    return new ObjectResponse<ChapterRes?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        chapCache);
+                }
+                else
+                {
+                    var (chap, sources) = await _chapterRepository.GetChapterByIdAsync(id);
 
-                await _historyRepository.InsertAsync(history);
+                    chapter = chap;
 
-                var data = _mapper.Map<ChapterRes>(chapter);
-                data.Chaptersources = sources.Adapt<List<ChapterSourceRes>>();
+                    if (chapter == null)
+                        return new ObjectResponse<ChapterRes?>(
+                            (int)HttpStatusCode.BadRequest,
+                            "Chapter Not Found!");
 
-                return new ObjectResponse<ChapterRes?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!", data);
+                    comic = await _comicRepository.GetByIdAsync(chapter.ComicId, true);
+
+                    if (comic == null)
+                        return new ObjectResponse<ChapterRes?>(
+                            (int)HttpStatusCode.BadRequest,
+                            "Comic Not Found!");
+
+                    comic.TotalReadNum = comic.TotalReadNum + 1;
+                    chapter.ReadNum = chapter.ReadNum + 1;
+
+                    await _chapterRepository.UpdateAsync(chapter);
+
+                    await _comicRepository.UpdateAsync(comic);
+
+                    history = new History
+                    {
+                        Id = Guid.NewGuid(),
+                        ChapterId = id,
+                        AccountId = accId,
+                        ReadTime = DateTime.UtcNow,
+                    };
+
+                    await _historyRepository.InsertAsync(history);
+
+                    var data = _mapper.Map<ChapterRes>(chapter);
+                    data.Chaptersources = sources.Adapt<List<ChapterSourceRes>>();
+
+                    await _redisService.SetAsync<ChapterRes?>(key, data, TimeSpan.FromMinutes(10));
+
+                    return new ObjectResponse<ChapterRes?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data);
+                }
             }
             catch (Exception ex)
             {
@@ -322,6 +344,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _chapterRepository.UpdateAsync(newChapter);
 
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Chapter Successfully!");
@@ -355,6 +381,10 @@ namespace OnComics.Application.Services.Implements
                 };
 
                 await _chapterRepository.UpdateAsync(chapter);
+
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
@@ -392,6 +422,10 @@ namespace OnComics.Application.Services.Implements
                 comic.UpdateTime = DateTime.UtcNow;
 
                 await _comicRepository.UpdateAsync(comic);
+
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

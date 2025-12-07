@@ -18,7 +18,6 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Implements;
 using OnComics.Infrastructure.Repositories.Interfaces;
-using StackExchange.Redis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -156,7 +155,7 @@ builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<IInteractionTypeService, InteractionTypeService>();
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+builder.Services.AddScoped<IRedisService, RedisService>();
 #endregion
 
 #region Inject Utils
@@ -199,15 +198,15 @@ builder.Services
 #endregion
 
 #region Inject Redis
-// Register Redis multiplexer
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(builder.Configuration["Redis:ConnectionString"]!)
-);
+string redisEndpoint = builder.Configuration["Redis:Endpoint"]!;
+string redisPort = builder.Configuration["Redis:Port"]!;
+string redisPassword = builder.Configuration["Redis:Password"]!;
 
-// Register distributed cache using Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+    options.Configuration =
+        $"{redisEndpoint}:{redisPort},password={redisPassword},ssl=True,abortConnect=False";
+
     options.InstanceName = "OnComics:";
 });
 #endregion
@@ -302,5 +301,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<OnComicsHub>("/hubs/oncomics");
+
+app.MapGet("/", () => "Connected!");
 
 app.Run();

@@ -18,17 +18,22 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly IComicRatingRepository _comicRatingRepository;
         private readonly IComicRepository _comicRepository;
+        private readonly IRedisService _redisService;
         private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
+
+        private static string cacheKey = "comics:{id}";
 
         public ComicRatingService(
             IComicRatingRepository comicRatingRepository,
             IComicRepository comicRepository,
+            IRedisService redisService,
             IHubContext<OnComicsHub> hub,
             IMapper mapper)
         {
             _comicRatingRepository = comicRatingRepository;
             _comicRepository = comicRepository;
+            _redisService = redisService;
             _hub = hub;
             _mapper = mapper;
         }
@@ -166,6 +171,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _hub.Clients.All.SendAsync("ComicUpdated", comic);
 
+                var key = cacheKey.Replace("{id}", comicId.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new ObjectResponse<Comicrating>(
                     (int)HttpStatusCode.OK,
                     "Create Rating Successfully!",
@@ -214,6 +223,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _hub.Clients.All.SendAsync("ComicUpdated", comic);
 
+                var key = cacheKey.Replace("{id}", comic.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Rating Successfully!");
@@ -256,6 +269,10 @@ namespace OnComics.Application.Services.Implements
                 await _hub.Clients.All.SendAsync("RatingDeleted", id);
 
                 await _hub.Clients.All.SendAsync("ComicUpdated", comic);
+
+                var key = cacheKey.Replace("{id}", comic.Id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

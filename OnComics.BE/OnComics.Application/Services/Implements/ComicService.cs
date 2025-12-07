@@ -26,15 +26,19 @@ namespace OnComics.Application.Services.Implements
         private readonly ICategoryRepository _categoryRepository;
         private readonly IComicCategoryRepository _comicCategoryRepository;
         private readonly IAppwriteService _appwriteService;
+        private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly Util _util;
+
+        private static string cacheKey = "comics:{id}";
 
         public ComicService(
             IComicRepository comicRepository,
             ICategoryRepository categoryRepository,
             IComicCategoryRepository comicCategoryRepository,
             IAppwriteService appwriteService,
+            IRedisService redisService,
             IMapper mapper,
             IConfiguration configuration,
             Util util)
@@ -43,6 +47,7 @@ namespace OnComics.Application.Services.Implements
             _categoryRepository = categoryRepository;
             _comicCategoryRepository = comicCategoryRepository;
             _appwriteService = appwriteService;
+            _redisService = redisService;
             _mapper = mapper;
             _configuration = configuration;
             _util = util;
@@ -159,20 +164,36 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var (comic, categories) = await _comicRepository.GetComicByIdAsync(id);
+                string key = cacheKey.Replace("{id}", id.ToString());
 
-                if (comic == null)
+                var comicCache = await _redisService.GetAsync<ComicRes?>(key);
+
+                if (comicCache is not null)
+                {
                     return new ObjectResponse<ComicRes?>(
-                        (int)HttpStatusCode.NotFound,
-                        "Comic Not Found!");
+                         (int)HttpStatusCode.OK,
+                         "Fetch Data Successfully!",
+                         comicCache);
+                }
+                else
+                {
+                    var (comic, categories) = await _comicRepository.GetComicByIdAsync(id);
 
-                var data = _mapper.Map<ComicRes>(comic);
-                data.Categories = categories.Adapt<List<CateNameRes>>(); ;
+                    if (comic == null)
+                        return new ObjectResponse<ComicRes?>(
+                            (int)HttpStatusCode.NotFound,
+                            "Comic Not Found!");
 
-                return new ObjectResponse<ComicRes?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!",
-                    data);
+                    var data = _mapper.Map<ComicRes>(comic);
+                    data.Categories = categories.Adapt<List<CateNameRes>>();
+
+                    await _redisService.SetAsync<ComicRes?>(key, data, TimeSpan.FromMinutes(10));
+
+                    return new ObjectResponse<ComicRes?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data);
+                }
             }
             catch (Exception ex)
             {
@@ -296,6 +317,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _comicCategoryRepository.BulkInsertAsync(newCates);
 
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Comic Successfully!");
@@ -352,6 +377,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _comicRepository.UpdateAsync(oldComic);
 
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Thumnail Picture Successfully!");
@@ -387,6 +416,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _comicRepository.UpdateAsync(comic);
 
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Status Successfully!");
@@ -413,6 +446,10 @@ namespace OnComics.Application.Services.Implements
                         "Comic Not Found!");
 
                 await _comicRepository.DeleteAsync(comic);
+
+                string key = cacheKey.Replace("{id}", id.ToString());
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

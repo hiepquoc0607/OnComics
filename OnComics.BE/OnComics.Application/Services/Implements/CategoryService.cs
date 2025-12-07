@@ -17,15 +17,20 @@ namespace OnComics.Application.Services.Implements
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
+        private static string cacheKey = "categories";
+
         public CategoryService(
             ICategoryRepository categoryRepository,
+            IRedisService redisService,
             IMapper mapper,
             Util util)
         {
             _categoryRepository = categoryRepository;
+            _redisService = redisService;
             _mapper = mapper;
             _util = util;
         }
@@ -42,36 +47,82 @@ namespace OnComics.Application.Services.Implements
                 int pageNum = getCategoryReq.PageNum;
                 int pageIndex = getCategoryReq.PageIndex;
 
+                var cateCache = await _redisService.GetAsync<IEnumerable<CategoryRes>?>(cacheKey);
 
-                Expression<Func<Category, bool>>? search = c =>
-                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%"));
-
-                Func<IQueryable<Category>, IOrderedQueryable<Category>>? order = c => getCategoryReq.SortBy switch
+                if (cateCache is not null)
                 {
-                    CategorySortOption.NAME => isDescending
-                        ? c.OrderByDescending(c => c.Name)
-                        : c.OrderBy(c => c.Name),
-                    _ => c.OrderBy(c => c.Id)
-                };
+                    var query = cateCache.AsQueryable();
 
-                var categories = await _categoryRepository.GetAsync(search, order, pageNum, pageIndex);
+                    if (!string.IsNullOrEmpty(searchKey))
+                        query = query.Where(c => EF.Functions.Like(c.Name, $"%{searchKey}%"));
 
-                if (categories == null)
+                    query = getCategoryReq.SortBy switch
+                    {
+                        CategorySortOption.NAME => isDescending
+                            ? query.OrderByDescending(c => c.Name)
+                            : query.OrderBy(c => c.Name),
+                        _ => query.OrderBy(c => c.Id)
+                    };
+
+                    var categories = await query
+                        .Skip((pageNum - 1) * pageIndex)
+                        .Take(pageIndex)
+                        .ToListAsync();
+
+                    var totalData = cateCache.Count();
+                    int totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+                    var data = categories.Adapt<IEnumerable<CategoryRes>>();
+
+                    var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+
                     return new ObjectResponse<IEnumerable<CategoryRes>?>(
-                        (int)HttpStatusCode.NotFound,
-                        "Category Data Is Empty!");
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data,
+                        pagination);
+                }
+                else
+                {
+                    Expression<Func<Category, bool>>? search = c =>
+                        (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(c.Name, $"%{searchKey}%"));
 
-                var totalData = await _categoryRepository.CountRecordAsync(search);
-                int totalPage = (int)Math.Ceiling((decimal)totalData / getCategoryReq.PageIndex);
-                var data = categories.Adapt<IEnumerable<CategoryRes>>();
+                    Func<IQueryable<Category>, IOrderedQueryable<Category>>? order = c => getCategoryReq.SortBy switch
+                    {
+                        CategorySortOption.NAME => isDescending
+                            ? c.OrderByDescending(c => c.Name)
+                            : c.OrderBy(c => c.Name),
+                        _ => c.OrderBy(c => c.Id)
+                    };
 
-                var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+                    var categories = await _categoryRepository.GetAsync(search, order, pageNum, pageIndex);
 
-                return new ObjectResponse<IEnumerable<CategoryRes>?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!",
-                    data,
-                    pagination);
+                    if (categories == null)
+                        return new ObjectResponse<IEnumerable<CategoryRes>?>(
+                            (int)HttpStatusCode.NotFound,
+                            "Category Data Is Empty!");
+
+                    var totalData = await _categoryRepository.CountRecordAsync(search);
+                    int totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+                    var data = categories.Adapt<IEnumerable<CategoryRes>>();
+
+                    var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+
+                    var cates = await _categoryRepository.GetCategoriesAsync();
+
+                    if (cates is not null)
+                    {
+                        var cache = cates.Adapt<IEnumerable<CategoryRes>>();
+
+                        await _redisService
+                            .SetAsync<IEnumerable<CategoryRes>?>(cacheKey, cache, TimeSpan.FromMinutes(10));
+                    }
+
+                    return new ObjectResponse<IEnumerable<CategoryRes>?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data,
+                        pagination);
+                }
             }
             catch (Exception ex)
             {
@@ -87,18 +138,35 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var category = await _categoryRepository.GetByIdAsync(id, false);
+                string key = cacheKey + $":{id}";
 
-                if (category == null)
+                var cateCache = await _redisService.GetAsync<CategoryRes>(key);
+
+                if (cateCache is not null)
+                {
                     return new ObjectResponse<CategoryRes>(
-                        (int)HttpStatusCode.NotFound,
-                        "Category Not Found!");
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        cateCache);
+                }
+                else
+                {
+                    var category = await _categoryRepository.GetByIdAsync(id, false);
 
-                var data = _mapper.Map<CategoryRes>(category);
+                    if (category == null)
+                        return new ObjectResponse<CategoryRes>(
+                            (int)HttpStatusCode.NotFound,
+                            "Category Not Found!");
 
-                return new ObjectResponse<CategoryRes>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!", data);
+                    var data = _mapper.Map<CategoryRes>(category);
+
+                    await _redisService.SetAsync<CategoryRes>(key, data, TimeSpan.FromMinutes(10));
+
+                    return new ObjectResponse<CategoryRes>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data);
+                }
             }
             catch (Exception ex)
             {
@@ -127,6 +195,8 @@ namespace OnComics.Application.Services.Implements
                 newCate.Name = name;
 
                 await _categoryRepository.InsertAsync(newCate);
+
+                await _redisService.RemoveAsync(cacheKey);
 
                 return new ObjectResponse<Category>(
                     (int)HttpStatusCode.Created,
@@ -173,6 +243,8 @@ namespace OnComics.Application.Services.Implements
 
                 await _categoryRepository.BulkInsertAsync(newCategories);
 
+                await _redisService.RemoveAsync(cacheKey);
+
                 return new ObjectResponse<IEnumerable<Category>>(
                     (int)HttpStatusCode.Created,
                     "Create Categories Successfully!",
@@ -213,6 +285,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _categoryRepository.UpdateAsync(newCate);
 
+                string key = cacheKey + $":{id}";
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Category Successfully!");
@@ -239,6 +315,10 @@ namespace OnComics.Application.Services.Implements
                         "Category Not Found!");
 
                 await _categoryRepository.DeleteAsync(category);
+
+                string key = cacheKey + $":{id}";
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,

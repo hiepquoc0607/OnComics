@@ -1,6 +1,6 @@
 ﻿namespace OnComics.Application.Services.Interfaces
 {
-    public interface IRedisCacheService
+    public interface IRedisService
     {
         Task<T?> GetAsync<T>(string key);
 

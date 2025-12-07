@@ -11,6 +11,14 @@ namespace OnComics.Infrastructure.Repositories.Implements
         {
         }
 
+        //Get All Categories
+        public async Task<IEnumerable<Category>?> GetCategoriesAsync()
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         //Check If Category Is Existed
         public async Task<bool> CheckCategoryIsExistedAsync(string name)
         {

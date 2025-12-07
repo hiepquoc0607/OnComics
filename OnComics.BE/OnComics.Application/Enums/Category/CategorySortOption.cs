@@ -2,7 +2,6 @@
 {
     public enum CategorySortOption
     {
-        NAME,
-        STATUS
+        NAME
     }
 }

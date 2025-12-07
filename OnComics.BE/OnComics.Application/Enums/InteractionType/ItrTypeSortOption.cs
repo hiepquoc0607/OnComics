@@ -2,7 +2,6 @@
 {
     public enum ItrTypeSortOption
     {
-        NAME,
-        STATUS
+        NAME
     }
 }

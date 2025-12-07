@@ -20,19 +20,24 @@ namespace OnComics.Application.Services.Implements
     {
         private readonly IInteractionTypeRepository _interactionTypeRepository;
         private readonly IAppwriteService _appwriteService;
+        private readonly IRedisService _redisService;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
         private readonly Util _util;
 
+        private static string cacheKey = "itrtypes";
+
         public InteractionTypeService(
             IInteractionTypeRepository interactionTypeRepository,
             IAppwriteService appwriteService,
+            IRedisService redisService,
             IFileService fileService,
             IMapper mapper,
             Util util)
         {
             _interactionTypeRepository = interactionTypeRepository;
             _appwriteService = appwriteService;
+            _redisService = redisService;
             _fileService = fileService;
             _mapper = mapper;
             _util = util;
@@ -50,38 +55,83 @@ namespace OnComics.Application.Services.Implements
                 int pageNum = getItrTypeReq.PageNum;
                 int pageIndex = getItrTypeReq.PageIndex;
 
-                Expression<Func<Interactiontype, bool>>? search = i =>
-                    (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(i.Name, $"%{searchKey}%"));
+                var typeCache = await _redisService
+                    .GetAsync<IEnumerable<InteractionTypeRes>?>(cacheKey);
 
-                Func<IQueryable<Interactiontype>, IOrderedQueryable<Interactiontype>>? order = i => getItrTypeReq.SortBy switch
+                if (typeCache is not null)
                 {
-                    ItrTypeSortOption.NAME => isDescending
-                        ? i.OrderByDescending(i => i.Name)
-                        : i.OrderBy(i => i.Name),
-                    ItrTypeSortOption.STATUS => isDescending
-                        ? i.OrderByDescending(i => i.Name)
-                        : i.OrderBy(i => i.Name),
-                    _ => i.OrderBy(i => i.Id)
-                };
+                    var query = typeCache.AsQueryable();
 
-                var types = await _interactionTypeRepository.GetAsync(search, order, pageNum, pageIndex);
+                    if (!string.IsNullOrEmpty(searchKey))
+                        query = query.Where(i => EF.Functions.Like(i.Name, $"%{searchKey}%"));
 
-                if (types == null)
+                    query = getItrTypeReq.SortBy switch
+                    {
+                        ItrTypeSortOption.NAME => isDescending
+                            ? query.OrderByDescending(i => i.Name)
+                            : query.OrderBy(i => i.Name),
+                        _ => query.OrderBy(i => i.Id)
+                    };
+
+                    var categories = await query
+                        .Skip((pageNum - 1) * pageIndex)
+                        .Take(pageIndex)
+                        .ToListAsync();
+
+                    var totalData = typeCache.Count();
+                    int totalPage = (int)Math.Ceiling((decimal)totalData / pageIndex);
+                    var data = categories.Adapt<IEnumerable<InteractionTypeRes>>();
+
+                    var pagination = new Pagination(totalData, pageIndex, pageNum, totalPage);
+
                     return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
-                        (int)HttpStatusCode.NotFound,
-                        "Interaction Type Data Empty!");
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data,
+                        pagination);
+                }
+                else
+                {
+                    Expression<Func<Interactiontype, bool>>? search = i =>
+                        (string.IsNullOrEmpty(searchKey) || EF.Functions.Like(i.Name, $"%{searchKey}%"));
 
-                var data = types.Adapt<IEnumerable<InteractionTypeRes>>();
+                    Func<IQueryable<Interactiontype>, IOrderedQueryable<Interactiontype>>? order = i => getItrTypeReq.SortBy switch
+                    {
+                        ItrTypeSortOption.NAME => isDescending
+                            ? i.OrderByDescending(i => i.Name)
+                            : i.OrderBy(i => i.Name),
+                        _ => i.OrderBy(i => i.Id)
+                    };
 
-                var totalData = await _interactionTypeRepository.CountRecordAsync(search);
-                var toatlPage = (int)Math.Ceiling((decimal)totalData / getItrTypeReq.PageIndex);
-                var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
+                    var types = await _interactionTypeRepository.GetAsync(search, order, pageNum, pageIndex);
 
-                return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!",
-                    data,
-                    pagination);
+                    if (types == null)
+                        return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
+                            (int)HttpStatusCode.NotFound,
+                            "Interaction Type Data Empty!");
+
+                    var data = types.Adapt<IEnumerable<InteractionTypeRes>>();
+
+                    var totalData = await _interactionTypeRepository.CountRecordAsync(search);
+                    var toatlPage = (int)Math.Ceiling((decimal)totalData / getItrTypeReq.PageIndex);
+                    var pagination = new Pagination(totalData, pageIndex, pageNum, toatlPage);
+
+                    var itrTypes = await _interactionTypeRepository.GetInteractiontypesAsync();
+
+                    if (itrTypes is not null)
+                    {
+                        var cache = itrTypes.Adapt<IEnumerable<InteractionTypeRes>>();
+
+                        await _redisService
+                            .SetAsync<IEnumerable<InteractionTypeRes>?>(cacheKey, cache, TimeSpan.FromDays(1));
+                    }
+
+                    return new ObjectResponse<IEnumerable<InteractionTypeRes>?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data,
+                        pagination);
+                }
             }
             catch (Exception ex)
             {
@@ -97,19 +147,35 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var type = await _interactionTypeRepository.GetByIdAsync(id, false);
+                string key = cacheKey + $":{id}";
 
-                if (type == null)
+                var typeCache = await _redisService.GetAsync<InteractionTypeRes?>(key);
+
+                if (typeCache is not null)
+                {
                     return new ObjectResponse<InteractionTypeRes?>(
-                        (int)HttpStatusCode.NotFound,
-                        "Interaction Type Not Found!");
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        typeCache);
+                }
+                else
+                {
+                    var type = await _interactionTypeRepository.GetByIdAsync(id, false);
 
-                var data = _mapper.Map<InteractionTypeRes>(type);
+                    if (type == null)
+                        return new ObjectResponse<InteractionTypeRes?>(
+                            (int)HttpStatusCode.NotFound,
+                            "Interaction Type Not Found!");
 
-                return new ObjectResponse<InteractionTypeRes?>(
-                    (int)HttpStatusCode.OK,
-                    "Fetch Data Successfully!",
-                    data);
+                    var data = _mapper.Map<InteractionTypeRes>(type);
+
+                    await _redisService.SetAsync<InteractionTypeRes?>(key, data, TimeSpan.FromMinutes(10));
+
+                    return new ObjectResponse<InteractionTypeRes?>(
+                        (int)HttpStatusCode.OK,
+                        "Fetch Data Successfully!",
+                        data);
+                }
             }
             catch (Exception ex)
             {
@@ -203,6 +269,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _interactionTypeRepository.UpdateAsync(newType);
 
+                string key = cacheKey + $":{id}";
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Interaction Type Successfully!");
@@ -257,6 +327,10 @@ namespace OnComics.Application.Services.Implements
 
                 await _interactionTypeRepository.UpdateAsync(oldType);
 
+                string key = cacheKey + $":{id}";
+
+                await _redisService.RemoveAsync(key);
+
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
                     "Update Interaction Type Image Successfully!");
@@ -290,6 +364,10 @@ namespace OnComics.Application.Services.Implements
                 await _interactionTypeRepository.DeleteAsync(type);
 
                 await _appwriteService.DeleteFileAsync(id.ToString());
+
+                string key = cacheKey + $":{id}";
+
+                await _redisService.RemoveAsync(key);
 
                 return new VoidResponse(
                     (int)HttpStatusCode.OK,
