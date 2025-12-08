@@ -23,5 +23,11 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
         Task<int> CountComicsByCateId(
             Guid categoryId,
             Expression<Func<Comic, bool>>? filter = null);
+
+        Task ResetDayReadNumAsync();
+
+        Task ResetWeekReadNumAsync();
+
+        Task ResetMonthReadNumAsync();
     }
 }

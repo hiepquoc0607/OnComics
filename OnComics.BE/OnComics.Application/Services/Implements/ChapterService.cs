@@ -163,6 +163,10 @@ namespace OnComics.Application.Services.Implements
                             "Comic Not Found!");
 
                     comic.TotalReadNum = comic.TotalReadNum + 1;
+                    comic.DayReadNum = comic.DayReadNum + 1;
+                    comic.WeekReadNum = comic.WeekReadNum + 1;
+                    comic.MonthReadNum = comic.MonthReadNum + 1;
+
                     chapter.ReadNum = chapter.ReadNum + 1;
 
                     await _chapterRepository.UpdateAsync(chapter);

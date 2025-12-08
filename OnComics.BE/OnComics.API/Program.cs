@@ -12,6 +12,7 @@ using OnComics.API.Middleware;
 using OnComics.Application.Constants;
 using OnComics.Application.Helpers;
 using OnComics.Application.Hubs;
+using OnComics.Application.Scheduler;
 using OnComics.Application.Services.Implements;
 using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
@@ -213,6 +214,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 #region Inject SignalR
 builder.Services.AddSignalR();
+#endregion
+
+#region Inject Background Service
+builder.Services.AddHostedService<OnComicsScheduler>();
 #endregion
 
 #region Logger

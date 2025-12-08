@@ -23,5 +23,7 @@ namespace OnComics.Application.Services.Interfaces
         Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ComicStatus> updateStatusReq);
 
         Task<VoidResponse> DeleteComicAsync(Guid id);
+
+        Task ResetReadNumAsync(ComicReadNumType type);
     }
 }

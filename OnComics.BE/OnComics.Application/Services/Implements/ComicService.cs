@@ -394,7 +394,6 @@ namespace OnComics.Application.Services.Implements
             }
         }
 
-
         //Update Comic Status
         public async Task<VoidResponse> UpdateStatusAsync(Guid id, UpdateStatusReq<ComicStatus> updateStatusReq)
         {
@@ -461,6 +460,32 @@ namespace OnComics.Application.Services.Implements
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
                     ex.Message);
+            }
+        }
+
+        //Reset Comic Read Number
+        public async Task ResetReadNumAsync(ComicReadNumType type)
+        {
+            try
+            {
+                switch (type)
+                {
+                    case ComicReadNumType.DAY:
+                        await _comicRepository.ResetDayReadNumAsync();
+                        break;
+                    case ComicReadNumType.WEEK:
+                        await _comicRepository.ResetWeekReadNumAsync();
+                        break;
+                    case ComicReadNumType.MONTH:
+                        await _comicRepository.ResetMonthReadNumAsync();
+                        break;
+                }
+
+                return;
+            }
+            catch (Exception)
+            {
+                return;
             }
         }
     }

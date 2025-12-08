@@ -124,5 +124,29 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
             return await query.CountAsync();
         }
+
+        //Reset Day Read Number Of All Comic
+        public async Task ResetDayReadNumAsync()
+        {
+            await _context.Comics
+               .Where(c => c.DayReadNum != 0)
+               .ExecuteUpdateAsync(s => s.SetProperty(n => n.DayReadNum, 0));
+        }
+
+        //Reset Week Read Number Of All Comic
+        public async Task ResetWeekReadNumAsync()
+        {
+            await _context.Comics
+                .Where(c => c.WeekReadNum != 0)
+                .ExecuteUpdateAsync(s => s.SetProperty(n => n.WeekReadNum, 0));
+        }
+
+        //Reset Month Read Number Of All Comic
+        public async Task ResetMonthReadNumAsync()
+        {
+            await _context.Comics
+               .Where(c => c.MonthReadNum != 0)
+               .ExecuteUpdateAsync(s => s.SetProperty(n => n.MonthReadNum, 0));
+        }
     }
 }
