@@ -2,11 +2,11 @@
 
 namespace OnComics.Application.Utils
 {
-    public class Util
+    public static class Util
     {
         #region String Utils
         //Format Name First Letter To Uppercase For Each Word
-        public string FormatStringName(string name)
+        public static string FormatStringName(string name)
         {
             if (string.IsNullOrEmpty(name)) return name;
 
@@ -31,7 +31,7 @@ namespace OnComics.Application.Utils
         }
 
         //Compare 2 String Array And Get Differ
-        public string[] CompareStringArray(string[] a, string[] b)
+        public static string[] CompareStringArray(string[] a, string[] b)
         {
             HashSet<string> setB = new HashSet<string>(b);
 
@@ -39,7 +39,7 @@ namespace OnComics.Application.Utils
         }
 
         //Check If File Extension Is Word
-        public bool CheckWordExtension(string input)
+        public static bool CheckWordExtension(string input)
         {
             string[] word = new string[]
             {
@@ -58,13 +58,13 @@ namespace OnComics.Application.Utils
 
         #region Password Utils
         //Compare 2 Encrypted Password
-        public bool CompareHashedPassword(string pass1, string pass2)
+        public static bool CompareHashedPassword(string pass1, string pass2)
         {
             return BCrypt.Net.BCrypt.Verify(pass1, pass2);
         }
 
         //Check Password Input Validation Error Type
-        public string CheckPasswordErrorType(string password)
+        public static string CheckPasswordErrorType(string password)
         {
             bool hasDigit = false;
             bool hasLower = false;
@@ -93,7 +93,7 @@ namespace OnComics.Application.Utils
         }
 
         //Encrypt Input Password
-        public string HashPassword(string password)
+        public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
@@ -101,7 +101,7 @@ namespace OnComics.Application.Utils
 
         #region Guid Ultils
         //Compare 2 Guid Array And Get Differ
-        public Guid[] CompareGuidArray(Guid[] a, Guid[] b)
+        public static Guid[] CompareGuidArray(Guid[] a, Guid[] b)
         {
             HashSet<Guid> setB = new HashSet<Guid>(b);
 
@@ -109,7 +109,7 @@ namespace OnComics.Application.Utils
         }
 
         //Check 2 Guid Array
-        public bool CheckGuidArray(Guid[] a, Guid[] b)
+        public static bool CheckGuidArray(Guid[] a, Guid[] b)
         {
             var setB = new HashSet<Guid>(b);
 
@@ -125,7 +125,7 @@ namespace OnComics.Application.Utils
 
         #region Date Ultils
         //Compare 2 Guid Array And Get Differ
-        public bool CheckDob(DateOnly date)
+        public static bool CheckDob(DateOnly date)
         {
             int requireDay = date.Day;
             int requireMonth = date.Month;

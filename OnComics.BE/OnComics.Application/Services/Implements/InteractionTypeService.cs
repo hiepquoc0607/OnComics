@@ -23,7 +23,6 @@ namespace OnComics.Application.Services.Implements
         private readonly IRedisService _redisService;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
-        private readonly Util _util;
 
         private static string cacheKey = "itrtypes";
 
@@ -32,15 +31,13 @@ namespace OnComics.Application.Services.Implements
             IAppwriteService appwriteService,
             IRedisService redisService,
             IFileService fileService,
-            IMapper mapper,
-            Util util)
+            IMapper mapper)
         {
             _interactionTypeRepository = interactionTypeRepository;
             _appwriteService = appwriteService;
             _redisService = redisService;
             _fileService = fileService;
             _mapper = mapper;
-            _util = util;
         }
 
         //Get All Interaction Types
@@ -205,7 +202,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         "Invalid Picture File Format!");
 
-                string name = _util.FormatStringName(createItrTypeReq.Name);
+                string name = Util.FormatStringName(createItrTypeReq.Name);
 
                 var isExisted = await _interactionTypeRepository
                     .CheckTypeNameExistedAsync(name);
@@ -248,7 +245,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                string name = _util.FormatStringName(updateItrTypeReq.Name);
+                string name = Util.FormatStringName(updateItrTypeReq.Name);
 
                 var isExisted = await _interactionTypeRepository.CheckTypeNameExistedAsync(name);
 

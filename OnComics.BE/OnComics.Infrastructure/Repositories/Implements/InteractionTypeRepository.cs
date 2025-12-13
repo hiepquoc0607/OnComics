@@ -14,17 +14,31 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Get All Interaction Types
         public async Task<IEnumerable<Interactiontype>?> GetInteractiontypesAsync()
         {
-            return await _context.Interactiontypes
-                 .AsNoTracking()
-                 .ToListAsync();
+            try
+            {
+                return await _context.Interactiontypes
+                     .AsNoTracking()
+                     .ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Check If Type Name Is Existed
         public async Task<bool> CheckTypeNameExistedAsync(string name)
         {
-            return await _context.Interactiontypes
-                .AsNoTracking()
-                .AnyAsync(t => t.Name.Equals(name));
+            try
+            {
+                return await _context.Interactiontypes
+                    .AsNoTracking()
+                    .AnyAsync(t => t.Name.Equals(name));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

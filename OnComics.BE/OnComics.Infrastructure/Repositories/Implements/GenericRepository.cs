@@ -34,7 +34,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 if (filter != null)
                     query = query.Where(filter);
 
-                if (query == null)
+                if (query.ToListAsync() == null)
                     return null;
 
                 if (orderBy != null)

@@ -14,54 +14,75 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Get Chapter By Id
         public async Task<SourceInfo> GetChapterByIdAsync(Guid id)
         {
-            var projected = await _context.Chapters
-                .AsNoTracking()
-                .Where(c => c.Id == id)
-                .Select(c => new
-                {
-                    Chapter = c,
-                    Source = c.Chaptersources
-                        .Select(cs => new
-                        {
-                            cs.Id,
-                            cs.SrcUrl,
-                            cs.IsImage,
-                            cs.Arrangement
-                        })
-                })
-                .FirstOrDefaultAsync();
+            try
+            {
+                var projected = await _context.Chapters
+                    .AsNoTracking()
+                    .Where(c => c.Id == id)
+                    .Select(c => new
+                    {
+                        Chapter = c,
+                        Source = c.Chaptersources
+                            .Select(cs => new
+                            {
+                                cs.Id,
+                                cs.SrcUrl,
+                                cs.IsImage,
+                                cs.Arrangement
+                            })
+                    })
+                    .FirstOrDefaultAsync();
 
-            var chapter = projected!.Chapter;
-            var sources = projected.Source
-                .Select(s => new Chaptersource
-                {
-                    Id = s.Id,
-                    SrcUrl = s.SrcUrl,
-                    IsImage = s.IsImage,
-                    Arrangement = s.Arrangement
-                })
-                .OrderBy(s => s.Arrangement)
-                .ToList();
+                var chapter = projected!.Chapter;
+                var sources = projected.Source
+                    .Select(s => new Chaptersource
+                    {
+                        Id = s.Id,
+                        SrcUrl = s.SrcUrl,
+                        IsImage = s.IsImage,
+                        Arrangement = s.Arrangement
+                    })
+                    .OrderBy(s => s.Arrangement)
+                    .ToList();
 
-            return new SourceInfo(chapter, sources);
+                return new SourceInfo(chapter, sources);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Count Chapter Record By Comic Id
         public async Task<int> CountChapterByComicIdAsync(Guid id)
         {
-            return await _context.Chapters
-                .AsNoTracking()
-                .Where(c => c.ComicId == id)
-                .CountAsync();
+            try
+            {
+                return await _context.Chapters
+                    .AsNoTracking()
+                    .Where(c => c.ComicId == id)
+                    .CountAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Get Max Chapter ChapNo By ComicId
         public async Task<int> GetMaxChapNoByComicIdAsync(Guid id)
         {
-            return await _context.Chapters
-                .AsNoTracking()
-                .Where(c => c.ComicId == id)
-                .MaxAsync(c => c.ChapNo);
+            try
+            {
+                return await _context.Chapters
+                    .AsNoTracking()
+                    .Where(c => c.ComicId == id)
+                    .MaxAsync(c => c.ChapNo);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

@@ -14,38 +14,17 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Get Chapter Source By Chapter Id
         public async Task<IEnumerable<Chaptersource>?> GetSourcesByChapterIdAsync(Guid chapterId)
         {
-            return await _context.Chaptersources
-                .AsNoTracking()
-                .Where(s => s.ChapterId == chapterId)
-                .ToListAsync();
-        }
-
-        //Get All Chapter Source To Dictionary
-        public async Task<Dictionary<Guid, int>> GetChapterSourcesAsync()
-        {
-            return await _context.Chaptersources
-                .AsNoTracking()
-                .ToDictionaryAsync(
-                    s => s.ChapterId,
-                    s => s.Arrangement);
-        }
-
-        //Check If Chapter Source is Existed
-        public async Task<bool> CheckChapterSourceAsync(Guid chapterId, int arrangement)
-        {
-            return await _context.Chaptersources
-                .AsNoTracking()
-                .AnyAsync(s =>
-                    s.ChapterId == chapterId &&
-                    s.Arrangement == arrangement);
-        }
-
-        //Count Chapter Source By Chapter Id
-        public async Task<int> CountSourceByChapterIdAsync(Guid chapterId)
-        {
-            return await _context.Chaptersources
-                .AsNoTracking()
-                .CountAsync(s => s.ChapterId == chapterId);
+            try
+            {
+                return await _context.Chaptersources
+                    .AsNoTracking()
+                    .Where(s => s.ChapterId == chapterId)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

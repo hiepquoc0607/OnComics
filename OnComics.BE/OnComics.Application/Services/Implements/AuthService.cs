@@ -20,7 +20,6 @@ namespace OnComics.Application.Services.Implements
         private readonly IRedisService _redisService;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private readonly Util _util;
 
         private static string cacheKey = "accounts:{id}";
 
@@ -30,7 +29,7 @@ namespace OnComics.Application.Services.Implements
             IGoogleService googleService,
             IRedisService redisService,
             IConfiguration configuration,
-            IMapper mapper, Util util)
+            IMapper mapper)
         {
             _accountRepository = accountRepository;
             _mailService = mailService;
@@ -38,7 +37,6 @@ namespace OnComics.Application.Services.Implements
             _redisService = redisService;
             _configuration = configuration;
             _mapper = mapper;
-            _util = util;
         }
 
         //Login
@@ -60,7 +58,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         "Account Authenticate By Google!");
 
-                if (!_util.CompareHashedPassword(loginReq.Password, account.PasswordHash!))
+                if (!Util.CompareHashedPassword(loginReq.Password, account.PasswordHash!))
                     return new ObjectResponse<AuthRes?>(
                         (int)HttpStatusCode.Unauthorized,
                         "Incorrect Password!");
@@ -121,7 +119,8 @@ namespace OnComics.Application.Services.Implements
 
                     var data = _mapper.Map<AuthRes>(newAccount);
                     data.AccessToken = TokenGenerator.GenerateAccessToken(newAccount, _configuration);
-                    data.AccessExpiresInMinutes = _configuration.GetValue<int>("Authentication:Jwt:ExpiredInMinute");
+                    data.AccessExpiresInMinutes = _configuration
+                        .GetValue<int>("Authentication:Jwt:ExpiredInMinute");
 
                     return new ObjectResponse<AuthRes?>(
                         (int)HttpStatusCode.OK,
@@ -136,7 +135,8 @@ namespace OnComics.Application.Services.Implements
 
                     var data = _mapper.Map<AuthRes>(account);
                     data.AccessToken = TokenGenerator.GenerateAccessToken(account, _configuration);
-                    data.AccessExpiresInMinutes = _configuration.GetValue<int>("Authentication:Jwt:ExpiredInMinute");
+                    data.AccessExpiresInMinutes = _configuration
+                        .GetValue<int>("Authentication:Jwt:ExpiredInMinute");
 
                     await _accountRepository.UpdateAsync(account);
 
@@ -164,7 +164,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var passError = _util.CheckPasswordErrorType(registerReq.Password);
+                var passError = Util.CheckPasswordErrorType(registerReq.Password);
 
                 var passErrorMessage = new Dictionary<string, string>
                 {
@@ -188,13 +188,13 @@ namespace OnComics.Application.Services.Implements
                         "Email Has Already Been Used!");
 
                 var newAccount = _mapper.Map<Account>(registerReq);
-                newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
+                newAccount.Fullname = Util.FormatStringName(newAccount.Fullname);
                 newAccount.Gender = registerReq.Gender switch
                 {
                     Gender.MALE => "Male",
                     _ => "Female"
                 };
-                newAccount.PasswordHash = _util.HashPassword(registerReq.Password);
+                newAccount.PasswordHash = Util.HashPassword(registerReq.Password);
 
                 await _accountRepository.InsertAsync(newAccount);
 
@@ -357,7 +357,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.Unauthorized,
                         "RefreshToken Is Expried!");
 
-                var passError = _util.CheckPasswordErrorType(resetPassReq.NewPassword);
+                var passError = Util.CheckPasswordErrorType(resetPassReq.NewPassword);
 
                 var passErrorMessage = new Dictionary<string, string>
                 {
@@ -372,7 +372,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.BadRequest,
                         message);
 
-                account.PasswordHash = _util.HashPassword(resetPassReq.NewPassword);
+                account.PasswordHash = Util.HashPassword(resetPassReq.NewPassword);
                 account.RefreshToken = String.Empty;
                 account.RefreshExpireTime = null;
 

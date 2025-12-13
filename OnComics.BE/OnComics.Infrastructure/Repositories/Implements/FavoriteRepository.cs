@@ -19,76 +19,97 @@ namespace OnComics.Infrastructure.Repositories.Implements
             int? pageNumber = null,
             int? pageSize = null)
         {
-            var query = _context.Favorites
-                .AsNoTracking()
-                .AsQueryable();
+            try
+            {
+                var query = _context.Favorites
+                    .AsNoTracking()
+                    .AsQueryable();
 
-            if (filter != null)
-                query = query.Where(filter);
+                if (filter != null)
+                    query = query.Where(filter);
 
-            if (orderBy != null)
-                query = orderBy(query);
+                if (query.ToListAsync() == null)
+                    return new FavoritesInfo(null, null, null);
 
-            if (pageNumber.HasValue && pageSize.HasValue)
-                query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
-                             .Take(pageSize.Value);
+                if (orderBy != null)
+                    query = orderBy(query);
 
-            var projected = await query
-                .Select(i => new
-                {
-                    Favorites = i,
-                    FavoriteId = i.Id,
-                    AccountId = i.Account.Id,
-                    Fullname = i.Account.Fullname,
-                    ComicId = i.Comic.Id,
-                    ComicName = i.Comic.Name
-                })
-                .ToListAsync();
+                if (pageNumber.HasValue && pageSize.HasValue)
+                    query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
+                                 .Take(pageSize.Value);
 
-            if (orderBy == null)
-                return new FavoritesInfo(null, null, null);
+                var projected = await query
+                    .Select(i => new
+                    {
+                        Favorites = i,
+                        FavoriteId = i.Id,
+                        AccountId = i.Account.Id,
+                        Fullname = i.Account.Fullname,
+                        ComicId = i.Comic.Id,
+                        ComicName = i.Comic.Name
+                    })
+                    .ToListAsync();
 
-            var favorites = projected.Select(i => i.Favorites).ToList();
+                var favorites = projected.Select(i => i.Favorites).ToList();
 
-            var accounts = projected
-                .GroupBy(a => a.FavoriteId)
-                .ToDictionary(
-                    a => a.Key,
-                    a => (a.First().AccountId, a.First().Fullname));
+                var accounts = projected
+                    .GroupBy(a => a.FavoriteId)
+                    .ToDictionary(
+                        a => a.Key,
+                        a => (a.First().AccountId, a.First().Fullname));
 
-            var comics = projected
-                .GroupBy(c => c.FavoriteId)
-                .ToDictionary(
-                    c => c.Key,
-                    c => (c.First().ComicId, c.First().ComicName));
+                var comics = projected
+                    .GroupBy(c => c.FavoriteId)
+                    .ToDictionary(
+                        c => c.Key,
+                        c => (c.First().ComicId, c.First().ComicName));
 
-            return new FavoritesInfo(favorites, accounts, comics);
+                return new FavoritesInfo(favorites, accounts, comics);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Check If Favorite Is Existed
         public async Task<bool> CheckFavoriteExistedAsync(Guid accId, Guid comicId)
         {
-            return await _context.Favorites
-                .AsNoTracking()
-                .AnyAsync(f =>
-                    f.AccountId == accId &&
-                    f.ComicId == comicId);
+            try
+            {
+                return await _context.Favorites
+                    .AsNoTracking()
+                    .AnyAsync(f =>
+                        f.AccountId == accId &&
+                        f.ComicId == comicId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Count Favorite Record
         public async Task<int> CountFavoriteAsync(Guid id, bool isComic)
         {
-            if (isComic == true)
+            try
             {
-                return await _context.Favorites
-                    .AsNoTracking()
-                    .CountAsync(f => f.ComicId == id);
+                if (isComic == true)
+                {
+                    return await _context.Favorites
+                        .AsNoTracking()
+                        .CountAsync(f => f.ComicId == id);
+                }
+                else
+                {
+                    return await _context.Favorites
+                        .AsNoTracking()
+                        .CountAsync(f => f.AccountId == id);
+                }
             }
-            else
+            catch (Exception)
             {
-                return await _context.Favorites
-                    .AsNoTracking()
-                    .CountAsync(f => f.AccountId == id);
+                throw;
             }
         }
     }

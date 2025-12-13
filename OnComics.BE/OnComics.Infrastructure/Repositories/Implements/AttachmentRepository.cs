@@ -13,11 +13,18 @@ namespace OnComics.Infrastructure.Repositories.Implements
 
         public async Task<IEnumerable<Guid>?> GetAttachIdsByCmtIdAsync(Guid id)
         {
-            return await _context.Attachments
-                .AsNoTracking()
-                .Where(a => a.CommentId == id)
-                .Select(a => a.Id)
-                .ToListAsync();
+            try
+            {
+                return await _context.Attachments
+                    .AsNoTracking()
+                    .Where(a => a.CommentId == id)
+                    .Select(a => a.Id)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

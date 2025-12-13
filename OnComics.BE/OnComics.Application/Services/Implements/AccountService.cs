@@ -26,7 +26,6 @@ namespace OnComics.Application.Services.Implements
         private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly Util _util;
 
         private static string cacheKey = "accounts:{id}";
 
@@ -35,15 +34,13 @@ namespace OnComics.Application.Services.Implements
             IAppwriteService appwriteService,
             IRedisService redisService,
             IMapper mapper,
-            IConfiguration configuration,
-            Util util)
+            IConfiguration configuration)
         {
             _accountRepository = accountRepository;
             _appwriteService = appwriteService;
             _redisService = redisService;
             _mapper = mapper;
             _configuration = configuration;
-            _util = util;
         }
 
         //Get All Account
@@ -162,7 +159,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                bool validDob = _util.CheckDob(updateAccReq.Dob);
+                bool validDob = Util.CheckDob(updateAccReq.Dob);
 
                 if (!validDob)
                     return new VoidResponse(
@@ -177,7 +174,7 @@ namespace OnComics.Application.Services.Implements
                         "Account Not Found!");
 
                 var newAccount = _mapper.Map(updateAccReq, oldAccount);
-                newAccount.Fullname = _util.FormatStringName(newAccount.Fullname);
+                newAccount.Fullname = Util.FormatStringName(newAccount.Fullname);
 
                 await _accountRepository.UpdateAsync(newAccount);
 
@@ -268,7 +265,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Account Not Found!");
 
-                var newPass = _util.HashPassword(updatePasswordReq.NewPassword);
+                var newPass = Util.HashPassword(updatePasswordReq.NewPassword);
 
                 account.PasswordHash = newPass;
                 account.RefreshToken = string.Empty;

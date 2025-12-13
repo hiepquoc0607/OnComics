@@ -12,13 +12,11 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
             int? pageNumber = null,
             int? pageSize = null);
 
-        Task<(Comic?, IEnumerable<Category?>)> GetComicByIdAsync(Guid id);
+        Task<ComicInfo> GetComicByIdAsync(Guid id);
 
         Task<bool> CheckComicExistedAsync(string name, string author);
 
         Task<bool> CheckComicIdAsync(Guid id);
-
-        Task<Guid[]> GetComicIdsAsync();
 
         Task<int> CountComicsByCateId(
             Guid categoryId,
@@ -30,4 +28,8 @@ namespace OnComics.Infrastructure.Repositories.Interfaces
 
         Task ResetMonthReadNumAsync();
     }
+
+    public record ComicInfo(
+        Comic? Comic,
+        IEnumerable<Category>? Categories);
 }

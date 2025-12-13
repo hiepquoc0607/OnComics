@@ -6,7 +6,9 @@ namespace OnComics.Application.Services.Interfaces
 {
     public interface IChapterSourceService
     {
-        Task<ObjectResponse<IEnumerable<Chaptersource>>> UpdateChapterSourceAsync(Guid chapterId, List<IFormFile> files);
+        Task<ObjectResponse<IEnumerable<Chaptersource>>> UpdateChapterSourceAsync(
+            Guid chapterId,
+            List<IFormFile> files);
 
         Task<VoidResponse> DeleteChapterSourcesAsync(Guid chapterId);
     }

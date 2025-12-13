@@ -17,20 +17,17 @@ namespace OnComics.Application.Services.Implements
         private readonly AppwriteHelper _appwriteHelper;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
-        private readonly Util _util;
 
         public AppwriteService(
             Storage storage,
             IOptions<AppwriteHelper> appwriteHelper,
             IFileService fileService,
-            IMapper mapper,
-            Util util)
+            IMapper mapper)
         {
             _storage = storage;
             _appwriteHelper = appwriteHelper.Value;
             _fileService = fileService;
             _mapper = mapper;
-            _util = util;
         }
 
         //Get File By Id
@@ -84,7 +81,7 @@ namespace OnComics.Application.Services.Implements
                     file = await _fileService.ConvertWebPAsync(file);
                 }
 
-                if (_util.CheckWordExtension(ext))
+                if (Util.CheckWordExtension(ext))
                 {
                     file = await _fileService.ConvertMarkdownAsync(file);
                 }
@@ -307,7 +304,7 @@ namespace OnComics.Application.Services.Implements
                     file = await _fileService.ConvertWebPAsync(file);
                 }
 
-                if (_util.CheckWordExtension(ext))
+                if (Util.CheckWordExtension(ext))
                 {
                     file = await _fileService.ConvertMarkdownAsync(file);
                 }

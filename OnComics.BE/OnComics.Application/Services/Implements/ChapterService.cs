@@ -32,7 +32,6 @@ namespace OnComics.Application.Services.Implements
         private readonly IRedisService _redisService;
         private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
-        private readonly Util _util;
 
         private static string cacheKey = "chapters:{id}";
 
@@ -45,8 +44,7 @@ namespace OnComics.Application.Services.Implements
             IAppwriteService appwriteService,
             IRedisService redisService,
             IHubContext<OnComicsHub> hub,
-            IMapper mapper,
-            Util util)
+            IMapper mapper)
         {
             _chapterRepository = chapterRepository;
             _chapterSourceRepository = chapterSourceRepository;
@@ -57,7 +55,6 @@ namespace OnComics.Application.Services.Implements
             _redisService = redisService;
             _hub = hub;
             _mapper = mapper;
-            _util = util;
         }
 
         //Get All Chapters By Comic Id
@@ -249,7 +246,7 @@ namespace OnComics.Application.Services.Implements
                     .GetMaxChapNoByComicIdAsync(createChapterReq.ComicId) + 1;
 
                 if (!string.IsNullOrEmpty(newChapter.Name))
-                    newChapter.Name = _util.FormatStringName(newChapter.Name);
+                    newChapter.Name = Util.FormatStringName(newChapter.Name);
 
                 var fileRes = new FileRes();
 
@@ -344,7 +341,7 @@ namespace OnComics.Application.Services.Implements
                 var newChapter = _mapper.Map(updateChapterReq, oldChapter);
 
                 if (!string.IsNullOrEmpty(newChapter.Name))
-                    newChapter.Name = _util.FormatStringName(newChapter.Name);
+                    newChapter.Name = Util.FormatStringName(newChapter.Name);
 
                 await _chapterRepository.UpdateAsync(newChapter);
 

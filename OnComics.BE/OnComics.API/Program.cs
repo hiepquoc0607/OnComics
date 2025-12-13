@@ -167,10 +167,6 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRedisService, RedisService>();
 #endregion
 
-#region Inject Utils
-builder.Services.AddTransient<Util>();
-#endregion
-
 #region Inject Mapster
 //Configure Mapster
 var config = TypeAdapterConfig.GlobalSettings;

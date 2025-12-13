@@ -14,12 +14,19 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Delete ComicCategories By Comic Id
         public async Task DeleteComicCateoriesAsync(Guid comicId)
         {
-            var records = await _context.Comiccategories
+            try
+            {
+                var records = await _context.Comiccategories
                 .AsNoTracking()
                 .Where(cc => cc.ComicId == comicId)
                 .ToListAsync();
 
-            await BulkDeleteAsync(records);
+                await BulkDeleteAsync(records);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

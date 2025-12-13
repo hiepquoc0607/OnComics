@@ -11,7 +11,9 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<ObjectResponse<InteractionRes?>> GetInteractionByIdAsync(Guid id);
 
-        Task<ObjectResponse<Interaction>> CreateInteractionAsync(Guid accId, CreateInteractionReq createInteractionReq);
+        Task<ObjectResponse<Interaction>> CreateInteractionAsync(
+            Guid accId,
+            CreateInteractionReq createInteractionReq);
 
         Task<VoidResponse> UpdateInteractionAsync(Guid id, UpdateInteractionReq updateInteractionReq);
 

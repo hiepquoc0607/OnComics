@@ -19,20 +19,17 @@ namespace OnComics.Application.Services.Implements
         private readonly ICategoryRepository _categoryRepository;
         private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
-        private readonly Util _util;
 
         private static string cacheKey = "categories";
 
         public CategoryService(
             ICategoryRepository categoryRepository,
             IRedisService redisService,
-            IMapper mapper,
-            Util util)
+            IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _redisService = redisService;
             _mapper = mapper;
-            _util = util;
         }
 
         //Get All Categoriess
@@ -182,7 +179,7 @@ namespace OnComics.Application.Services.Implements
         {
             try
             {
-                var name = _util.FormatStringName(createCategoryReq.Name);
+                var name = Util.FormatStringName(createCategoryReq.Name);
 
                 var isExited = await _categoryRepository.CheckCategoryIsExistedAsync(name);
 
@@ -223,10 +220,10 @@ namespace OnComics.Application.Services.Implements
                         "Only Create Max 10 Record At Once!");
 
                 string[] names = categories
-                    .Select(c => _util.FormatStringName(c.Name))
+                    .Select(c => Util.FormatStringName(c.Name))
                     .ToArray();
                 string[] dataNames = await _categoryRepository.GetCateNamesAsync();
-                string[] existedNames = _util.CompareStringArray(names, dataNames);
+                string[] existedNames = Util.CompareStringArray(names, dataNames);
 
                 if (existedNames.Length > 0)
                     return new ObjectResponse<IEnumerable<Category>>(
@@ -238,7 +235,7 @@ namespace OnComics.Application.Services.Implements
                 foreach (var items in newCategories)
                 {
                     items.Id = Guid.NewGuid();
-                    items.Name = _util.FormatStringName(items.Name);
+                    items.Name = Util.FormatStringName(items.Name);
                 }
 
                 await _categoryRepository.BulkInsertAsync(newCategories);
@@ -271,7 +268,7 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Category Not Found!");
 
-                var name = _util.FormatStringName(updateCategoryReq.Name);
+                var name = Util.FormatStringName(updateCategoryReq.Name);
 
                 var isExited = await _categoryRepository.CheckCategoryIsExistedAsync(name);
 

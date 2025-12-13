@@ -14,35 +14,63 @@ namespace OnComics.Infrastructure.Repositories.Implements
         //Get All Categories
         public async Task<IEnumerable<Category>?> GetCategoriesAsync()
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .ToListAsync();
+            try
+            {
+                return await _context.Categories
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Check If Category Is Existed
         public async Task<bool> CheckCategoryIsExistedAsync(string name)
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .AnyAsync(c => c.Name.Equals(name));
+            try
+            {
+                return await _context.Categories
+                    .AsNoTracking()
+                    .AnyAsync(c => c.Name.Equals(name));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Get Category Name Array
         public async Task<string[]> GetCateNamesAsync()
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .Select(c => c.Name)
-                .ToArrayAsync();
+            try
+            {
+                return await _context.Categories
+                    .AsNoTracking()
+                    .Select(c => c.Name)
+                    .ToArrayAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Get Category Id Array
         public async Task<Guid[]> GetCateIdsAsync()
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .Select(c => c.Id)
-                .ToArrayAsync();
+            try
+            {
+                return await _context.Categories
+                    .AsNoTracking()
+                    .Select(c => c.Id)
+                    .ToArrayAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

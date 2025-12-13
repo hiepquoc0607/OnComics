@@ -19,108 +19,133 @@ namespace OnComics.Infrastructure.Repositories.Implements
             int? pageNumber = null,
             int? pageSize = null)
         {
-            var query = _context.Interactions
-                .AsNoTracking()
-                .AsQueryable();
+            try
+            {
+                var query = _context.Interactions
+                    .AsNoTracking()
+                    .AsQueryable();
 
-            if (filter != null)
-                query = query.Where(filter);
+                if (filter != null)
+                    query = query.Where(filter);
 
-            if (orderBy != null)
-                query = orderBy(query);
+                if (query.ToListAsync() == null)
+                    return new InteractionsInfo(null, null, null, null);
 
-            if (pageNumber.HasValue && pageSize.HasValue)
-                query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
-                             .Take(pageSize.Value);
+                if (orderBy != null)
+                    query = orderBy(query);
 
-            var projected = await query
-                .Select(i => new
-                {
-                    Interactions = i,
-                    InteractionId = i.Id,
-                    AccountId = i.Account.Id,
-                    Fullname = i.Account.Fullname,
-                    CommentId = i.Comment.Id,
-                    CommentAuthor = i.Comment.Account.Fullname,
-                    Type = i.Type
-                })
-                .ToListAsync();
+                if (pageNumber.HasValue && pageSize.HasValue)
+                    query = query.Skip((pageNumber.Value - 1) * pageSize.Value)
+                                 .Take(pageSize.Value);
 
-            var interactions = projected.Select(i => i.Interactions).ToList();
+                var projected = await query
+                    .Select(i => new
+                    {
+                        Interactions = i,
+                        InteractionId = i.Id,
+                        AccountId = i.Account.Id,
+                        Fullname = i.Account.Fullname,
+                        CommentId = i.Comment.Id,
+                        CommentAuthor = i.Comment.Account.Fullname,
+                        Type = i.Type
+                    })
+                    .ToListAsync();
 
-            if (interactions == null)
-                return new InteractionsInfo(null, null, null, null);
+                var interactions = projected.Select(i => i.Interactions).ToList();
 
-            var accounts = projected
-                .GroupBy(a => a.InteractionId)
-                .ToDictionary(
-                    a => a.Key, a => (a.First().AccountId, a.First().Fullname));
+                var accounts = projected
+                    .GroupBy(a => a.InteractionId)
+                    .ToDictionary(
+                        a => a.Key, a => (a.First().AccountId, a.First().Fullname));
 
-            var comments = projected
-                .GroupBy(c => c.InteractionId)
-                .ToDictionary(
-                    c => c.Key, c => (c.First().CommentId, c.First().CommentAuthor));
+                var comments = projected
+                    .GroupBy(c => c.InteractionId)
+                    .ToDictionary(
+                        c => c.Key, c => (c.First().CommentId, c.First().CommentAuthor));
 
-            var types = projected
-                .GroupBy(t => t.InteractionId)
-                .ToDictionary(
-                    t => t.Key, t => t.First().Type);
+                var types = projected
+                    .GroupBy(t => t.InteractionId)
+                    .ToDictionary(
+                        t => t.Key, t => t.First().Type);
 
-
-            return new InteractionsInfo(interactions, accounts, comments, types);
+                return new InteractionsInfo(interactions, accounts, comments, types);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         //Get Interaction By Id
         public async Task<InteractionInfo> GetInteractionById(Guid id)
         {
-            var projected = await _context.Interactions
-                .AsNoTracking()
-                .Where(i => i.Id == id)
-                .Select(i => new
-                {
-                    Interaction = i,
-                    Fullname = i.Account.Fullname,
-                    Author = i.Comment.Account.Fullname,
-                    Type = i.Type
-                })
-                .FirstOrDefaultAsync();
+            try
+            {
+                var projected = await _context.Interactions
+                    .AsNoTracking()
+                    .Where(i => i.Id == id)
+                    .Select(i => new
+                    {
+                        Interaction = i,
+                        Fullname = i.Account.Fullname,
+                        Author = i.Comment.Account.Fullname,
+                        Type = i.Type
+                    })
+                    .FirstOrDefaultAsync();
 
-            if (projected == null)
-                return new InteractionInfo(null, string.Empty, string.Empty, null);
+                if (projected == null)
+                    return new InteractionInfo(null, string.Empty, string.Empty, null);
 
-            var interaction = projected.Interaction;
+                var interaction = projected.Interaction;
 
-            string fullname = projected.Fullname;
+                string fullname = projected.Fullname;
 
-            string author = projected.Author;
+                string author = projected.Author;
 
-            var type = projected.Type;
+                var type = projected.Type;
 
-            return new InteractionInfo(interaction, fullname, author, type);
+                return new InteractionInfo(interaction, fullname, author, type);
+            }
+            catch (Exception) { throw; }
         }
 
         //Check If Interaction Is Existed
         public async Task<bool> CheckInteractionExistedAsync(Guid accId, Guid cmtId)
         {
-            return await _context.Interactions
-                .AsNoTracking()
-                .AnyAsync(i => i.AccountId == accId &&
-                    i.CommentId == cmtId);
+            try
+            {
+                return await _context.Interactions
+                    .AsNoTracking()
+                    .AnyAsync(i => i.AccountId == accId &&
+                        i.CommentId == cmtId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
+        //Count Interaction Record
         public async Task<int> CountInteractionAsync(Guid? id = null)
         {
-            if (id.HasValue)
+            try
             {
-                return await _context.Interactions
-                    .AsNoTracking()
-                    .CountAsync(i => i.AccountId == id);
+                if (id.HasValue)
+                {
+                    return await _context.Interactions
+                        .AsNoTracking()
+                        .CountAsync(i => i.AccountId == id);
+                }
+                else
+                {
+                    return await _context.Interactions
+                        .AsNoTracking()
+                        .CountAsync();
+                }
             }
-            else
+            catch (Exception)
             {
-                return await _context.Interactions
-                    .AsNoTracking()
-                    .CountAsync();
+                throw;
             }
         }
     }

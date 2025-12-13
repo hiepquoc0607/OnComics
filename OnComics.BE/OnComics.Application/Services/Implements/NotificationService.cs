@@ -19,18 +19,15 @@ namespace OnComics.Application.Services.Implements
         private readonly INotificationRepository _notificationRepository;
         private readonly IHubContext<OnComicsHub> _hub;
         private readonly IMapper _mapper;
-        private readonly Util _util;
 
         public NotificationService(
             INotificationRepository notificationRepository,
             IHubContext<OnComicsHub> hub,
-            IMapper mapper,
-            Util util)
+            IMapper mapper)
         {
             _notificationRepository = notificationRepository;
             _hub = hub;
             _mapper = mapper;
-            _util = util;
         }
 
         //Get All Notifications
@@ -138,7 +135,7 @@ namespace OnComics.Application.Services.Implements
             try
             {
                 var dataIds = await _notificationRepository.GetNotifcationIdsAsync();
-                var invalidIds = _util.CompareGuidArray(ids.ToArray(), dataIds.ToArray());
+                var invalidIds = Util.CompareGuidArray(ids.ToArray(), dataIds.ToArray());
 
                 if (invalidIds != null && invalidIds.Length > 0)
                     return new VoidResponse(

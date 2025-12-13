@@ -29,7 +29,6 @@ namespace OnComics.Application.Services.Implements
         private readonly IRedisService _redisService;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly Util _util;
 
         private static string cacheKey = "comics:{id}";
 
@@ -40,8 +39,7 @@ namespace OnComics.Application.Services.Implements
             IAppwriteService appwriteService,
             IRedisService redisService,
             IMapper mapper,
-            IConfiguration configuration,
-            Util util)
+            IConfiguration configuration)
         {
             _comicRepository = comicRepository;
             _categoryRepository = categoryRepository;
@@ -50,7 +48,6 @@ namespace OnComics.Application.Services.Implements
             _redisService = redisService;
             _mapper = mapper;
             _configuration = configuration;
-            _util = util;
         }
 
         //Get All Comics
@@ -221,7 +218,7 @@ namespace OnComics.Application.Services.Implements
 
                 Guid[] cateIds = createComicReq.Categories.ToArray();
                 Guid[] dataIds = await _categoryRepository.GetCateIdsAsync();
-                var isCateExisted = _util.CheckGuidArray(cateIds, dataIds);
+                var isCateExisted = Util.CheckGuidArray(cateIds, dataIds);
 
                 if (isCateExisted == false)
                     return new ObjectResponse<Comic>(
@@ -229,8 +226,8 @@ namespace OnComics.Application.Services.Implements
                         "Invalid Category!");
 
                 var newComic = _mapper.Map<Comic>(createComicReq);
-                newComic.Name = _util.FormatStringName(createComicReq.Name);
-                newComic.Author = _util.FormatStringName(createComicReq.Author);
+                newComic.Name = Util.FormatStringName(createComicReq.Name);
+                newComic.Author = Util.FormatStringName(createComicReq.Author);
 
                 var newCates = new List<Comiccategory>();
                 var cates = createComicReq.Categories;
@@ -288,7 +285,7 @@ namespace OnComics.Application.Services.Implements
 
                 Guid[] cateIds = updateComicReq.Categories.ToArray();
                 Guid[] dataIds = await _categoryRepository.GetCateIdsAsync();
-                var isCateExisted = _util.CheckGuidArray(cateIds, dataIds);
+                var isCateExisted = Util.CheckGuidArray(cateIds, dataIds);
 
                 if (isCateExisted == false)
                     return new VoidResponse(
@@ -296,8 +293,8 @@ namespace OnComics.Application.Services.Implements
                         "Invalid Category!");
 
                 var newComic = _mapper.Map(updateComicReq, oldComic);
-                newComic.Name = _util.FormatStringName(updateComicReq.Name);
-                newComic.Author = _util.FormatStringName(updateComicReq.Author);
+                newComic.Name = Util.FormatStringName(updateComicReq.Name);
+                newComic.Author = Util.FormatStringName(updateComicReq.Author);
 
                 var cates = updateComicReq.Categories;
                 var newCates = new List<Comiccategory>();
