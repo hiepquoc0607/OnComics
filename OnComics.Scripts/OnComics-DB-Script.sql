@@ -27,8 +27,8 @@ CREATE TABLE Account (
     ImgUrl TEXT NULL,
     IsGoogle BOOL CHECK(IsGoogle IN (0,1)) NOT NULL,
     IsVerified BOOL CHECK(IsVerified IN (0,1)) NOT NULL,
-    RefreshToken TEXT NULL,
-    RefreshExpireTime DATETIME NULL,
+    RefreshToken NVARCHAR(86) UNIQUE NULL,
+    RefreshExpireTime DATETIME UNIQUE NULL,
     FCMToken TEXT NULL,
     Role VARCHAR(10) NOT NULL,
     Status VARCHAR(10) NOT NULL
