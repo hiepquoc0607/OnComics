@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Comment;
 using OnComics.Application.Models.Request.Comment;
@@ -47,7 +48,7 @@ namespace OnComics.API.Controller
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] GetCommentReq getCommentReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             bool isAuthen = CheckAuthentication(
@@ -80,7 +81,7 @@ namespace OnComics.API.Controller
             [FromForm] CreateCommentReq createCommentReq,
             [FromForm] List<IFormFile>? files)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim)) return Forbid();
 
@@ -99,7 +100,7 @@ namespace OnComics.API.Controller
             [FromForm] CreateCommentReq createCommentReq,
             [FromForm] List<IFormFile>? files)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim)) return Forbid();
 

@@ -72,6 +72,10 @@ public partial class OnComicsDatabaseContext : DbContext
 
             entity.HasIndex(e => e.Email, "Email").IsUnique();
 
+            entity.HasIndex(e => e.RefreshExpireTime, "RefreshExpireTime").IsUnique();
+
+            entity.HasIndex(e => e.RefreshToken, "RefreshToken").IsUnique();
+
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnType("binary(16)");
@@ -87,7 +91,10 @@ public partial class OnComicsDatabaseContext : DbContext
             entity.Property(e => e.ImgUrl).HasColumnType("text");
             entity.Property(e => e.PasswordHash).HasColumnType("text");
             entity.Property(e => e.RefreshExpireTime).HasColumnType("datetime");
-            entity.Property(e => e.RefreshToken).HasColumnType("text");
+            entity.Property(e => e.RefreshToken)
+                .HasMaxLength(86)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Role).HasMaxLength(10);
             entity.Property(e => e.Status).HasMaxLength(10);
         });

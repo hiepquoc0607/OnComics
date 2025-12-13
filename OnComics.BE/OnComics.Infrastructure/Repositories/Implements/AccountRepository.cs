@@ -28,6 +28,16 @@ namespace OnComics.Infrastructure.Repositories.Implements
             }
         }
 
+        //Get Accocunt By Refresh Token
+        public async Task<Account?> GetAccountByTokenAsync(string token)
+        {
+            return await _context.Accounts
+                        .Where(a =>
+                            !string.IsNullOrEmpty(a.RefreshToken) &&
+                            a.RefreshToken.Equals(token))
+                        .FirstOrDefaultAsync();
+        }
+
         //Check If Account Is Existed By Idd
         public async Task<bool> CheckAccIdExistedAsync(Guid id)
         {

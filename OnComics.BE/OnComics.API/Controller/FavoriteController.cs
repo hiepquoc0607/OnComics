@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Models.Request.Favorite;
 using OnComics.Application.Services.Interfaces;
-using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
@@ -32,7 +32,7 @@ namespace OnComics.API.Controller
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateFavoriteReq createFavoriteReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             Guid accId = Guid.Parse(userIdClaim!);
 

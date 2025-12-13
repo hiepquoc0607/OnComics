@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Services.Interfaces;
 using System.Security.Claims;
@@ -69,6 +70,24 @@ namespace OnComics.API.Controller
             return StatusCode(result.StatusCode, result);
         }
 
+        //Logout
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> LogoutAsync([FromBody] RegisterReq registerReq)
+        {
+            string? userIdClaim = HttpContext.User
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Forbid();
+
+            Guid id = Guid.Parse(userIdClaim);
+
+            var result = await _authService.LogoutAsync(id);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
         //Refresh Token
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenReq refreshTokenReq)
@@ -88,7 +107,7 @@ namespace OnComics.API.Controller
         }
 
         //Reset Password
-        [HttpPost("reset-password")]
+        [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync(
             [FromQuery] InfoQuery infoQuery,
             [FromQuery] ResetPassReq resetPassReq)
@@ -114,7 +133,7 @@ namespace OnComics.API.Controller
         }
 
         //Confirm Email
-        [HttpPost("confirm-email")]
+        [HttpPut("confirm-email")]
         public async Task<IActionResult> ConfirmEmailAsync([FromBody] InfoQuery infoQuery)
         {
             var result = await _authService.ConfirmEmailAsync(infoQuery);

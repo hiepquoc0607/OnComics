@@ -1,6 +1,5 @@
 ﻿using MapsterMapper;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using OnComics.Application.Enums.Account;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Models.Response.Auth;
@@ -9,11 +8,7 @@ using OnComics.Application.Services.Interfaces;
 using OnComics.Application.Utils;
 using OnComics.Infrastructure.Entities;
 using OnComics.Infrastructure.Repositories.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace OnComics.Application.Services.Implements
 {
@@ -27,7 +22,6 @@ namespace OnComics.Application.Services.Implements
         private readonly IMapper _mapper;
         private readonly Util _util;
 
-        private static readonly DateTime _time = DateTime.UtcNow.AddHours(12);
         private static string cacheKey = "accounts:{id}";
 
         public AuthService(
@@ -45,52 +39,6 @@ namespace OnComics.Application.Services.Implements
             _configuration = configuration;
             _mapper = mapper;
             _util = util;
-        }
-
-        //Generate JWT Token
-        private string GenerateToken(Account account)
-        {
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, account.Email),
-                new Claim(ClaimTypes.Role, account.Role),
-            };
-
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration.GetSection("Authentication:Jwt:Key").Value!));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken
-            (
-                issuer: _configuration["Authentication:Jwt:Issuer"],
-                audience: _configuration["Authentication:Jwt:Audience"],
-                claims: claims,
-                expires: _time,
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        //Generate Refresh Token
-        private string GenerateRefreshToken()
-        {
-            var randomBytes = new byte[64]; // 512 bits of entropy
-
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomBytes);
-
-            return Convert.ToBase64String(randomBytes)
-                .Replace('+', '-')
-                .Replace('/', '_')
-                .TrimEnd('=');
-        }
-
-        //Caculate Token Expired Time In Seccond
-        private int CaculateExpiredSeccond()
-        {
-            return (int)(_time - DateTime.Now).TotalSeconds;
         }
 
         //Login
@@ -117,14 +65,12 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.Unauthorized,
                         "Incorrect Password!");
 
-                var expiredSeccond = CaculateExpiredSeccond();
-
-                account.RefreshToken = GenerateRefreshToken();
+                account.RefreshToken = TokenGenerator.GenerateRefreshToken();
                 account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
 
                 var data = _mapper.Map<AuthRes>(account);
-                data.Token = GenerateToken(account);
-                data.TokenExpiredIn = expiredSeccond;
+                data.AccessToken = TokenGenerator.GenerateAccessToken(account, _configuration);
+                data.AccessExpiresInMinutes = _configuration.GetValue<int>("Authentication:Jwt:ExpiresinMinutes");
 
                 await _accountRepository.UpdateAsync(account);
 
@@ -168,16 +114,14 @@ namespace OnComics.Application.Services.Implements
                 {
                     var newAccount = _mapper.Map<Account>(googleProfile);
                     newAccount.Dob = null;
-                    newAccount.RefreshToken = GenerateRefreshToken();
+                    newAccount.RefreshToken = TokenGenerator.GenerateRefreshToken();
                     newAccount.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
 
                     await _accountRepository.InsertAsync(newAccount);
 
-                    var expiredSeccond = CaculateExpiredSeccond();
-
                     var data = _mapper.Map<AuthRes>(newAccount);
-                    data.Token = GenerateToken(newAccount);
-                    data.TokenExpiredIn = expiredSeccond;
+                    data.AccessToken = TokenGenerator.GenerateAccessToken(newAccount, _configuration);
+                    data.AccessExpiresInMinutes = _configuration.GetValue<int>("Authentication:Jwt:ExpiredInMinute");
 
                     return new ObjectResponse<AuthRes?>(
                         (int)HttpStatusCode.OK,
@@ -186,15 +130,13 @@ namespace OnComics.Application.Services.Implements
                 }
                 else
                 {
-                    var expiredSeccond = CaculateExpiredSeccond();
-
                     account.IsVerified = true;
-                    account.RefreshToken = GenerateRefreshToken();
+                    account.RefreshToken = TokenGenerator.GenerateRefreshToken();
                     account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
 
                     var data = _mapper.Map<AuthRes>(account);
-                    data.Token = GenerateToken(account);
-                    data.TokenExpiredIn = expiredSeccond;
+                    data.AccessToken = TokenGenerator.GenerateAccessToken(account, _configuration);
+                    data.AccessExpiresInMinutes = _configuration.GetValue<int>("Authentication:Jwt:ExpiredInMinute");
 
                     await _accountRepository.UpdateAsync(account);
 
@@ -271,35 +213,28 @@ namespace OnComics.Application.Services.Implements
         }
 
         //Refresh Login Token
-        public async Task<ObjectResponse<AuthRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq)
+        public async Task<ObjectResponse<TokenRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq)
         {
             try
             {
                 var account = await _accountRepository
-                    .GetByIdAsync(refreshTokenReq.AccountId, true);
+                    .GetAccountByTokenAsync(refreshTokenReq.RefreshToken);
 
                 if (account == null)
-                    return new ObjectResponse<AuthRes>(
+                    return new ObjectResponse<TokenRes>(
                         (int)HttpStatusCode.NotFound,
                         "Account Not Found!");
 
-                if (account.RefreshToken == null ||
-                    !account.RefreshToken.Equals(refreshTokenReq.RefreshToken) ||
-                    account.RefreshExpireTime <= DateTime.UtcNow)
-                    return new ObjectResponse<AuthRes>(
+                if (account.RefreshExpireTime <= DateTime.UtcNow)
+                    return new ObjectResponse<TokenRes>(
                         (int)HttpStatusCode.Unauthorized,
                         "Invalid Refresh RefreshToken!");
 
-                var token = GenerateToken(account);
-                var newRefreshToken = GenerateRefreshToken();
-                var expiredSeccond = CaculateExpiredSeccond();
+                var token = TokenGenerator.GenerateAccessToken(account, _configuration);
+                var newRefreshToken = TokenGenerator.GenerateRefreshToken();
 
                 account.RefreshToken = newRefreshToken;
                 account.RefreshExpireTime = DateTime.UtcNow.AddDays(7);
-
-                var data = _mapper.Map<AuthRes>(account);
-                data.Token = token;
-                data.TokenExpiredIn = expiredSeccond;
 
                 await _accountRepository.UpdateAsync(account);
 
@@ -307,14 +242,52 @@ namespace OnComics.Application.Services.Implements
 
                 await _redisService.RemoveAsync(key);
 
-                return new ObjectResponse<AuthRes>(
+                var tokenRes = new TokenRes()
+                {
+                    AccessToken = token,
+                    AccessExpiresInMinutes = _configuration.GetValue<int>("Authentication:Jwt:ExpiredInMinute"),
+                    RefreshToken = newRefreshToken,
+                    RefreshExpiresInUtc = (DateTime)account.RefreshExpireTime,
+                };
+
+                return new ObjectResponse<TokenRes>(
                     (int)HttpStatusCode.OK,
-                    "Refresh RefreshToken Succesfully!",
-                    data);
+                    "Refresh Token Succesfully!",
+                    tokenRes);
             }
             catch (Exception ex)
             {
-                return new ObjectResponse<AuthRes>(
+                return new ObjectResponse<TokenRes>(
+                    (int)HttpStatusCode.InternalServerError,
+                    ex.GetType().FullName!,
+                    ex.Message);
+            }
+        }
+
+        //Logout
+        public async Task<VoidResponse> LogoutAsync(Guid id)
+        {
+            try
+            {
+                var account = await _accountRepository.GetByIdAsync(id, true);
+
+                if (account == null)
+                    return new VoidResponse(
+                        (int)HttpStatusCode.NotFound,
+                        "Account Not Found!");
+
+                account.RefreshToken = null;
+                account.RefreshExpireTime = null;
+
+                await _accountRepository.UpdateAsync(account);
+
+                return new VoidResponse(
+                    (int)HttpStatusCode.OK,
+                    "Logout Successfully!");
+            }
+            catch (Exception ex)
+            {
+                return new VoidResponse(
                     (int)HttpStatusCode.InternalServerError,
                     ex.GetType().FullName!,
                     ex.Message);
@@ -333,11 +306,11 @@ namespace OnComics.Application.Services.Implements
                         (int)HttpStatusCode.NotFound,
                         "Email Not Found!");
 
-                account.RefreshToken = GenerateRefreshToken();
+                account.RefreshToken = TokenGenerator.GenerateRefreshToken();
                 account.RefreshExpireTime = DateTime.UtcNow.AddSeconds(180);
 
                 //Reset Password API URL
-                string url = _configuration["AppReturnUrl:ResetPassword"]! +
+                string url = _configuration["AppDefaultUrl:ResetPassword"]! +
                     $"Id={account.Id}&RefreshToken={account.RefreshToken}";
 
                 await _accountRepository.UpdateAsync(account);
@@ -435,7 +408,7 @@ namespace OnComics.Application.Services.Implements
                         "Email Not Found!");
 
                 //Confirm Email API URL
-                string url = _configuration["AppReturnUrl:ComfirmEmail"]! +
+                string url = _configuration["AppDefaultUrl:ComfirmEmail"]! +
                     $"Id={account.Id}&RefreshToken={account.RefreshToken}";
 
                 await _mailService.SendEmailAsync(

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Account;
 using OnComics.Application.Models.Request.Account;
@@ -37,7 +38,7 @@ namespace OnComics.API.Controller
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             string? userIdClaim = HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             string? userRoleClaim = HttpContext.User
                 .FindFirst(ClaimTypes.Role)?.Value;
 
@@ -59,7 +60,7 @@ namespace OnComics.API.Controller
             [FromBody] UpdateAccountReq updateAccReq)
         {
             string? userIdClaim = HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
                 return Forbid();
@@ -78,7 +79,7 @@ namespace OnComics.API.Controller
             IFormFile file)
         {
             string? userIdClaim = HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
                 return Forbid();
@@ -96,7 +97,7 @@ namespace OnComics.API.Controller
             [FromBody] UpdatePasswordReq updatePasswordReq)
         {
             string? userIdClaim = HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (userIdClaim == null || !userIdClaim.Equals(id.ToString()))
                 return Forbid();
@@ -125,7 +126,7 @@ namespace OnComics.API.Controller
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
         {
             string? userIdClaim = HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             string? userRoleClaim = HttpContext.User
                 .FindFirst(ClaimTypes.Role)?.Value;
 

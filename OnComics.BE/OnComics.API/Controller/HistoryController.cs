@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.History;
 using OnComics.Application.Models.Request.History;
@@ -51,7 +52,7 @@ namespace OnComics.API.Controller
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] GetHistoryReq getHistoryReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             bool isAuthen = CheckAuthentication(
@@ -82,7 +83,7 @@ namespace OnComics.API.Controller
         [HttpDelete("bulk")]
         public async Task<IActionResult> BulkDeleteAsync()
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim))
                 return Forbid();

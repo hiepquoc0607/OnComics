@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Enums.Chapter;
 using OnComics.Application.Models.Request.Chapter;
 using OnComics.Application.Models.Request.General;
 using OnComics.Application.Services.Interfaces;
-using System.Security.Claims;
 
 namespace OnComics.API.Controller
 {
@@ -38,7 +38,7 @@ namespace OnComics.API.Controller
         public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id)
         {
             string? userIdClaim = HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (userIdClaim == null)
                 return Forbid();

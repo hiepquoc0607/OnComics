@@ -24,12 +24,6 @@ namespace OnComics.Application.Models.Response.Account
         public ulong IsVerified { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? RefreshToken { get; set; } = string.Empty;
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public DateTime? TokenExpireTime { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Fcmtoken { get; set; } = string.Empty;
 
         public string Role { get; set; } = null!;

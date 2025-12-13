@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.Interaction;
 using OnComics.Application.Services.Interfaces;
@@ -23,7 +24,7 @@ namespace OnComics.API.Controller
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] GetInteractionReq getInteractionReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             string? userRoleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (!string.IsNullOrEmpty(userRoleClaim) &&
@@ -55,7 +56,7 @@ namespace OnComics.API.Controller
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateInteractionReq createInteractionReq)
         {
-            string? userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             Guid accId = Guid.Parse(userIdClaim!);
 

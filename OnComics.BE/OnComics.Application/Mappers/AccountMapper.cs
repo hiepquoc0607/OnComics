@@ -20,7 +20,7 @@ namespace OnComics.Application.Mappers
 
             IConfiguration configuration = builder.Build();
 
-            return configuration["AppReturnUrl:DefaultProfileUrl"] ?? string.Empty;
+            return configuration["AppDefaultUrl:DefaultProfileUrl"] ?? string.Empty;
         }
 
         public void Register(TypeAdapterConfig config)

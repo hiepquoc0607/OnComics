@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OnComics.API.Middleware;
@@ -19,6 +20,7 @@ using OnComics.Application.Utils;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Implements;
 using OnComics.Infrastructure.Repositories.Interfaces;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -104,10 +106,16 @@ builder.Services
             ValidateAudience = true,
             ValidateIssuer = true,
             ValidateLifetime = true,
+
             ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
             ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:Key"]!))
+                    Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:Key"]!)),
+
+            NameClaimType = JwtRegisteredClaimNames.Sub,
+            RoleClaimType = ClaimTypes.Role,
+
+            ClockSkew = TimeSpan.Zero
         };
     });
 #endregion

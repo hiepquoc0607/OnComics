@@ -20,6 +20,10 @@ namespace OnComics.Application.Models.Response.Auth
 
         public bool IsVerified { get; set; }
 
+        public string AccessToken { get; set; } = null!;
+
+        public int AccessExpiresInMinutes { get; set; }
+
         public string? RefreshToken { get; set; }
 
         public DateTime? RefeshExpireTime { get; set; }
@@ -28,9 +32,5 @@ namespace OnComics.Application.Models.Response.Auth
         public string? Fcmtoken { get; set; }
 
         public string Role { get; set; } = null!;
-
-        public string Token { get; set; } = null!;
-
-        public int TokenExpiredIn { get; set; }
     }
 }

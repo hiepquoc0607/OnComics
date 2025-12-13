@@ -13,7 +13,9 @@ namespace OnComics.Application.Services.Interfaces
 
         Task<ObjectResponse<Account>> RegisterAsync(RegisterReq registerReq);
 
-        Task<ObjectResponse<AuthRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq);
+        Task<ObjectResponse<TokenRes>> RefreshTokenAsync(RefreshTokenReq refreshTokenReq);
+
+        Task<VoidResponse> LogoutAsync(Guid id);
 
         Task<VoidResponse> RequestResetPasswordAsync(string email);
 

@@ -17,7 +17,7 @@ namespace OnComics.Application.Mappers
 
             IConfiguration configuration = builder.Build();
 
-            return configuration["AppReturnUrl:DefaultThumbnailUrl"] ?? string.Empty;
+            return configuration["AppDefaultUrl:DefaultThumbnailUrl"] ?? string.Empty;
         }
 
         public void Register(TypeAdapterConfig config)

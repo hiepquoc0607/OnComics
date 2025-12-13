@@ -226,7 +226,7 @@ namespace OnComics.Application.Services.Implements
                 var fileRes = new FileRes();
 
                 if (string.IsNullOrEmpty(imgUrl) ||
-                    imgUrl.Equals(_configuration["AppReturnUrl:DefaultProfileUrl"]))
+                    imgUrl.Equals(_configuration["AppDefaultUrl:DefaultProfileUrl"]))
                 {
                     fileRes = await _appwriteService
                         .CreateProfileFileAsync(file, fileName);
