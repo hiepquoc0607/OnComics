@@ -65,42 +65,42 @@ In the `OnComics.BE`, open the `OnComcics.BE.sln` file with Visual Studio, the p
 
 Open `appsettings.json` and set the external integrations and environment-specific values.
 
-***2.5.1 Configure the JWT setting***
-
-Find the Authentication section then Jwt section and fill required elements bellow.
-<!--
-![Jwt Section](https://github.com/user-attachments/assets/202b6b27-c6f5-4f4c-8c73-916c541df4ba)
--->
-***2.5.2 Configure the Database Connection String setting***
+***2.5.1 Configure the Database Connection String setting***
 
 Find the DefaultConnection in the Database ConnectionStrings section and fill required elements bellow.
-<!--
-![Database Section](https://github.com/user-attachments/assets/00845524-0df5-4016-9463-973ef5212ff4)
--->
-***2.5.3 Configure the Email SMTP Server setting***
+
+![Database Section](https://github.com/user-attachments/assets/4aa5db0d-f2a2-4725-b4f5-bbb0608739d2)
+
+***2.5.2 Configure the Email SMTP Server setting***
 
 Find the EmailSettings section and fill required elements bellow.
-<!--
-![Email Section](https://github.com/user-attachments/assets/b13befaf-6095-4a70-b53c-171f2538ebab)
--->
+
+![Email Section](https://github.com/user-attachments/assets/bfec655f-1962-4216-b7f9-958b45639b60)
+
+***2.5.3 Configure the JWT setting***
+
+Find the Authentication section then Jwt section and fill required elements bellow.
+
+![Jwt Section](https://github.com/user-attachments/assets/9b82d123-3d7a-4f37-9f48-a4d845538ea0)
+
 ***2.5.4 Configure the Google Oauth Authentication setting***
 
 Find the Authentication section the Google section and fill required elements bellow.
-<!--
-![Google Auth Section](https://github.com/user-attachments/assets/f3060f28-3220-4efc-82c6-7febe186f2ec)
--->
+
+![Google OAuth Section](https://github.com/user-attachments/assets/8e9818e9-70f6-4c23-b977-cfd6a65a398b)
+
 ***2.5.5 Configure the Redis Cloud setting***
 
 Find the Redis section and fill required elements bellow.
-<!--
-![Redis Section](https://github.com/user-attachments/assets/45bcae0a-61b8-4598-872f-b845e447cb0a)
--->
+
+![Redis Section](https://github.com/user-attachments/assets/308d75a0-5495-4b07-966a-de931d446d59)
+
 ***2.5.6 Configure the Appwrite API Key setting***
 
 Find the Appwrite section and fill required elements bellow.
-<!--
-![Appwrite Section](https://github.com/user-attachments/assets/e7df77ea-5d81-49a9-b7aa-5911dcb8cb3e)
--->
+
+![Appwrite Section](https://github.com/user-attachments/assets/ddadc30e-58b2-432e-b9a7-4d6bcffa7ed9)
+
 **2.6 Build and run the project**
 
 Build the solution (Build → Build Solution).
