@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Models.Request.Auth;
 using OnComics.Application.Services.Interfaces;
@@ -9,6 +10,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/auth")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;

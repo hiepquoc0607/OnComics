@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Models.Request.Interaction;
@@ -10,6 +11,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/interactions")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class InteractionController : ControllerBase
     {
         private readonly IInteractionService _interactionService;

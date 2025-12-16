@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OnComics.Application.Models.Request.InteractionType;
 using OnComics.Application.Services.Interfaces;
 
@@ -7,6 +8,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/interaction-types")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class InteractionTypeController : ControllerBase
     {
         private readonly IInteractionTypeService _interactionService;

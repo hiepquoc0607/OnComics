@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Models.Request.Favorite;
 using OnComics.Application.Services.Interfaces;
@@ -8,6 +9,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/favorite")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class FavoriteController : ControllerBase
     {
         private readonly IFavoriteService _favoriteService;

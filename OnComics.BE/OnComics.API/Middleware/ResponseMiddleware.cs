@@ -40,6 +40,19 @@ namespace OnComics.API.Middleware
                     message = "Access Denied!"
                 }));
             }
+
+            // Check If The Response Status Is 429
+            if (context.Response.StatusCode == StatusCodes.Status429TooManyRequests)
+            {
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                {
+                    status = "Error",
+                    statusCode = 429,
+                    message = "Too Many Requests!"
+                }));
+            }
         }
     }
 }

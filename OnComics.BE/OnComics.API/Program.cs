@@ -16,7 +16,6 @@ using OnComics.Application.Hubs;
 using OnComics.Application.Scheduler;
 using OnComics.Application.Services.Implements;
 using OnComics.Application.Services.Interfaces;
-using OnComics.Application.Utils;
 using OnComics.Infrastructure.Persistence;
 using OnComics.Infrastructure.Repositories.Implements;
 using OnComics.Infrastructure.Repositories.Interfaces;
@@ -265,13 +264,28 @@ builder.Services.AddControllers()
 #endregion
 
 #region Rate Limiting
-builder.Services.AddRateLimiter(options => options.AddFixedWindowLimiter(policyName: "BasePolicy", options =>
+builder.Services.AddRateLimiter(options =>
+    options.AddFixedWindowLimiter(policyName: "BasePolicy", options =>
+    {
+        options.PermitLimit = 10;
+        options.Window = TimeSpan.FromMinutes(1);
+        options.QueueLimit = 5;
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    }).RejectionStatusCode = 429);
+#endregion
+
+#region CORS
+builder.Services.AddCors(options =>
 {
-    options.PermitLimit = 10;
-    options.Window = TimeSpan.FromSeconds(30);
-    options.QueueLimit = 5;
-    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-}));
+    options.AddPolicy(name: "BasePolicy", policy =>
+    {
+        policy.AllowAnyOrigin();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+        policy.AllowCredentials();
+        policy.AllowCredentials();
+    });
+});
 #endregion
 
 #region HttpClientFactory
@@ -300,6 +314,8 @@ app.UseMiddleware<ResponseMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseCors("BasePolicy");
 
 app.UseRateLimiter();
 

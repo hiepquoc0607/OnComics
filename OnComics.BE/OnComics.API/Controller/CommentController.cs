@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Comment;
@@ -11,6 +12,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/comments")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;

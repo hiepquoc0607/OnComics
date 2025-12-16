@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Enums.Chapter;
 using OnComics.Application.Models.Request.Chapter;
@@ -10,6 +11,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/chapters")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class ChapterController : ControllerBase
     {
         private readonly IChapterService _chapterService;

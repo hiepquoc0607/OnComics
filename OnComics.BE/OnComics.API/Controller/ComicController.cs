@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OnComics.Application.Enums.Comic;
 using OnComics.Application.Models.Request.Comic;
 using OnComics.Application.Models.Request.General;
@@ -9,6 +10,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/comics")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class ComicController : ControllerBase
     {
         private readonly IComicService _comicService;

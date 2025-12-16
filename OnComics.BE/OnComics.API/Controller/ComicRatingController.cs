@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.ComicRating;
@@ -12,6 +13,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/comic-ratings")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class ComicRatingController : ControllerBase
     {
         private readonly IComicRatingService _comicRatingService;

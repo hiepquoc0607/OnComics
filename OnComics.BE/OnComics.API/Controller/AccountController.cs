@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OnComics.Application.Constants;
 using OnComics.Application.Enums.Account;
@@ -12,6 +13,7 @@ namespace OnComics.API.Controller
 {
     [Route("api/accounts")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;

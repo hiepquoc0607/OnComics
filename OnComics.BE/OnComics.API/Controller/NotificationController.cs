@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OnComics.Application.Models.Request.Notification;
 using OnComics.Application.Services.Interfaces;
 
@@ -8,6 +9,7 @@ namespace OnComics.API.Controller
     [Route("api/notifications")]
     [Authorize(Policy = "Admin")]
     [ApiController]
+    [EnableRateLimiting("BasePolicy")]
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
