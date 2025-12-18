@@ -28,7 +28,7 @@ namespace OnComics.Infrastructure.Repositories.Implements
                 if (filter != null)
                     query = query.Where(filter);
 
-                if (query.ToListAsync() == null)
+                if (await query.ToListAsync() == null)
                     return new InteractionsInfo(null, null, null, null);
 
                 if (orderBy != null)
